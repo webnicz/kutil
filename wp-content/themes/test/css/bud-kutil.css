@@ -1,0 +1,451 @@
+#activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+	clear: both;
+	content: "";
+	display: block;
+	overflow: hidden;
+	height: 0;
+	line-height: 0;	
+}
+
+.clear {
+	clear: both;
+}
+
+body {
+	background: red;
+	font-family: Helvetica, Arial;
+	font-weight: normal;
+	font-size: 12px;
+	color: #999;
+}
+
+#page {
+	width: 1200px;
+	margin: 0px auto;
+}
+
+#masthead {
+	background: #33363C;
+	border-radius: 0 0 12px 12px;
+	height: 50px;
+}
+
+#masthead h1 {
+	font-size: 160%;
+	margin: 0;
+	padding: 5px 15px;
+}
+#masthead hgroup {
+	float: left;
+}
+#masthead a {
+	color: #fff;
+}
+#masthead h1 a:hover {
+	text-decoration: none;
+}
+#masthead h1 i {
+	color: #299CBE;
+	display: inline-block;
+	padding: 2px 5px 0 0;
+}
+#masthead:hover h1 i {
+	color: #34B1D3;
+}
+
+#masthead nav {
+	float: left;
+}
+#masthead nav li, #masthead nav a {
+	float: left;
+	list-style: none;
+}
+#masthead nav a {
+	padding: 6px 10px;
+	margin-right: 5px;
+}
+#masthead nav a:hover {
+	background: #26282D;	
+	text-decoration: none;
+	border-radius: 8px;
+}
+#masthead ul, #masthead ol {
+	margin: 9px;
+}
+#masthead .userAcc {
+	float: right;
+	padding-right: 2px;
+}
+#masthead .userAcc .signIn {
+	padding: 10px;
+}
+#masthead .btn-link {
+	color: #fff;
+	text-shadow: none;
+	text-decoration: underline;
+}
+#masthead .btn-link:hover {
+	text-decoration: none;
+}
+
+#masthead .login {
+	position: relative;
+}
+#masthead .login .loginForm {
+	display: none;
+}
+#masthead .login:hover .loginForm, #masthead .userAcc .user ul{
+	position: absolute;
+	right: 0px;
+	top: 100%;
+	display: block;
+	text-align: left;
+	background: #33363C;
+	border-radius: 0 0 12px 12px;
+	padding: 15px;
+	z-index: 99;
+}
+#masthead .login .loginForm form, #masthead .login .loginForm p {
+	margin: 0px;
+}
+#masthead .login .loginForm p.login-submit {
+	margin-top: 15px;
+}
+#masthead input[type="radio"], #masthead input[type="checkbox"] {
+	margin: 0;
+}
+#masthead input {
+	border: 0;
+}
+
+#masthead .userAcc .user {
+	position: relative;
+}
+#masthead .userAcc .user ul {
+	display: none;
+}
+#masthead .userAcc .user:hover ul{
+	display: block;
+	position: absolute;
+	top: 100%;
+	margin-top: 0;
+}
+#masthead .userAcc .user ul li {
+	padding: 2px;
+}
+#masthead .userAcc .user ul li i {
+	color: #fff;
+	float: none;
+	margin: 0 2px 0 0;
+	display: inline-block;
+}
+#masthead .userAcc .user ul li, #masthead .userAcc .user ul li a {
+	white-space: nowrap;
+	display: inline-block;
+	float: none;
+}
+#masthead .userAcc .user ul li {
+	float: none;
+	display: block;
+}
+#masthead .userAcc .user ul li a {
+	margin-right: 5px;
+}
+#masthead .userAcc .user img {
+	height: 32px;
+	width: 32px;
+	border-radius: 8px;
+	margin: 9px;
+}
+
+#masthead .userAcc .user strong {
+	display: inline-block;
+	padding-right: 15px;
+}
+
+.activityCount {
+	background: none repeat scroll 0 0 #34B1D3;
+	border-radius: 20px 20px 20px 20px;
+	color: #FFFFFF;
+	display: block;
+	font-size: 80%;
+	height: 16px;
+	line-height: 16px;
+	overflow: hidden;
+	padding: 0;
+	text-align: center;
+	width: 16px;
+}
+#masthead .userAcc .user > .userAcclink > .activityCount{
+	position: absolute;
+	left: 33px;
+	top: 2px;
+}
+#masthead .userAcc .user ul li .activityCount {
+	float: none;
+	position: static;
+	display: inline-block;
+	top: auto;
+	left: auto;
+	right: auto;
+}
+#masthead .userAcc .userAcclink {
+	 position: relative;
+	 display: block;
+}
+
+.wp-breadcrumbs {
+	margin: 20px 15px;
+}
+.wp-breadcrumbs li {
+	float: left;
+	padding-right: 5px;
+}
+.wp-breadcrumbs li a {
+	color: #999;
+}
+.wp-breadcrumbs li.last {
+	font-weight: bold;
+}
+
+#secondary aside, #primary.site-content, #content {
+	background: #fff;
+	border-radius: 12px;
+	margin: 0px 0px 20px;
+}
+#secondary aside {
+	margin: 0px 20px 20px 0;
+}
+#primary {
+	float: right;
+	width: 80%;
+}
+.full-width #primary {
+	float: none;
+	width: auto;
+}
+#secondary {
+	float: left;
+	width: 20%;
+}
+#secondary aside {
+	padding-bottom: 20px;
+}
+#secondary aside h3 {
+	margin: 0px;
+	font-size: 100%;
+	line-height: 100%;
+	padding: 20px;
+	border-bottom: 1px solid #F0F0ED;
+	color: #33363C;
+	margin-bottom: 20px;
+}
+#primary.site-content {
+	position: relative;
+}
+.entry-content {
+	padding: 20px;
+	position: relative;
+}
+#main.wrapper .entry-title {
+	margin: 0px;
+	padding: 25px 20px 20px;
+	background: #FEFEFB;
+	border-radius: 12px 12px 0 0;
+	border-bottom: 1px dashed #ddd;
+	color: #33363C;
+}
+.register-section {
+	float: left;
+	width: 50%;
+}
+.register-section textarea, .register-section input[type="password"], .register-section input[type="text"] {
+	width: 80%;
+}
+#register-page .submit{
+	text-align: center;
+	padding: 40px 0 0;
+	clear: both;
+}
+h4 {
+	color: #666;
+}
+.entry-content label, #content label {
+	color: #777;
+}
+.register-section .error {
+	color: #BF2020;
+	font-weight: bold;
+}
+#message p {
+	margin: 0;
+}
+aside #item-header-avatar {
+	padding: 20px;
+}
+aside #item-header-avatar a {
+	display: block;
+	border-radius: 6px;
+	overflow: hidden;
+}
+aside #item-header-content {
+	padding: 0px 20px;
+}
+aside #item-header-content h2 {
+	font-size: 180%;
+	color: #33363C;
+	margin-bottom: 0;
+	line-height: 120%;
+}
+aside #item-header-content h4 {
+	margin: 0;
+	font-weight: normal;
+	font-size: 120%;
+}
+aside #latest-update {
+	font-weight: bold;
+	color: #33363C;
+	font-size: 140%;
+	margin-top: 20px;
+}
+aside #latest-update a {
+	display: none;
+}
+aside #latest-update:before {
+	content: "“";
+	font-size: 140%;
+	opacity: .2;
+}
+aside #latest-update:after {
+	content: '„';
+	font-size: 140%;
+	opacity: .2;
+}
+
+#item-nav {
+	margin: 20px 20px 0;
+}
+#item-nav ul {
+	margin: 0px;
+}
+#item-body #subnav {
+	clear: both;
+	margin: 20px 20px 0;
+}
+#item-body #subnav ul {
+	margin-bottom: 0;
+}
+#item-body #subnav li a {
+	font-size: 120%;
+}
+
+groups-order-select
+
+#item-body #subnav #groups-order-select select, #item-body #subnav #groups-order-select label,
+#item-body #subnav #members-order-select select, #item-body #subnav #members-order-select label, 
+#item-body #subnav #activity-filter-select select, #item-body #subnav #activity-filter-select label {
+	float: left;
+}
+#item-body #subnav #groups-order-select label,
+#item-body #subnav #activity-filter-select label,
+#item-body #subnav #members-order-select label {
+	padding: 5px;
+}
+#item-body #subnav #groups-order-select,
+#item-body #subnav #members-order-select,
+#item-body #subnav #activity-filter-select {
+	float: right;
+}
+
+.message-search {
+	position: absolute;
+	right: 20px;
+	top: 106px;
+}
+.message-search input[type="text"], .message-search label {
+	float: left;
+	width: 160px;
+	border-radius: 4px 0 0 4px;
+}
+.message-search input[type="submit"] {
+	float: left;
+	border-radius: 0 4px 4px 0;
+	border: 1px solid #CCCCCC;
+	padding: 6px 12px 5px !important;
+}
+
+#whats-new-form {
+	padding: 20px 40px 20px 43px;
+	border-bottom: 1px solid #eee;
+	border-top: 1px solid #eee;
+}
+#whats-new-form textarea {
+	background: #F7F7F7;
+	border-radius: 6px;
+	width: 98%;
+	height: 30px;
+}
+.ac-textarea, .ac-textarea textarea {
+	width: 99%;
+	border-radius: 6px;
+}
+#whats-new-form textarea:focus {
+	background: #fff;
+}
+#whats-new-avatar {
+	float: left;
+}
+#activity-stream li .ac-reply-avatar img, #activity-stream .acomment-avatar a, #activity-stream .activity-avatar a, #whats-new-avatar a {
+	display: block;
+	overflow: hidden;
+	border-radius: 6px;
+}
+#whats-new-content {
+	margin-left: 60px;
+}
+#whats-new-options {
+	height: auto !important;
+}
+
+#activity-stream {
+	margin: 0;
+}
+#activity-stream li {
+	margin: 0 0 20px;
+}
+#activity-stream li li {
+	margin: 20px 0 0;
+}
+#activity-stream li .ac-reply-avatar, #activity-stream li .activity-avatar, #activity-stream li .acomment-avatar {
+	float: left;
+}
+.ac-reply-content, #activity-stream li li .acomment-options, #activity-stream li .acomment-meta, #activity-stream li .activity-content, #activity-stream li .acomment-content {
+	margin-left: 60px;
+}
+#activity-stream li .activity-content p, #activity-stream li .acomment-content p {
+	margin-bottom: 6px;
+}
+#activity-stream li .activity-content p a img, #activity-stream li .acomment-content p a img {
+	border-radius: 3px;
+	margin: -2px 3px 0 0;
+}
+#activity-stream li .activity-meta, #activity-stream li li .acomment-options {
+	opacity: .1;
+}
+#activity-stream li:hover .activity-meta, #activity-stream li li:hover .acomment-options {
+	opacity: 1;
+}
+.activity-comments form{
+	background: #F7F7F7;
+	margin: 20px;
+	border-radius: 12px;
+	padding: 20px;
+}
+
+.label-small {
+	font-size: 80%;
+}
+
+.profile-fields td.data {
+	padding-left: 50px;
+}
