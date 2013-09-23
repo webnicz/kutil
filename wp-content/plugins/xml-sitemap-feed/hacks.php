@@ -194,11 +194,22 @@ if( !function_exists('get_firstmodified') ) {
  * @uses apply_filters() Calls 'get_lastdate' filter
  *
  * @param string $timezone The location to get the time. Can be 'gmt', 'blog', or 'server'.
+ * @param $post_types The post type(s). Can be string or array.
  * @return string The date of the last post.
  */
 if( !function_exists('get_lastdate') ) {
- function get_lastdate($timezone = 'server', $post_type = 'any', $m = false) {
-	return apply_filters( 'get_lastdate', _get_time( $timezone, 'date', $post_type, 'last', $m ), $timezone );
+ function get_lastdate($timezone = 'server', $post_types = 'any', $m = false) {
+
+ 	if (!is_array($post_types))
+ 		$post_types = array($post_types);
+ 	
+ 	$lastmodified = array();
+	foreach ($post_types as $post_type)
+		$lastmodified[] = _get_time( $timezone, 'date', $post_type, 'last', $m );
+
+	sort($lastmodified);
+	
+	return apply_filters( 'get_lastdate', array_shift(array_filter($lastmodified)), $timezone );
  }
 }
 

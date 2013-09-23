@@ -22,9 +22,19 @@ class XMLSitemapFeed {
 	private $yes_mother = false;
 
 	private $defaults = array();
-	private $disabled_post_types = array('attachment');
+	private $disabled_post_types = array('attachment'); /* attachment post type is disabled... images are included via tags in the post and page sitemaps */
+	private $disabled_taxonomies = array('post_format'); /* post format taxonomy is brute force disabled for now; might come back... */
+	private $gn_genres = array( 
+				'gn-pressrelease' => 'PressRelease', 
+				'gn-satire' => 'Satire', 
+				'gn-blog' => 'Blog', 
+				'gn-oped' => 'OpEd', 
+				'gn-opinion' => 'Opinion', 
+				'gn-usergenerated' => 'UserGenerated' 
+				);
 	
 	// Global values used for priority and changefreq calculation
+	private $domain;
 	private $firstdate;
 	private $lastmodified;
 	private $postmodified = array();
@@ -32,6 +42,30 @@ class XMLSitemapFeed {
 	private $blogpage;
 	private $images = array();
 						
+	// make some private parts public ;)
+	
+	public function prefix() 
+	{
+		return $this->prefix;
+	}
+
+	public function gn_genres() 
+	{
+		return $this->gn_genres;
+	}
+
+	public function domain() 
+	{
+		// allowed domain
+		if (empty($this->domain)) {
+			$url_parsed = parse_url(home_url()); // second parameter PHP_URL_HOST for only PHP5 + ... 
+			$this->domain = str_replace("www.","",$url_parsed['host']);
+		}
+		
+		return $this->domain;
+	}
+
+	// default options
 	private function build_defaults() 
 	{
 		// sitemaps
@@ -44,7 +78,7 @@ class XMLSitemapFeed {
 
 		// post_types
 		$this->defaults['post_types'] = array();
-		foreach ( get_post_types(array('public'=>true),'names') as $name ) {
+		foreach ( get_post_types(array('public'=>true),'names') as $name ) { // want 'publicly_queryable' but that excludes pages for some weird reason
 			// skip unallowed post types
 			if (in_array($name,$this->disabled_post_types))
 				continue;
@@ -55,7 +89,7 @@ class XMLSitemapFeed {
 								'archive' => '',
 								'priority' => '0.5',
 								'dynamic_priority' => '',
-								'tags' => array('news' => '','image' => 'no')
+								'tags' => array('image' => 'attached'/*,'video' => ''*/)
 								);
 		}		
 
@@ -71,57 +105,102 @@ class XMLSitemapFeed {
 		if ( isset($this->defaults['post_types']['post']) ) {
 			if (wp_count_posts('post')->publish > 500)
 				$this->defaults['post_types']['post']['archive'] = 'yearly';
-			$this->defaults['post_types']['post']['tags']['image'] = 'featured';
 			$this->defaults['post_types']['post']['priority'] = '0.7';
 			$this->defaults['post_types']['post']['dynamic_priority'] = '1';
 		}
 
 		if ( isset($this->defaults['post_types']['page']) ) {
 			unset($this->defaults['post_types']['page']['archive']);
-			$this->defaults['post_types']['page']['tags'] = array('image' => 'featured');
 			$this->defaults['post_types']['page']['priority'] = '0.3';
 		}
 
-/* attachment post type is disabled... images are included via tags in the post and page sitemaps
-		if ( isset($this->defaults['post_types']['attachment']) ) {
-			$this->defaults['post_types']['attachment']['tags']['image'] = 'attached';
-			$this->defaults['post_types']['attachment']['priority'] = '0.3';
-		}*/
-
 		// taxonomies
 		$this->defaults['taxonomies'] = array(); // by default do not include any taxonomies
+		
+		// news sitemap settings
+		$this->defaults['news_sitemap'] = array();
 
 		// ping search engines
 		$this->defaults['ping'] = array(
 					'google' => array (
 						'active' => '1',
 						'uri' => 'http://www.google.com/webmasters/tools/ping?sitemap=',
+						'type' => 'GET'
 						),
 					'bing' => array (
 						'active' => '1',
 						'uri' => 'http://www.bing.com/ping?sitemap=',
+						'type' => 'GET'
+						),
+					'yandex' => array (
+						'active' => '',
+						'uri' => 'http://ping.blogs.yandex.ru/RPC2',
+						'type' => 'RPC'
+						),
+					'baidu' => array (
+						'active' => '',
+						'uri' => 'http://ping.baidu.com/ping/RPC2',
+						'type' => 'RPC'
+						),
+					'others' => array (
+						'active' => '1',
+						'uri' => 'http://rpc.pingomatic.com/',
+						'type' => 'RPC'
 						),
 					);
 
-		$this->defaults['pings'] = array(); // for storing last ping timestamps and status
+		$this->defaults['pong'] = array(); // for storing last ping timestamps and status
 
 		// robots
-		$this->defaults['robots'] = "Disallow: /xmlrpc.php\nDisallow: /wp-\nDisallow: /trackback/\nDisallow: ?wptheme=\nDisallow: ?comments=\nDisallow: ?replytocom\nDisallow: /comment-page-\nDisallow: /?s=\nDisallow: /wp-content/\n";
-		global $blog_id;
-		if ( !is_multisite() || $blog_id == 1 )
-			$this->defaults['robots'] .= "Allow: /wp-content/uploads/\n";
+		$this->defaults['robots'] = "Disallow: */xmlrpc.php\nDisallow: */wp-*.php\nDisallow: */trackback/\nDisallow: *?wptheme=\nDisallow: *?comments=\nDisallow: *?replytocom\nDisallow: */comment-page-\nDisallow: *?s=\nDisallow: */wp-content/\nAllow: */wp-content/uploads/\n";
+		
+		// additional urls
+		$this->defaults['urls'] = array();
+
+		// additional allowed domains
+		$this->defaults['domains'] = array();
+		
+		// news sitemap tags settings
+		$this->defaults['news_tags'] = array( 
+						'name' => '', 
+						'image' => 'featured',
+						'access' => array( 
+							'default' => '', 
+							'private' => 'Registration', 
+							'password' => 'Subscription' 
+							), 
+						'genres' => array( 
+							'active' => '1', 
+							'default' => '' 
+							),
+						'keywords' => array( 
+							'from' => 'category', 
+							'default' => '' 
+							),
+						'locations' => array( 
+							'active' => '1', 
+							'default' => '' 
+							) 
+						);
+		
+		
 	}
 
+	/**
+	* QUERY FUNCTIONS
+	*/
+	
 	public function defaults($key = false) 
 	{
 		if (empty($this->defaults))
 			$this->build_defaults();
 
-		if (!$key) 
+		if ($key) {
+			$return = ( isset($this->defaults[$key]) ) ? $this->defaults[$key] : '';
+		} else {
 			$return = $this->defaults;
-		else
-			$return = $this->defaults[$key];
-			
+		}
+
 		return apply_filters( 'xmlsf_defaults', $return, $key );
 	}
 	
@@ -135,7 +214,7 @@ class XMLSitemapFeed {
 		$return = $this->get_option('sitemaps');
 		
 		// make sure it's an array we are returning
-		return (is_array($return)) ? (array)$return : array();
+		return (!empty($return)) ? (array)$return : array();
 	}
 	
 	public function get_ping() 
@@ -146,9 +225,9 @@ class XMLSitemapFeed {
 		return (!empty($return)) ? (array)$return : array();
 	}
 	
-	public function get_pings() 
+	public function get_pong() 
 	{		
-		$return = $this->get_option('pings');
+		$return = $this->get_option('pong');
 		
 		// make sure it's an array we are returning
 		return (!empty($return)) ? (array)$return : array();
@@ -157,6 +236,12 @@ class XMLSitemapFeed {
 	public function disabled_post_types() 
 	{		
 		return $this->disabled_post_types;
+
+	}
+	
+	public function disabled_taxonomies() 
+	{		
+		return $this->disabled_taxonomies;
 
 	}
 	
@@ -172,7 +257,6 @@ class XMLSitemapFeed {
 	{		
 		$post_types = $this->get_option('post_types');
 		$return = array();
-		
 
 		foreach ( $post_types as $type => $values ) {
 			if(!empty($values['active'])) {
@@ -195,13 +279,36 @@ class XMLSitemapFeed {
 		// make sure it's an array we are returning
 		return (!empty($return)) ? (array)$return : array();
 	}
+		
+	public function get_urls() 
+	{
+		$return = $this->get_option('urls');
+
+		// make sure it's an array we are returning
+		if(!empty($return)) {
+			if(is_array($return))
+				return $return;
+			else
+				return explode("\n",$return);
+		} else {
+			return array();
+		}	
+	}
+
+	public function get_domains() 
+	{
+		$return = array_merge( array( $this->domain() ), (array)$this->get_option('domains') );
+		
+		// make sure it's an array we are returning
+		return (!empty($return)) ? (array)$return : array();
+	}
 
 	public function get_archives($post_type = 'post', $type = '') 
 	{
 		global $wpdb;
 		$return = array();
 		if ( 'monthly' == $type ) {
-			$query = "SELECT YEAR(post_date) AS `year`, MONTH(post_date) AS `month`, count(ID) as posts FROM $wpdb->posts WHERE post_type = '$post_type' AND post_status = 'publish' GROUP BY YEAR(post_date), MONTH(post_date) ORDER BY post_date DESC";
+			$query = "SELECT YEAR(post_date) AS `year`, LPAD(MONTH(post_date),2,'0') AS `month`, count(ID) as posts FROM $wpdb->posts WHERE post_type = '$post_type' AND post_status = 'publish' GROUP BY YEAR(post_date), MONTH(post_date) ORDER BY post_date DESC";			
 			$key = md5($query);
 			$cache = wp_cache_get( 'xmlsf_get_archives' , 'general');
 			if ( !isset( $cache[ $key ] ) ) {
@@ -248,7 +355,7 @@ class XMLSitemapFeed {
 		$return = $this->get_option('post_types');
 
 		// make sure it's an array we are returning
-		return (!empty($return[$type]['tags'])) ? (array)$return[$type]['tags'] : array();
+		return ( isset($return[$type]) && !empty($return[$type]['tags']) ) ? (array)$return[$type]['tags'] : array();
 	}
 	
 	public function is_home($id) {
@@ -282,11 +389,8 @@ class XMLSitemapFeed {
 			global $post;
 
 			// if blog page look for last post date
-			if ( $post->post_type == 'page' && $this->is_home($post->ID) ) {
-				//if ( empty($this->lastmodified) )
-					//$this->lastmodified = mysql2date('U',get_lastmodified('GMT','post'));
-				return get_lastmodified('GMT','post'); //$this->lastmodified;
-			}
+			if ( $post->post_type == 'page' && $this->is_home($post->ID) )
+				return get_lastmodified('GMT','post');
 
 			if ( empty($this->postmodified[$post->ID]) ) {
 				$postmodified = get_post_modified_time( 'Y-m-d H:i:s', true, $post->ID );
@@ -310,10 +414,11 @@ class XMLSitemapFeed {
 
 		elseif ( !empty($term) ) :
 
-			if ( is_object($term) ) {
-				if ( empty($this->termmodified[$term->term_id]) ) {
+			if ( is_object($term) ) { 
+				if ( !isset($this->termmodified[$term->term_id]) ) {
 				// get the latest post in this taxonomy item, to use its post_date as lastmod
 					$posts = get_posts ( array(
+						'post_type' => 'any',
 					 	'numberposts' => 1, 
 						'no_found_rows' => true, 
 						'update_post_meta_cache' => false, 
@@ -328,18 +433,17 @@ class XMLSitemapFeed {
 							)
 						)
 					);
-					$this->termmodified[$term->term_id] = $posts[0]->post_date_gmt;
+					$this->termmodified[$term->term_id] = isset($posts[0]->post_date_gmt) ? $posts[0]->post_date_gmt : '';
 				}
 				return $this->termmodified[$term->term_id];
 			} else {
 				$obj = get_taxonomy($term);
-				return get_lastdate( 'gmt', $obj->object_type[0] );
+				return get_lastdate( 'gmt', $obj->object_type );
 				// uses get_lastdate() function defined in xml-sitemap/hacks.php !
 				// which is a shortcut: returns last post date, not last modified date... 
 				// TODO find the long way around (take tax type, get all terms, 
 				// do tax_query with all terms for one post and get its lastmod date)
 			}
-
 
 		else :
 
@@ -348,38 +452,59 @@ class XMLSitemapFeed {
 		endif;
 	}
 
-	public function get_images() 
+	public function get_images($sitemap = '') 
 	{
 		global $post;
 		if ( empty($this->images[$post->ID]) ) {
-			$options = $this->get_option('post_types');
-			if('attached' == $options[$post->post_type]['tags']['image']) {
+			if ('news' == $sitemap) {
+				$options = $this->get_option('news_tags');
+				$which = isset($options['image']) ? $options['image'] : '';
+			} else {
+				$options = $this->get_option('post_types');
+				$which = isset($options[$post->post_type]['tags']['image']) ? $options[$post->post_type]['tags']['image'] : '';
+			}
+			if('attached' == $which) {
 				$args = array( 'post_type' => 'attachment', 'post_mime_type' => 'image', 'numberposts' => -1, 'post_status' =>'inherit', 'post_parent' => $post->ID );
 				$attachments = get_posts($args);
 				if ($attachments) {
 					foreach ( $attachments as $attachment ) {
-						$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
-						$this->images[$post->ID][] = $image[0];
+						$url = wp_get_attachment_image_src( $attachment->ID, 'full' );
+						$this->images[$post->ID][] = array( 
+										'loc' => esc_url( $url[0] ),
+										'title' => apply_filters( 'the_title_xmlsitemap', $attachment->post_title ),
+										'caption' => apply_filters( 'the_title_xmlsitemap', $attachment->post_excerpt )
+										);
 					}
 				}
-			} elseif ('featured' == $options[$post->post_type]['tags']['image']) {
+			} elseif ('featured' == $which) {
 				if (has_post_thumbnail( $post->ID ) ) {
-					$image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
-					$this->images[$post->ID][] = $image[0];
+					$attachment = get_post(get_post_thumbnail_id( $post->ID ));
+					$url = wp_get_attachment_image_src( $attachment->ID, 'full' );
+					$this->images[$post->ID][] =  array( 
+										'loc' => esc_url( $url[0] ),
+										'title' => apply_filters( 'the_title_xmlsitemap', $attachment->post_title ),
+										'caption' => apply_filters( 'the_title_xmlsitemap', $attachment->post_excerpt )
+										);
 				}
 			}
 		}
-		return ( isset($this->images[$post->ID]) ) ? $this->images[$post->ID] : array();
+		return ( isset($this->images[$post->ID]) ) ? $this->images[$post->ID] : false;
 	}
 	
 	public function get_lastmod($sitemap = 'post_type', $term = '') 
 	{
-		return mysql2date('Y-m-d\TH:i:s+00:00', $this->modified($sitemap,$term), false);
+		$return = trim(mysql2date('Y-m-d\TH:i:s+00:00', $this->modified($sitemap,$term), false));
+		return !empty($return) ? '<lastmod>'.$return.'</lastmod>' : '';
 	}
 
 	public function get_changefreq($sitemap = 'post_type', $term = '') 
 	{
-		$lastactivityage = ( gmdate('U') - mysql2date( 'U', $this->modified($sitemap,$term) ) ); // post age
+		$modified = trim($this->modified($sitemap,$term));
+
+		if (empty($modified))
+			return 'weekly';
+		
+		$lastactivityage = ( gmdate('U') - mysql2date( 'U', $modified ) ); // post age
 	 	
 	 	if ( ($lastactivityage/86400) < 1 ) { // last activity less than 1 day old 
 	 		$changefreq = 'hourly';
@@ -404,7 +529,7 @@ class XMLSitemapFeed {
 			$defaults = $this->defaults('post_types');
 			$priority_meta = get_metadata('post', $post->ID, '_xmlsf_priority' , true);
 		
-			if ( !empty($priority_meta) ) {
+			if ( !empty($priority_meta) || $priority_meta == '0' ) {
 		
 				$priority = $priority_meta;
 			
@@ -500,6 +625,24 @@ class XMLSitemapFeed {
 		return $exclude;
 	}
 
+	public function is_allowed_domain($url) 
+	{
+		$domains = $this->get_domains();
+		$return = false;
+		$parsed_url = parse_url($url);
+
+		if (isset($parsed_url['host'])) { 
+			foreach( $domains as $domain ) {
+				if( $parsed_url['host'] == $domain || strpos($parsed_url['host'],".".$domain) !== false ) {
+					$return = true;
+					break;
+				}
+			}
+		}
+		
+		return apply_filters( 'xmlsf_allowed_domain', $return );
+	}
+
 	public function get_index_url( $sitemap = 'home', $type = false, $param = false ) 
 	{
 		$root =  esc_url( trailingslashit(home_url()) );		
@@ -585,13 +728,19 @@ class XMLSitemapFeed {
 			$xmlsf_rules[ $this->base_name . '-home\.' . $this->extension . '$' ] = $wp_rewrite->index . '?feed=sitemap-home';
 		
 			// add rules for post types (can be split by month or year)
-			foreach ( $this->get_post_types() as $post_type )
+			foreach ( $this->get_post_types() as $post_type ) {
 				if ( isset($post_type['active']) && '1' == $post_type['active'] )
 					$xmlsf_rules[ $this->base_name . '-posttype-' . $post_type['name'] . '\.([0-9]+)?\.?' . $this->extension . '$' ] = $wp_rewrite->index . '?feed=sitemap-posttype-' . $post_type['name'] . '&m=$matches[1]';
-		
+			}
+
 			// add rules for taxonomies
-			foreach ( $this->get_taxonomies() as $taxonomy )
-				$xmlsf_rules[ $this->base_name . '-taxonomy-' . $taxonomy . '\.' . $this->extension . '$' ] = $wp_rewrite->index . '?feed=sitemap-taxonomy-' . $taxonomy; //&taxonomy=
+			foreach ( $this->get_taxonomies() as $taxonomy ) {
+				$xmlsf_rules[ $this->base_name . '-taxonomy-' . $taxonomy . '\.' . $this->extension . '$' ] = $wp_rewrite->index . '?feed=sitemap-taxonomy-' . $taxonomy;
+			}
+
+			$urls = $this->get_urls();
+			if(!empty($urls))
+				$xmlsf_rules[ $this->base_name . '-custom\.' . $this->extension . '$' ] = $wp_rewrite->index . '?feed=sitemap-custom';
 
 		}
 		
@@ -601,12 +750,21 @@ class XMLSitemapFeed {
 	/**
 	* REQUEST FILTER
 	*/
+	public function template( $theme ) {
+
+		if ( isset($request['feed']) && strpos($request['feed'],'sitemap') == 0 )
+			// clear get_template response to prevent themes functions.php (another source of blank line problems) from loading
+			return '';
+		else
+			return $theme;
+	}
 
 	public function filter_request( $request ) 
 	{
 		if ( isset($request['feed']) && strpos($request['feed'],'sitemap') == 0 ) {
 
 			if ( $request['feed'] == 'sitemap' ) {
+				
 				// setup actions and filters
 				add_action('do_feed_sitemap', array($this, 'load_template_index'), 10, 1);
 
@@ -626,7 +784,12 @@ class XMLSitemapFeed {
 				// modify request parameters
 				$types_arr = explode(',',XMLSF_NEWS_POST_TYPE);
 				$request['post_type'] = (in_array('any',$types_arr)) ? 'any' : $types_arr;
-
+				
+				// include post status private at some point?
+				// $request['post_status'] = array( 'publish', 'private' );
+				// for now only publish:
+				$request['post_status'] = 'publish';
+				
 				$request['no_found_rows'] = true;
 				$request['update_post_meta_cache'] = false;
 				//$request['update_post_term_cache'] = false; // << TODO test: can we disable or do we need this for terms?
@@ -650,6 +813,7 @@ class XMLSitemapFeed {
 
 						// modify request parameters
 						$request['post_type'] = $post_type['name'];
+						$request['post_status'] = 'publish';
 						$request['orderby'] = 'modified';
 						$request['lang'] = '';
 						$request['no_found_rows'] = true;
@@ -683,6 +847,14 @@ class XMLSitemapFeed {
 					}
 				}
 			}
+
+			if ( strpos($request['feed'],'sitemap-custom') == 0 ) {
+				// setup actions and filters
+				add_action('do_feed_sitemap-custom', array($this, 'load_template_custom'), 10, 1);
+
+				return $request;
+			}
+
 		}
 
 		return $request;
@@ -720,6 +892,12 @@ class XMLSitemapFeed {
 	public function load_template_news() 
 	{
 		load_template( XMLSF_PLUGIN_DIR . '/includes/feed-sitemap-news.php' );
+	}
+
+	// set up the news sitemap template
+	public function load_template_custom() 
+	{
+		load_template( XMLSF_PLUGIN_DIR . '/includes/feed-sitemap-custom.php' );
 	}
 
 	/**
@@ -772,22 +950,36 @@ class XMLSitemapFeed {
 		return $succes;
 	}
 
-	public function do_pings($post_ID) 
-	{		
-		$sitemaps = $this->get_sitemaps();
-		foreach ($this->get_ping() as $se => $data) {
-			if(empty($data['active']) || '1' != $data['active']) continue;
-				
-			foreach ( $sitemaps as $pretty ) {
-				if ( $this->ping( $data['uri'].urlencode(trailingslashit(get_bloginfo('url')) . $pretty) ) ) {
-					$pings = $this->get_pings();
-					$pings[$se][$pretty] = mysql2date('Y-m-d H:i:s', 'now', false);
-					update_option($this->prefix.'pings',$pings);
-				}
+	public function do_pings($new_status, $old_status, $post) 
+	{
+		// first check if we've got a post type that is included in our sitemap
+		foreach($this->get_option('post_types') as $post_type)
+			if( $post->post_type == $post_type['name'] ) {
+				$active = true; // got a live one, green light is on.
+				break;
 			}
+		if ( !isset($active) )
+			return;
+		
+		if ( $old_status != 'publish' && $new_status == 'publish' ) {
+			// Post is published from any other status
+			$sitemaps = $this->get_sitemaps();
+			foreach ($this->get_ping() as $se => $data)
+				if( !empty($data['active']) && '1' == $data['active'])
+					foreach ( $sitemaps as $pretty )
+						if ( $this->ping( $data['uri'].urlencode(trailingslashit(get_bloginfo('url')) . $pretty) ) ) {
+							$pong = $this->get_pong();
+							$pong[$se][$pretty] = mysql2date('Y-m-d H:i:s', 'now', false);
+							update_option($this->prefix.'pong',$pong);
+						}
 		}
-
-		return $post_ID;
+		/*
+		if ( $old_status == 'publish' && $new_status == 'publish' ) {
+			// Post is updated
+			// TODO make pinging in this case optional ... later, maybe
+		}
+		*/	
+		// see more on http://codex.wordpress.org/Post_Status_Transitions
 	}
 
 	/**
@@ -797,8 +989,29 @@ class XMLSitemapFeed {
 	public function clear_settings() 
 	{
 		delete_option('xmlsf_version');
-		foreach ( $this->defaults() as $option => $settings )
+		foreach ( $this->defaults() as $option => $settings ) {
 			delete_option('xmlsf_'.$option);
+		}
+		
+		if(!term_exists('gn-genre') || !term_exists('gn-location-1') || !term_exists('gn-location-2') || !term_exists('gn-location-3'))
+			$this->register_gn_taxonomies();
+
+		$terms = get_terms('gn-genre',array('hide_empty' => false));
+		foreach ( $terms as $term ) {
+			wp_delete_term(	$term->term_id, 'gn-genre' );
+		}
+		$terms = get_terms('gn-location-1',array('hide_empty' => false));
+		foreach ( $terms as $term ) {
+			wp_delete_term(	$term->term_id, 'gn-genre' );
+		}
+		$terms = get_terms('gn-location-2',array('hide_empty' => false));
+		foreach ( $terms as $term ) {
+			wp_delete_term(	$term->term_id, 'gn-genre' );
+		}
+		$terms = get_terms('gn-location-3',array('hide_empty' => false));
+		foreach ( $terms as $term ) {
+			wp_delete_term(	$term->term_id, 'gn-genre' );
+		}
 
 		remove_action('generate_rewrite_rules', array($this, 'rewrite_rules') );
 		global $wp_rewrite;
@@ -812,17 +1025,22 @@ class XMLSitemapFeed {
 	public function plugins_loaded() 
 	{
 		// TEXT DOMAIN
-		
-		if ( is_admin() ) // text domain on plugins_loaded even if it is for admin only
+		if ( is_admin() ) // text domain needed on admin only
 			load_plugin_textdomain('xml-sitemap-feed', false, dirname(dirname(plugin_basename( __FILE__ ))) . '/languages' );
 
+		// UPGRADE
 		if (get_option('xmlsf_version') != XMLSF_VERSION) {
 			// rewrite rules not available on plugins_loaded 
 			// and don't flush rules from init as Polylang chokes on that
 			// just remove the rules and let WP renew them when ready...
 			delete_option('rewrite_rules');
 
-			$this->yes_mother = true;
+			// upgrade from ping to pong
+			$pings = get_option($this->prefix.'pings');
+			if (!empty($pings))
+				update_option($this->prefix.'pong',$pings);
+
+			$this->yes_mother = true; // did you flush and wash your hands?		
 
 			update_option('xmlsf_version', XMLSF_VERSION);
 		}
@@ -831,8 +1049,8 @@ class XMLSitemapFeed {
 
 	private function flush_rules($hard = false) 
 	{		
-		if ($this->yes_mother)
-			return;
+		if ($this->yes_mother) // did you flush?
+			return; // yes, mother!
 
 		global $wp_rewrite;
 		// don't need hard flush by default
@@ -841,14 +1059,108 @@ class XMLSitemapFeed {
 		$this->yes_mother = true;
 	}
 	
+	public function register_gn_taxonomies() 
+	{
+			register_taxonomy( 'gn-genre', 'post', array(
+				'hierarchical' => true,
+				'labels' => array(
+						'name' => __('Google News Genres','xml-sitemap-feed'),
+						'singular_name' => __('Google News Genre','xml-sitemap-feed'),
+						//'menu_name' => __('GN Genres','xml-sitemap-feed'),
+					),
+				'public' => false,
+				'show_ui' => true,
+				'show_tagcloud' => false,
+				'query_var' => false,
+				'capabilities' => array( // prevent creation / deletion
+						'manage_terms' => 'nobody',
+						'edit_terms' => 'nobody',
+						'delete_terms' => 'nobody',
+						'assign_terms' => 'edit_posts'
+					)
+			));
+
+			register_taxonomy( 'gn-location-3', 'post', array(
+				'hierarchical' => false,
+				'labels' => array(
+						'name' => __('Google News Country','xml-sitemap-feed'),
+						//'menu_name' => __('GN Genres','xml-sitemap-feed'),
+						'separate_items_with_commas' => __('Only one allowed. Must be consistent with other Google News location entities (if set).','xml-sitemap-feed'),
+					),
+				'public' => false,
+				'show_ui' => true,
+				'show_tagcloud' => false,
+				'query_var' => false,
+				'capabilities' => array( // prevent creation / deletion
+						'manage_terms' => 'nobody',
+						'edit_terms' => 'nobody',
+						'delete_terms' => 'nobody',
+						'assign_terms' => 'edit_posts'
+					)
+			));
+
+			register_taxonomy( 'gn-location-2', 'post', array(
+				'hierarchical' => false,
+				'labels' => array(
+						'name' => __('Google News State/Province','xml-sitemap-feed'),
+						//'menu_name' => __('GN Genres','xml-sitemap-feed'),
+						'separate_items_with_commas' => __('Only one allowed. Must be consistent with other Google News location entities (if set).','xml-sitemap-feed'),
+					),
+				'public' => false,
+				'show_ui' => true,
+				'show_tagcloud' => false,
+				'query_var' => false,
+				'capabilities' => array( // prevent creation / deletion
+						'manage_terms' => 'nobody',
+						'edit_terms' => 'nobody',
+						'delete_terms' => 'nobody',
+						'assign_terms' => 'edit_posts'
+					)
+			));
+
+			register_taxonomy( 'gn-location-1', 'post', array(
+				'hierarchical' => false,
+				'labels' => array(
+						'name' => __('Google News City','xml-sitemap-feed'),
+						//'menu_name' => __('GN Genres','xml-sitemap-feed'),
+						'separate_items_with_commas' => __('Only one allowed. Must be consistent with other Google News location entities (if set).','xml-sitemap-feed'),
+					),
+				'public' => false,
+				'show_ui' => true,
+				'show_tagcloud' => false,
+				'query_var' => false,
+				'capabilities' => array( // prevent creation / deletion
+						'manage_terms' => 'nobody',
+						'edit_terms' => 'nobody',
+						'delete_terms' => 'nobody',
+						'assign_terms' => 'edit_posts'
+					)
+			));
+
+	}
+	
+	public function register_news_taxonomy() 
+	{
+		$sitemaps = $this->get_sitemaps();
+		
+		if (isset($sitemaps['sitemap-news'])) {
+			
+			// register the taxonomies
+			$this->register_gn_taxonomies();
+
+			// create terms
+			if (delete_transient('xmlsf_create_genres')) {
+				foreach ($this->gn_genres as $slug => $name) {
+					wp_insert_term(	$name, 'gn-genre', array(
+						'slug' => $slug,
+					) );
+				}
+			}
+		}
+	}
+	
 	public function admin_init() 
 	{
-		// UPGRADE RULES after plugin upgrade (is this needed since we do this on plugins_loaded too?)
-		if (get_option('xmlsf_version') != XMLSF_VERSION) {
-			$this->flush_rules();
-			update_option('xmlsf_version', XMLSF_VERSION);
-		}
-
 		// CATCH TRANSIENT for reset
 		if (delete_transient('xmlsf_clear_settings'))
 			$this->clear_settings();
@@ -878,7 +1190,16 @@ class XMLSitemapFeed {
 	*/
 
 	function __construct() 
-	{	
+	{
+		// sitemap element filters
+		add_filter('the_title_xmlsitemap', 'strip_tags');
+		add_filter('the_title_xmlsitemap', 'ent2ncr', 8);
+		add_filter('the_title_xmlsitemap', 'esc_html');
+		add_filter('bloginfo_xmlsitemap', 'ent2ncr', 8);
+		
+		// TEMPLATE
+		add_filter('template', array($this, 'template'), 0); //create_function ( string $args , string $code )
+		
 		// REQUEST main filtering function
 		add_filter('request', array($this, 'filter_request'), 1 );
 		
@@ -889,6 +1210,9 @@ class XMLSitemapFeed {
 		add_action('generate_rewrite_rules', array($this, 'rewrite_rules') );
 		add_filter('user_trailingslashit', array($this, 'trailingslash') );
 		
+		// TAXONOMY
+		add_action('init', array($this,'register_news_taxonomy'), 0 );
+		
 		// REGISTER SETTINGS, SETTINGS FIELDS, UPGRADE checks...
 		add_action('admin_init', array($this,'admin_init'));
 		
@@ -897,7 +1221,7 @@ class XMLSitemapFeed {
 		add_filter('robots_txt', array($this, 'robots_txt'), 0 );
 		
 		// PINGING
-		add_action('publish_post', array($this, 'do_pings'));
+		add_action('transition_post_status', array($this, 'do_pings'), 10, 3); 
 
 		// DE-ACTIVATION
 		register_deactivation_hook( XMLSF_PLUGIN_DIR . '/xml-sitemap.php', array($this, 'clear_settings') );

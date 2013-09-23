@@ -27,7 +27,7 @@ global $xmlsf;
 	</sitemap>
 <?php
 // add rules for custom public post types
-foreach ( $xmlsf->have_post_types() as $post_type ) {
+foreach ( $xmlsf->have_post_types() as $post_type ) :
 
 	if (!empty($post_type['archive'])) 
 		$archive = $post_type['archive']; 
@@ -41,22 +41,29 @@ foreach ( $xmlsf->have_post_types() as $post_type ) {
 	</sitemap>
 <?php 
 	}
-}
-?>
-<?php
-	// add rules for custom public post taxonomies
-foreach ( $xmlsf->get_taxonomies() as $taxonomy ) {
+endforeach;
 
-	if ( wp_count_terms( $taxonomy ) > 0 ) {
+	// add rules for custom public post taxonomies
+foreach ( $xmlsf->get_taxonomies() as $taxonomy ) :
+
+	if ( wp_count_terms( $taxonomy, array('hide_empty'=>true) ) > 0 ) {
 ?>
 	<sitemap>
 		<loc><?php echo $xmlsf->get_index_url('taxonomy',$taxonomy); ?></loc>
-		<lastmod><?php echo $xmlsf->get_lastmod('taxonomy',$taxonomy); ?></lastmod>
+		<?php echo $xmlsf->get_lastmod('taxonomy',$taxonomy); ?>
 	</sitemap>
 <?php 
-// TODO add lastmod ?
 	}
-}
+endforeach;
 
+// custom URLs sitemap
+$urls = $xmlsf->get_urls();
+if ( !empty($urls) ) :
+?>
+	<sitemap>
+		<loc><?php echo $xmlsf->get_index_url('custom'); ?></loc>
+	</sitemap>
+<?php 
+endif;
 ?></sitemapindex>
 <?php $xmlsf->_e_usage(); ?>

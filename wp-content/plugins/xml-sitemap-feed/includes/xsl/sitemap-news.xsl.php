@@ -5,12 +5,12 @@
 
 header('Content-Type: text/xsl; charset=utf-8', true);
 
-echo '<?xml version="1.0" encoding="UTF-8"?>
-'; ?>
+echo '<?xml version="1.0" encoding="UTF-8"?>'; ?>
 <xsl:stylesheet version="2.0" 
 	xmlns:html="http://www.w3.org/TR/REC-html40" 
 	xmlns:sitemap="http://www.sitemaps.org/schemas/sitemap/0.9" 
-	sitemap:news="http://www.google.com/schemas/sitemap-news/0.9" 
+		xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" 
+		xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html" version="1.0" encoding="UTF-8" indent="yes"/>
 <xsl:template match="/">
@@ -29,7 +29,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 		<table cellpadding="5">
 			<tr class="high">
 				<th>#</th>
-				<th>URL</th>
+				<th>Title</th>
+				<th>Language</th>
+				<th>Genre(s)</th>
+				<th>Keyword(s)</th>
+				<th># Images</th>
+				<th>Location</th>
+				<th>Publication Date</th>
 			</tr>
 <xsl:variable name="lower" select="'abcdefghijklmnopqrstuvwxyz'"/>
 <xsl:variable name="upper" select="'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"/>
@@ -37,8 +43,14 @@ echo '<?xml version="1.0" encoding="UTF-8"?>
 			<tr><xsl:if test="position() mod 2 != 1"><xsl:attribute  name="class">high</xsl:attribute></xsl:if>
 				<td><xsl:value-of select="position()"/></td>
 				<td><xsl:variable name="itemURL"><xsl:value-of select="sitemap:loc"/></xsl:variable>
-					<a href="{$itemURL}"><xsl:value-of select="sitemap:loc"/></a>
+					<a href="{$itemURL}"><xsl:value-of select="news:news/news:title"/></a>
 				</td>
+				<td><xsl:value-of select="news:news/news:publication/news:language"/></td>
+				<td><xsl:value-of select="news:news/news:genres"/></td>
+				<td><xsl:value-of select="news:news/news:keywords"/></td>
+				<td><xsl:value-of select="count(image:image)"/></td>
+				<td><xsl:value-of select="news:news/news:geo_locations"/></td>
+				<td><xsl:value-of select="concat(substring(news:news/news:publication_date,0,11),concat(' ', substring(news:news/news:publication_date,12,5)))"/></td>
 			</tr>
 </xsl:for-each>
 		</table>

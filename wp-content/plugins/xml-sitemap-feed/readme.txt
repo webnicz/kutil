@@ -1,12 +1,12 @@
 === XML Sitemap & Google News Feeds ===
 Contributors: RavanH
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ravanhagen%40gmail%2ecom&item_name=XML%20Sitemap%20Feed&item_number=3%2e8&no_shipping=0&tax=0&bn=PP%2dDonationsBF&charset=UTF%2d8&lc=us
-Tags: sitemap, xml sitemap, news sitemap, sitemap.xml, robots.txt, Google, Google News, Yahoo, Bing, seo, feed, polylang, image sitemap
+Tags: sitemap, xml sitemap, news sitemap, sitemap.xml, robots.txt, Google, Google News, Yahoo, Bing, , Yandex, Baidu, seo, feed, polylang, image sitemap
 Requires at least: 3.2
 Tested up to: 3.6
-Stable tag: 4.2.3
+Stable tag: 4.3.2
 
-Feeds that comply with the XML Sitemap and Google News protocol for the hungry spiders. Multisite compatible.
+Feeds from the XML Sitemap and Google News menu for the hungry spiders. Multisite compatible.
 
 == Description ==
 
@@ -16,40 +16,43 @@ The main advantage of this plugin over other XML Sitemap plugins is **simplicity
 
 You, or site owners on your Multisite network, will not be bothered with complicated settings like most other XML Sitemap plugins. The default settings will suffice in most cases and XML sitemap values like ChangeFreq and URL Priority are auto-calculated based on post age and comment activity.
 
-The XML Sitemap Index becomes instantly available on yourblog.url/sitemap.xml (or yourblog.url/?feed=sitemap) containing references to posts and pages by default, ready for indexing by search engines like Google, Yahoo, MSN, Ask.com and others. When the Google News Sitemap is activated, it will become available on yourblog.url/sitemap-news.xml (or yourblog.url/?feed=sitemap-news), ready for indexing by Google News. Both are automatically referenced in the dynamically created **robots.txt** on yourblog.url/robots.txt to tell search engines where to find your XML Sitemaps. And both are sent by ping to Google and Bing on each new publication.
+The XML Sitemap Index becomes instantly available on yourblog.url/sitemap.xml (or yourblog.url/?feed=sitemap) containing references to posts and pages by default, ready for indexing by search engines like Google, Bing, Yahoo, AOL and Ask. When the Google News Sitemap is activated, it will become available on yourblog.url/sitemap-news.xml (or yourblog.url/?feed=sitemap-news), ready for indexing by Google News. Both are automatically referenced in the dynamically created **robots.txt** on yourblog.url/robots.txt to tell search engines where to find your XML Sitemaps. Google and Bing can be pinged on each new publication.
 
 Please read the FAQ's for info on how to get your articles listed on Google News.
 
-**Compatible with caching plugins** like WP Super Cache, W3 Total Cache and Quick Cache that cache feeds, allowing a faster serving to the impatient (aren't we all when hungry?) spider.
+**Compatible with caching plugins** like WP Super Cache, W3 Total Cache and Quick Cache that cache feeds, allowing a faster serving to the impatient (when hungry) spider.
 
 **NOTES:** 
 
 1. If you _do not use fancy URL's_ or you have WordPress installed in a _subdirectory_, a dynamic **robots.txt will NOT be generated**. You'll have to create your own and upload it to your site root! See FAQ's.
 
-2. On large sites, it is advised to use a good caching plugin like **Quick Cache**, **WP Super Cache** or **W3 Total Cache** to improve your site _and_ sitemap performance.
+2. On large sites, it is advised to use a good caching plugin like **WP Super Cache**, **Quick Cache** or **W3 Total Cache** to improve your site _and_ sitemap performance.
 
 = Features = 
 
+* Sitemap Index with optional inclusion of sitemaps for post types, categories and tags.
+* Optional Google News sitemap.
 * Completely **automatic** post URL _priority_ and _change frequency_ calculation based on post age and comment and trackback activity.
 * Works out-of-the-box, even on **multi-site / shared codebase / multi-blog setups** like WordPress MU, WP 3.0 in MultiSite mode and others. 
-* Supports Image tags and Google News tags which can be configured to include featured images (default) or all images.
-* Supports Google News tags (since version 4.2) in regular sitemaps.
-* Pings Google and Bing on new post publication.
+* Optionally include Image tags with caption and title for featured images or attached images in both regular and Google News sitemaps.
+* Pings Google, Bing & Yahoo and optionally Yandex and Baidu on new post publication.
 * Compatible with multi-lingual sites using **Polylang** to allow all languages to be indexed equally.
 * Options to define which post types and taxonomies get included in the sitemap and automatic priority calculation rules.
 * Set priority per post.
 * Exclude individual posts or pages.
 * Option to add new robots.txt rules. These can be used to further control (read: limit) the indexation of various parts of your site and subsequent spread of pagerank accross your sites pages.
+* Includes XLS stylesheets for human readable sitemaps.
 
 
 = Translations =
 
-- **Dutch** * Author: [R.A. van Hagen](http://status301.net) (version 4.2)
-- **French** * Author: [R.A. van Hagen](http://status301.net) (version 4.2) (improved translation or suggestions accepted)
-- **Serbian** * Author: [WPdiscounts](http://wpdiscounts.com) (version 4.1) 
-- **Ukrainian** * Author: [Cmd Software](http://www.cmd-soft.com/) (version 4.0) 
+- **Dutch** * R.A. van Hagen http://status301.net (version 4.3)
+- **French** * R.A. van Hagen http://status301.net (version 4.2) (improved translation or suggestions welcome)
+- **Indonesian** * Nasrulhaq Muiz http://al-badar.net/ (version 4.2)
+- **Serbian** * WPdiscounts http://wpdiscounts.com/ (version 4.1) 
+- **Ukrainian** * Cmd Software http://www.cmd-soft.com/ (version 4.0) 
 
-New transtations will be accepted and listed here. See translation instructions under [Other Notes](http://wordpress.org/extend/plugins/xml-sitemap-feed/other_notes).
+New transtations will be accepted and listed here. See translation instructions under [Other Notes](http://wordpress.org/plugins/xml-sitemap-feed/other_notes/).
 
 = Credits =
 
@@ -84,11 +87,7 @@ Done! Check your sparkling new XML Sitemap by visiting yourblogurl.tld/sitemap.x
 
 Same as above but do a **Network Activate** to make a XML sitemap available for each site on your network.
 
-= Wordpress MU =
-
-The plugin works best from the **/mu-plugins/** folder where it runs quietly in the background without bothering any blog owner with over-complicated options or the need for special knowledge of XML Sitemap submission. Just upload the complete package content to /mu-plugins/ and move the file xml-sitemap.php from the new /mu-plugins/xml-sitemap-feed/ to /mu-plugins/.
-
-Installed alongside [WordPress MU Sitewide Tags Pages](http://wordpress.org/extend/plugins/wordpress-mu-sitewide-tags/), XML Sitemap Feed will **not** create a sitemap.xml nor change robots.txt for any **tag blogs**. This is done deliberately because they would be full of links outside the tags blogs own domain and subsequently ignored (or worse: penalised) by Google.
+Installed alongside [WordPress MU Sitewide Tags Pages](http://wordpress.org/plugins/wordpress-mu-sitewide-tags/), XML Sitemap Feed will **not** create a sitemap.xml nor change robots.txt for any **tag blogs**. This is done deliberately because they would be full of links outside the tags blogs own domain and subsequently ignored (or worse: penalised) by Google.
 
 
 == Frequently Asked Questions ==
@@ -105,7 +104,7 @@ You will also want to add the sitemap to your [Google Webmasters Tools account](
 
 = My Google News Sitemap is empty! =
 
-The rules of the Google News Game are that you do not feed the monster any stale food. Older than 2 days is bad. You need to whip up some fresh chow ;)
+The rules of the Google News game are that you do not feed the monster any stale food. Older than 2 days is bad. You need to whip up some fresh chow ;)
 
 = Can I manipulate values for priority and changefreq? =
 
@@ -163,6 +162,8 @@ You may edit the XML output in `xml-sitemap-feed/feed-sitemap.php` but be carefu
 
 The stylesheet (to make the sitemap human readable) can be edited in `xml-sitemap-feed/sitemap.xsl.php`.
 
+Note: your modifications will be overwritten upon the next plugin upgrade!
+
 = I see no sitemap.xml file in my site root! =
 
 The sitemap is dynamically generated just like a feed. There is no actual file created.
@@ -217,9 +218,19 @@ and upload it to your web root...
 
 On some setups (usually using the WordPress MU Domain Mapping plugin) this error occurs. The problem is known, the cause is not... Until I find out why this is happening, please take comfort in knowing that this only affects reading the sitemap in normal browsers but will NOT affect any spidering/indexing on your site. The sitemap is still readable by all search engines! 
 
+**XML declaration allowed only at the start of the document**
+
+This error occurs when blank lines or other output is generated before the start of the actual sitemap content. This can be caused by blank lines at the beginning of wp-config.php or your themes functions.php or by another plugin that generates output where it shouldn't. You'll need to test by disabling all other plugins, switching to the default theme and manually inspecting your wp-config.php file.
+
 = I see only a BLANK (white) page when opening the sitemap =
 
-You might be experiencing an issue with your servers PHP memory limit. In those cases, you should see a messages like `PHP Fatal error: Allowed memory size of xxxxxx bytes exhausted.` in your server/account error log file.
+There are several cases where this might happen.
+
+Open your sitemap in a browser and look at the source code. This can usually be seen by hitting Ctrl+U or right-click then select 'View source...' Then scan the produced source (if any) for errors.
+
+A. If you see strange output in the first few lines (head tags) of the source, then there is a conflict or bug occuring on your installation. Please go to the [Support forum](http://wordpress.org/support/plugin/xml-sitemap-feed) for help.
+
+B. If the source is empty or incomplete then you're probably experiencing an issue with your servers PHP memory limit. In those cases, you should see a messages like `PHP Fatal error: Allowed memory size of xxxxxx bytes exhausted.` in your server/account error log file.
 
 This can happen on large sites. To avoid these issues, there is an option to split posts over different sitemaps on Settings > Reading. Try different settings, each time revisiting the main sitemap index file and open different sitemaps listed there to check. 
 
@@ -227,11 +238,7 @@ Read more on [Increasing memory allocated to PHP](http://codex.wordpress.org/Edi
 
 = Can I run this on a WPMU / WP3+ Multi-Site setup? =
 
-Yes. In fact, it has been designed for it. Tested on WPMU 2.9.2 and WPMS 3.0.1 both with normal activation and with Network Activate / Site Wide Activate.
-
-= Can I run this plugin from /mu-plugins/ on WP3.0 MS or WPMU? =
-
-Yes. Upload the complete /xml-sitemap-feed/ directory to /wp-content/mu-plugins/ and move the file xml-sitemap.php one dir up.
+Yes. In fact, it has been designed for it. Tested on WPMU 2.9.2 and WPMS 3+ both with normal activation and with Network Activate / Site Wide Activate.
 
 
 == Translation ==
@@ -259,11 +266,37 @@ Thanks for sharing your translation :)
 
 == Upgrade Notice ==
 
-= 4.2.3 =
-Bugfix release and split custom post types by year/month
+= 4.3.2 =
+Custom domains and URLs. Major Google News sitemap settings changes. Plus bugfixes.
 
 
 == Changelog ==
+
+= 4.3.2 =
+* BUGFIX: html esc / filter image title and caption tags
+* BUGFIX: empty terms counted causing empty taxonomy sitemap appearing in index
+* BUGFIX: custom taxonomies where lastmod cannot be determined show empty lastmod tag
+
+= 4.3 =
+* Google News sitemap settings section
+* Google News tags: access, genres, keywords, geo_locations
+* Improved Google News stylesheet
+* Custom Google News Publication Name
+* Image tags in Google News sitemap
+* Custom URLs
+* Allow additional domains
+* Image caption and title tags
+* Ping Yandex and Baidu optional
+* BUGFIX: Ineffective robots.txt rules
+* BUGFIX: Priority value 0 in post meta not saved
+* BUGFIX: Ping for all post types
+* BUGFIX: Custom taxonomy support
+* BUGFIX: Split by month shows year
+
+= 4.2.4 =
+* NEW: Image tags
+* Rearranged settings section
+* FIX: replace permalink, title and bloginfo rss filter hooks with own
 
 = 4.2.3 = 
 * BUGFIX: Empty ping options after disabling the main sitemap
@@ -391,5 +424,5 @@ Bugfix release and split custom post types by year/month
 * BUGFIX: `get_post_modified_time` instead of `get_post_time`
 
 = 0.1 =
-* rework from Patrick Chia's [Standard XML Sitemaps](http://wordpress.org/extend/plugins/standard-xml-sitemap/)
+* rework from Patrick Chia's [Standard XML Sitemaps](http://wordpress.org/plugins/standard-xml-sitemap/)
 * increased post urls limit from 100 to 1000 (of max. 50,000 allowed by the Sitemap protocol)

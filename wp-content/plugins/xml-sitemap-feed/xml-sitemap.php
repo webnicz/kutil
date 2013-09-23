@@ -4,7 +4,7 @@ Plugin Name: XML Sitemap & Google News Feeds
 Plugin URI: http://status301.net/wordpress-plugins/xml-sitemap-feed/
 Description: Feed the  hungry spiders in compliance with the XML Sitemap and Google News protocols. Happy with the results? Please leave me a <strong><a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=ravanhagen%40gmail%2ecom&item_name=XML%20Sitemap%20Feed&item_number=4%2e0&no_shipping=0&tax=0&bn=PP%2dDonationsBF&charset=UTF%2d8&lc=us">tip</a></strong> for continued development and support. Thanks :)
 Text Domain: xml-sitemap-feed
-Version: 4.2.3
+Version: 4.3.2
 Author: RavanH
 Author URI: http://status301.net/
 */
@@ -27,14 +27,18 @@ Author URI: http://status301.net/
  * --------------------
  *
  * FILTERS
- *	xml_sitemap_url	->	Filters the URL used in the sitemap reference in robots.txt
+ *	xml_sitemap_url		-> Filters the URL used in the sitemap reference in robots.txt
  *	(deprecated)			(receives an ARRAY and MUST return one; can be multiple urls) 
- *				and for the home URL in the sitemap (receives a STRING and MUST
- *				return one) itself. Useful for multi language plugins or other 
- *				plugins that affect the blogs main URL... See pre-defined filter
- *				XMLSitemapFeed::qtranslate() in XMLSitemapFeed.class.php as an
- *				example.
- *      xmlsf_defaults ->       Filters the default array values for different option groups.
+ *					and for the home URL in the sitemap (receives a STRING and MUST
+ *					return one) itself. Useful for multi language plugins or other 
+ *					plugins that affect the blogs main URL... See pre-defined filter
+ *					XMLSitemapFeed::qtranslate() in XMLSitemapFeed.class.php as an
+ *					example.
+ *      xmlsf_defaults		-> Filters the default array values for different option groups.
+ *      xmlsf_allowed_domain	-> Filters the response when checking the url against allowed domains. 
+ *					Can be true or false.
+ *	the_title_xmlsitemap	-> Filters the Google News publication name, title and keywords 
+ 					and Image title and caption tags
  
  * ACTIONS
  *	[ none at this point, but feel free to request, suggest or submit one :) ]
@@ -48,7 +52,7 @@ if(!empty($_SERVER['SCRIPT_FILENAME']) && 'xml-sitemap.php' == basename($_SERVER
  *      CONSTANTS
  * -------------------- */
 
-	define('XMLSF_VERSION', '4.2.3');
+	define('XMLSF_VERSION', '4.3.2');
 
 if ( file_exists ( dirname(__FILE__).'/xml-sitemap-feed' ) )
 	define('XMLSF_PLUGIN_DIR', dirname(__FILE__) . '/xml-sitemap-feed');
