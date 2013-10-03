@@ -1,0 +1,50 @@
+= v1.2.1 =
+* fixed several small bugs reported by users
+* fixed a bug with the en_US translation file
+* add a hook woocommerce_before_my_account to the history.
+
+= v1.2 =
+* fixed several bugs reported by users
+* fixed a problem with the us translation
+* Changed textdomain from woocommerce, buddypress to bpshop
+* Changed from "Network: true" to "Network: false" to avoid that the plugin is installed sitewide on a multi site
+
+= v1.1 =
+* Added: buddypress 1.7.x compatibility
+* Bugfix: reported by users see github thanks @Marco for the greate testing 
+
+= v1.0.8 =
+* Added: Only spit out Woocommerce errors on the main site, Thx Ole K Hornnes
+* Added: Making sure that the settings page only shows when needed, Thx Ole K Hornnes
+* Bugfix: Track your order page wouldn't let you track anything
+
+= v1.0.7 =
+* Changed: Bumped testet-up-to versions to latest stable versions
+* Bugfix: Fixed dumb redirect issue that the last round of refactoring for 1.0.6 introduced
+
+= v1.0.6 =
+* Bugfix: Checkout page for anonymous users
+
+= v1.0.5 =
+* NEW: Added shop settings link into wp admin bar settings menu
+* NEW: Added nav links to wp admin bar
+* Bugfix: Shipping and payment methods were not initially visible on the checkout page
+* Bugfix: Profile data did not get synchronized both ways
+* Changed: Bumped minimum versions on and upwards (WP => 3.4.1, BP => 1.6.1, WC => 1.6.3)
+* Changed: Replaced old WC class names with new ones
+* Removed: Minimum PHP version check, as WP now requires PHP 5.2 itself
+
+= v1.0.4 =
+* Unknown
+
+= v1.0.3 =
+* Rename all jigoshop woocommerce
+
+= v1.0.2 =
+* Bugfix: class woocommerce_orders is not used anymore
+
+= v1.0.1 =
+* Bugfix: woocommerce_countries::$countries is not a static property anymore
+
+= v1.0 =
+* initial release
