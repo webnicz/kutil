@@ -23,7 +23,7 @@ function pridat_pole_kategorie($taxonomy) {
   $pole = '
   	<div class="form-field">
 		<label for="tag-zobr_field">Zobrazovat:</label>
-		<input type="checkbox" id="zobr_field" name="zobr" value="true" checked="checked" />
+		<input type="checkbox" id="zobr_field" name="zobr" value="1" checked="checked" />
 		<p>Tato položka povoluje zobrazovat se kategorii ve front-endu</p>
 	</div>';
 
@@ -67,9 +67,9 @@ add_filter( 'manage_product_cat_custom_column', 'pridat_udaj_kategorie', 10, 3 )
 function ulozit_udaj_kategorie( $term_id, $tt_id, $taxonomy ) {
     global $wpdb;
 
-    if ( isset( $_POST['zobr'] ) ){
+    if ( strlen($_POST['zobr']) > 0 ){
     
-        $wpdb->query("UPDATE $wpdb->terms SET active='".(($_POST['zobr'] == 1) ? 0 : 1)."' WHERE term_id='$term_id'");
+        $wpdb->query("UPDATE $wpdb->terms SET active='".($_POST['zobr'])."' WHERE term_id='$term_id'");
     }
 }
 
@@ -77,7 +77,33 @@ add_action( 'created_term', 'ulozit_udaj_kategorie', 10,3 );
 add_action( 'edit_term', 'ulozit_udaj_kategorie', 10,3 );
 
 
+function editace_kategorie( $term, $taxonomy ) {
+    global $woocommerce;
+    global $wpdb;
 
+    if($wpdb->get_var("SELECT active FROM $wpdb->terms WHERE term_id='$term->term_id'") == 1)
+            $selected = "selected=\"selected\"";
+    ?>
+    <tr class="form-field">
+        <th scope="row" valign="top"><label>Zobrazovat:</label></th>
+        <td>
+            <select name="zobr" class="postform">
+                <option value="0">NE</option>
+                <option value="1" <? echo $selected;?>>ANO</option>
+            </select>
+        </td>
+    </tr>
+    <?php
+}
+
+add_action( 'product_cat_edit_form_fields', 'editace_kategorie', 10,2 );
+
+
+
+
+
+
+/* ROZHRANí */
 
 if (!class_exists("budkutil_admin_menu")) {
  
