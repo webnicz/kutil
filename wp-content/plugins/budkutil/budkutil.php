@@ -335,17 +335,13 @@ if (!class_exists("budkutil_admin_menu")) {
             echo '<div class="wrap">';
             echo '
             <h2>
-                Správa provizí 
-                <a class="add-new-h2" href="post-new.php">Nová individuální provize</a>
+                Plošná výše provize
             </h2>';
 
             $glob_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
             echo '
             <form method="post" class="postbox">
                 <div class="inside">
-                    <h3>
-                        Plošná výše provize:
-                    </h3>
                     <table>
                         <tr>
                             <td>
@@ -366,7 +362,12 @@ if (!class_exists("budkutil_admin_menu")) {
             </form>
             ';
 
-            echo '<br /><br /><h3>Individuálních výše provizí:</h3>';
+
+            echo '
+            <h2>
+                Individuálních výše provizí
+                <a class="add-new-h2" href="post-new.php">Nová individuální provize</a>
+            </h2>';
 
             $wp_list_table = new Provize_List_Table();
             $wp_list_table->prepare_items();
