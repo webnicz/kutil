@@ -14,28 +14,24 @@ Author URI: http://webartmedia.cz
 */
 
 
-function check_db($wpdb) {
+function check_db() {
     global $wpdb;
 
-    $exists = $wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE active!=''");
-
-    if(is_null($exists))
-    {
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE active!=''")))
         $wpdb->query("ALTER TABLE $wpdb->terms ADD active INT NOT NULL DEFAULT 1");
-    }
 
-    $exists = $wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='provize'");
+    if($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='provize'") == 0)
+        $wpdb->insert($wpdb->options, 
+            array( 
+                'option_name' => 'provize', 
+                'option_value' => 0 , 
+                'autoload' => 'no' 
+            )
+        );
 
-    if($exists == 0)
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_provize")))
     {
-        $wpdb->query("INSERT INTO $wpdb->options VALUES('','provize','0','no')");
-    }
-
-    $exists = $wpdb->get_var("SELECT COUNT(1) FROM bk_provize");
-
-    if(is_null($exists))
-    {
-        $sql =    "CREATE TABLE bk_provize (provize_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(provize_id),
+        $sql =   "CREATE TABLE bk_provize (provize_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(provize_id),
                   user_id INT NOT NULL,
                   provize_datum INT NOT NULL,
                   provize_vyse FLOAT,
