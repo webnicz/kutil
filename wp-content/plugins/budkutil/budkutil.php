@@ -12,30 +12,40 @@ Version: 0.1
 Author URI: http://webartmedia.cz
 
 */
-$exists = $wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE active!=''");
 
-if(is_null($exists))
-{
-    $wpdb->query("ALTER TABLE $wpdb->terms ADD active INT NOT NULL DEFAULT 1");
+
+function check_db($wpdb) {
+    global $wpdb;
+
+    $exists = $wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE active!=''");
+
+    if(is_null($exists))
+    {
+        $wpdb->query("ALTER TABLE $wpdb->terms ADD active INT NOT NULL DEFAULT 1");
+    }
+
+    $exists = $wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='provize'");
+
+    if($exists == 0)
+    {
+        $wpdb->query("INSERT INTO $wpdb->options VALUES('','provize','0','no')");
+    }
+
+    $exists = $wpdb->get_var("SELECT COUNT(1) FROM bk_provize");
+
+    if(is_null($exists))
+    {
+        $sql =    "CREATE TABLE bk_provize (provize_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(provize_id),
+                  user_id INT NOT NULL,
+                  provize_datum INT NOT NULL,
+                  provize_vyse FLOAT,
+                  provize_ip VARCHAR(20))";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta($sql);
+    }
 }
-
-$exists = $wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='provize'");
-
-if($exists == 0)
-{
-    $wpdb->query("INSERT INTO $wpdb->options VALUES('','provize','0','no')");
-}
-
-$exists = $wpdb->get_var("SELECT COUNT(1) FROM bk_provize");
-
-if(is_null($exists))
-{
-    $wpdb->query("CREATE TABLE bk_provize (provize_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(provize_id),
-                      user_id INT NOT NULL,
-                      provize_datum INT NOT NULL,
-                      provize_vyse FLOAT,
-                      provize_ip VARCHAR(20))");
-}
+check_db();
 
 if(!class_exists('WP_List_Table')){
     require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
