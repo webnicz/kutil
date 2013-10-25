@@ -155,12 +155,13 @@ class Provize_List_Table extends WP_List_Table {
 
     function get_columns() {
         return $columns= array(
-            'cb' => '<input type="checkbox" name="book[]" value="%s" />',
+            //'cb' => '<input type="checkbox" name="book[]" value="%s" />',
             'col_provize_id'=>'ID',
-            'col_provize_jmeno'=>'Uživatel',
+            'col_provize_jmeno'=>'Uživatel (upravit)',
             'col_provize_vyse'=>'Výše',
             'col_provize_poznamka'=>'Poznámka',
-            'col_provize_datum'=>'Datum'
+            'col_provize_datum'=>'Datum',
+            'col_provize_smazat'=>'Smazat'
         );
     }
 
@@ -273,12 +274,14 @@ class Provize_List_Table extends WP_List_Table {
                 $uziv = get_userdata($rec->user_id);
                 //Display the cell
                 switch ( $column_name ) {
-                    case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
+                    //case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
                     case "col_provize_id": echo '<td '.$attributes.'>'.stripslashes($rec->provize_id).'</td>';  break;
                     case "col_provize_jmeno": echo '<td '.$attributes.'><a href="?page=provize&action=edit_individualni&pid='.$rec->provize_id.'"><b>'.$uziv->display_name.'</b></a></td>'; break;
                     case "col_provize_vyse": echo '<td '.$attributes.'>'.stripslashes($rec->provize_vyse).' %</td>'; break;
                     case "col_provize_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->poznamka).'</i></td>'; break;
                     case "col_provize_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->provize_datum)).'</td>'; break;
+                    case "col_provize_smazat": echo '<td '.$attributes.'><a class="del" href="?page=provize&delete='.$rec->provize_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
+                    
                 }
             }
 
@@ -353,7 +356,17 @@ if (!class_exists("budkutil_admin_menu")) {
             global $wpdb;    
             $PAGE = "provize";
 
+            echo '<link href="/wp-content/plugins/budkutil/css/style.css" rel="stylesheet"/>';
             echo '<div class="wrap">';
+
+
+            if($_GET['delete'])
+            {
+                    if($wpdb->delete('bk_provize', array( 'provize_id' => $_GET['delete'])))
+                        echo '<div class="updated"><p><strong>Záznam byl smazán.</strong></p></div>';
+                    else
+                        echo '<div class="error"><p><strong>Záznam se nepodařilo smazat.</strong></p></div>';
+            }
 
             if($_POST['ulozit_glob_provize'])
             {
@@ -382,7 +395,7 @@ if (!class_exists("budkutil_admin_menu")) {
                       ++$error;
                 }
 
-                if($error > 0)
+                if($error == 0)
                     echo '<div class="updated"><p><strong>Výše individuální provize uložena.</strong></p></div>';
                 else
                     echo '<div class="error"><p><strong>Výši individuální provize se nepodařilo uložit.</strong></p></div>';
@@ -391,9 +404,7 @@ if (!class_exists("budkutil_admin_menu")) {
 
             if($_POST['upravit_indi_provize'])
             {
-                $error = 0;
-
-                    if(!$wpdb->update('bk_provize', 
+                    if($wpdb->update('bk_provize', 
                         array( 
                             'provize_datum' => time(), 
                             'provize_vyse' => $_POST['provize'], 
@@ -402,13 +413,9 @@ if (!class_exists("budkutil_admin_menu")) {
                         ),
                         array( 'provize_id' => $_GET['pid'])
                     ))
-                      ++$error;
-
-                if($error > 0)
-                    echo '<div class="updated"><p><strong>Úpravy byly úspěšně uloženy.</strong></p></div>';
-                else
-                    echo '<div class="error"><p><strong>Úpravy se nepodařilo uložit.</strong></p></div>';
-
+                        echo '<div class="updated"><p><strong>Úpravy byly úspěšně uloženy.</strong></p></div>';
+                    else
+                        echo '<div class="error"><p><strong>Úpravy se nepodařilo uložit.</strong></p></div>';
             }
 
             
@@ -580,6 +587,18 @@ if (!class_exists("budkutil_admin_menu")) {
                 //$wp_list_table->search_box('vyhledat podle ID', 'provize_id');
                 $wp_list_table->display();
             }
+
+            echo '<script>
+            jQuery(document).ready(function(){
+                jQuery(".del").click(function () {
+                    if (confirm("Smazat záznam o individuální provizi")) {
+                        return true;
+                    }
+                    return false;
+                });
+            });
+            </script>';
+            echo '</div>';
         }
  
         function uzivatele_page() {
