@@ -35,7 +35,8 @@ function check_db() {
                   user_id INT NOT NULL,
                   provize_datum INT NOT NULL,
                   provize_vyse FLOAT,
-                  provize_ip VARCHAR(20))";
+                  provize_ip VARCHAR(20),
+                  poznamka VARCHAR(250))";
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);
@@ -135,8 +136,8 @@ class Provize_List_Table extends WP_List_Table {
      */
      function __construct() {
          parent::__construct( array(
-        'singular'=> 'wp_provuze_text_link', //Singular label
-        'plural' => 'wp_provuze_test_links', //plural label, also this well be one of the table css class
+        'singular'=> 'wp_provize_text_link', //Singular label
+        'plural' => 'wp_provize_test_links', //plural label, also this well be one of the table css class
         'ajax'  => false //We won't support Ajax for this table
         ) );
      }
@@ -144,11 +145,11 @@ class Provize_List_Table extends WP_List_Table {
      function extra_tablenav( $which ) {
         if ( $which == "top" ){
             //The code that goes before the table is here
-            echo"Hello, I'm before the table";
+            echo"";//Hello, I'm before the table
         }
         if ( $which == "bottom" ){
             //The code that goes after the table is there
-            echo"Hi, I'm after the table";
+            echo"";//Hi, I'm after the table
         }
     }
 
@@ -165,9 +166,10 @@ class Provize_List_Table extends WP_List_Table {
 
     public function get_sortable_columns() {
         return $sortable = array(
-            'col_provize_id'=>'provize_id',
-            'col_provize_jmeno'=>'user_id',
-            'col_provize_datum'=>'provize_datum'
+            'col_provize_id'=>array('provize_id',true),
+            //'col_provize_jmeno'=>array('user_id',true),
+            'col_provize_datum'=>array('provize_datum',true),
+            'col_provize_vyse'=>array('provize_vyse',true)
         );
     }
 
@@ -204,12 +206,13 @@ class Provize_List_Table extends WP_List_Table {
             $orderby = !empty($_GET["orderby"]) ? mysql_real_escape_string($_GET["orderby"]) : 'ASC';
             $order = !empty($_GET["order"]) ? mysql_real_escape_string($_GET["order"]) : '';
             if(!empty($orderby) & !empty($order)){ $query.=' ORDER BY '.$orderby.' '.$order; }
+            else $query.=' ORDER BY provize_id DESC';
 
         /* -- Pagination parameters -- */
             //Number of elements in your table?
             $totalitems = $wpdb->query($query); //return the total number of affected rows
             //How many to display per page?
-            $perpage = 5;
+            $perpage = 20;
             //Which page is this?
             $paged = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
             //Page Number
@@ -248,7 +251,8 @@ class Provize_List_Table extends WP_List_Table {
         $columns = $this->get_columns();
 
         //Get the columns registered in the get_columns and get_sortable_columns methods
-        //list( $columns, $hidden ) = $this->get_column_info(); //get_sortable_columns
+        //list( $columns, $hidden ) =  //get_sortable_columns
+        $this->get_column_info();
 
         //Loop for each record
         if(!empty($records)){foreach($records as $rec){
@@ -266,14 +270,15 @@ class Provize_List_Table extends WP_List_Table {
                 //edit link
                 $editlink  = '/wp-admin/link.php?action=edit&link_id='.(int)$rec->provize_id;
 
+                $uziv = get_userdata($rec->user_id);
                 //Display the cell
                 switch ( $column_name ) {
                     case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
                     case "col_provize_id": echo '<td '.$attributes.'>'.stripslashes($rec->provize_id).'</td>';  break;
-                    case "col_provize_jmeno": echo '<td '.$attributes.'>'.stripslashes($rec->user_id).'</td>'; break;
-                    case "col_provize_vyse": echo '<td '.$attributes.'>'.stripslashes($rec->provize_datum).'</td>'; break;
-                    case "col_provize_poznamka": echo '<td '.$attributes.'>'.'</td>'; break;
-                    case "col_provize_datum": echo '<td '.$attributes.'>'.'</td>'; break;
+                    case "col_provize_jmeno": echo '<td '.$attributes.'><a href="?page=provize&action=edit_individualni&pid='.$rec->provize_id.'"><b>'.$uziv->display_name.'</b></a></td>'; break;
+                    case "col_provize_vyse": echo '<td '.$attributes.'>'.stripslashes($rec->provize_vyse).' %</td>'; break;
+                    case "col_provize_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->poznamka).'</i></td>'; break;
+                    case "col_provize_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->provize_datum)).'</td>'; break;
                 }
             }
 
@@ -322,13 +327,33 @@ if (!class_exists("budkutil_admin_menu")) {
 
             }
         }
+
+        function getRealIpAddr()
+        {
+            if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
+            {
+              $ip=$_SERVER['HTTP_CLIENT_IP'];
+            }
+            elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
+            {
+              $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+            }
+            else
+            {
+              $ip=$_SERVER['REMOTE_ADDR'];
+            }
+            return $ip;
+        }
  
         function menu_page() {    
             
         }
  
         function provize_page() {
-        global $wpdb;    
+            global $wpdb;    
+            $PAGE = "provize";
+
+            echo '<div class="wrap">';
 
             if($_POST['ulozit_glob_provize'])
             {
@@ -338,47 +363,223 @@ if (!class_exists("budkutil_admin_menu")) {
                     echo '<div class="error"><p><strong>Výši provize se nepodařilo uložit.</strong></p></div>';
             }
 
-            echo '<div class="wrap">';
-            echo '
-            <h2>
-                Plošná výše provize
-            </h2>';
+            if($_POST['ulozit_indi_provize'])
+            {
+                $error = 0;
+                $uzivatele = explode(',', $_POST['uzivatel']);
 
-            $glob_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
-            echo '
-            <form method="post" class="postbox">
-                <div class="inside">
-                    <table>
-                        <tr>
-                            <td>
-                                Výše provize:
-                            </td>
-                            <td>
-                                <input type="text" size="5" name="vyse_glob_provize" value="'.$glob_provize.'" /> %
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>
-                                <input type="submit" class="button button-primary" name="ulozit_glob_provize" value="Uložit" />
-                            </td>
-                        </tr>
+                foreach ($uzivatele as $key => $value) {
+
+                    if(!$wpdb->insert('bk_provize', 
+                        array( 
+                            'user_id' => $value,
+                            'provize_datum' => time(), 
+                            'provize_vyse' => $_POST['provize'], 
+                            'provize_ip' => $this->getRealIpAddr(),
+                            'poznamka' => $_POST['poznamka']
+                        )
+                    ))
+                      ++$error;
+                }
+
+                if($error > 0)
+                    echo '<div class="updated"><p><strong>Výše individuální provize uložena.</strong></p></div>';
+                else
+                    echo '<div class="error"><p><strong>Výši individuální provize se nepodařilo uložit.</strong></p></div>';
+
+            }
+
+            if($_POST['upravit_indi_provize'])
+            {
+                $error = 0;
+
+                    if(!$wpdb->update('bk_provize', 
+                        array( 
+                            'provize_datum' => time(), 
+                            'provize_vyse' => $_POST['provize'], 
+                            'provize_ip' => $this->getRealIpAddr(),
+                            'poznamka' => $_POST['poznamka']
+                        ),
+                        array( 'provize_id' => $_GET['pid'])
+                    ))
+                      ++$error;
+
+                if($error > 0)
+                    echo '<div class="updated"><p><strong>Úpravy byly úspěšně uloženy.</strong></p></div>';
+                else
+                    echo '<div class="error"><p><strong>Úpravy se nepodařilo uložit.</strong></p></div>';
+
+            }
+
+            
+
+            if($_GET['action'] == "add_individualni")
+            {
+                //plugin_dir_path( __FILE__ )
+                echo '
+                <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
+    <script src="/wp-content/plugins/budkutil/js/select/select2.js"></script>
+                <h2>Nová individuální provize</h2>
+                <form method="post">
+                    <table class="form-table">
+                        <tbody>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Uživatelé:</th>
+                                <td>
+                                    <input id="vyber" type="text" name="uzivatel" style="width: 300px !important" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row">Provize:</th>
+                                <td>
+                                    <input type="text" name="provize" size="3" /> %
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Poznámka:</th>
+                                <td>
+                                    <textarea name="poznamka" cols="20" rows="5"></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row"></th>
+                                <td>
+                                    <input type="submit" class="button button-primary" name="ulozit_indi_provize" value="Uložit" />
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
-                </div>
-            </form>
-            ';
+                </form>';
+
+                echo '<script>
+                jQuery("#vyber").select2({
+                    placeholder: "Pište uživatelovo jméno, ID nebo e-mail",
+                    minimumInputLength: 1,
+                     multiple: true,
+                    ajax: { 
+                        url: "/wp-content/plugins/budkutil/js/uzivatele.php",
+                         dataType: "json",
+                         width: "element",
+                        data: function (term, page) {
+                            return {
+                                q: term
+                            };
+                        },
+                        results: function (data, page) {
+                            return { results: data };
+                        }
+                    }
+                });
+                </script>
+                ';
+            }
+            elseif($_GET['action'] == "edit_individualni")
+            {
+                //plugin_dir_path( __FILE__ )
+                $provize = $wpdb->get_row("SELECT * FROM bk_provize WHERE provize_id='".$_GET['pid']."'");
+                $uziv = get_userdata($provize->user_id);
+
+                echo '
+                <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
+    <script src="/wp-content/plugins/budkutil/js/select/select2.js"></script>
+                <h2>Upravení individuální provize</h2>
+                <form method="post">
+                    <table class="form-table">
+                        <tbody>
+                            <tr>
+                                <th valign="top" scope="row">Uživatel:</th>
+                                <td>
+                                    <b>'.$uziv->display_name.'</b>
+                                    <input type="hidden" name="uzivatel_id" value="'.$provize->user_id.'" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row">Provize:</th>
+                                <td>
+                                    <input type="text" name="provize" size="3" value="'.$provize->provize_vyse.'" /> %
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Poznámka:</th>
+                                <td>
+                                    <textarea name="poznamka" cols="20" rows="5">'.$provize->poznamka.'</textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row"></th>
+                                <td>
+                                    <input type="submit" class="button button-primary" name="upravit_indi_provize" value="Uložit změny" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>';
+
+                echo '<script>
+                jQuery("#vyber").select2({
+                    placeholder: "Pište uživatelovo jméno, ID nebo e-mail",
+                    minimumInputLength: 1,
+                     multiple: true,
+                    ajax: { 
+                        url: "/wp-content/plugins/budkutil/js/uzivatele.php",
+                         dataType: "json",
+                         width: "element",
+                        data: function (term, page) {
+                            return {
+                                q: term
+                            };
+                        },
+                        results: function (data, page) {
+                            return { results: data };
+                        }
+                    }
+                });
+                </script>
+                ';
+            }
+            else
+            {
+                echo '
+                <h2>
+                    Plošná výše provize
+                </h2>';
+
+                $glob_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
+                echo '
+                <form method="post" class="postbox">
+                    <div class="inside">
+                        <table>
+                            <tr>
+                                <td>
+                                    Výše provize:
+                                </td>
+                                <td>
+                                    <input type="text" size="5" name="vyse_glob_provize" value="'.$glob_provize.'" /> %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td>
+                                    <input type="submit" class="button button-primary" name="ulozit_glob_provize" value="Uložit" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </form>
+                ';
 
 
-            echo '
-            <h2>
-                Individuálních výše provizí
-                <a class="add-new-h2" href="post-new.php">Nová individuální provize</a>
-            </h2>';
+                echo '
+                <h2>
+                    Individuálních výše provizí
+                    <a class="add-new-h2" href="?page='.$PAGE.'&action=add_individualni">Nová individuální provize</a>
+                </h2>';
 
-            $wp_list_table = new Provize_List_Table();
-            $wp_list_table->prepare_items();
-            $wp_list_table->search_box('search', 'provize_id');
-            $wp_list_table->display();
+                $wp_list_table = new Provize_List_Table();
+                $wp_list_table->prepare_items();
+                //$wp_list_table->search_box('vyhledat podle ID', 'provize_id');
+                $wp_list_table->display();
+            }
         }
  
         function uzivatele_page() {
