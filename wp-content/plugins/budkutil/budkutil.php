@@ -291,6 +291,47 @@ class Provize_List_Table extends WP_List_Table {
     }
 }
 
+function test_modify_user_table( $column ) {
+    $column['provize'] = 'Provize';
+ 
+    return $column;
+}
+ 
+add_filter( 'manage_users_columns', 'test_modify_user_table' );
+ 
+function test_modify_user_table_row( $val, $column_name, $user_id ) {
+    global $wpdb;
+
+    $provize = $wpdb->get_var("SELECT provize_vyse FROM bk_provize WHERE user_id='$user_id'");
+
+    if(empty($provize))
+        $provize = "<i>Plošná</i>";
+    else
+        $provize .= " %";
+
+    switch ($column_name) {
+        case 'provize' :
+            return $provize;
+            break;
+ 
+        default:
+    }
+ 
+    return $return;
+}
+ 
+add_filter( 'manage_users_custom_column', 'test_modify_user_table_row', 10, 3 );
+
+
+
+
+
+
+
+
+
+
+
 
 
 
