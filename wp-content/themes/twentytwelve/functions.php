@@ -459,3 +459,33 @@ function twentytwelve_customize_preview_js() {
 	wp_enqueue_script( 'twentytwelve-customizer', get_template_directory_uri() . '/js/theme-customizer.js', array( 'customize-preview' ), '20120827', true );
 }
 add_action( 'customize_preview_init', 'twentytwelve_customize_preview_js' );
+
+
+function custom_menu_order($menu_ord) {  
+    if (!$menu_ord) return true;  
+      
+    return array(  
+        'index.php', // Dashboard  
+        'bk_page', // Budkutil
+        'users.php', // Users   
+        'separator1', // First separator 
+        'woocommerce', // eshop  
+        'edit.php?post_type=product', // products 
+        'separator2', //  separator
+        'bp-activity', // activities  
+        'bp-groups', // groups  
+        'separator-last', //  separator  
+        'edit.php', // Posts  
+        'upload.php', // Media  
+        'link-manager.php', // Links  
+        'edit.php?post_type=page', // Pages  
+        'edit-comments.php', // Comments  
+//      'separator4', // Second separator  
+        'themes.php', // Appearance  
+        'plugins.php', // Plugins  
+        'tools.php', // Tools  
+        'options-general.php' // Settings  
+    );  
+}  
+add_filter('custom_menu_order', 'custom_menu_order');
+add_filter('menu_order', 'custom_menu_order');  
