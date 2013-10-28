@@ -10,7 +10,7 @@ jQuery(document).ready(function($) {
 
 		$('ul.tabs li', $tabs_wrapper).removeClass('active');
 		$('div.panel', $tabs_wrapper).hide();
-		$('div' + $tab.attr('href'), $tabs_wrapper).show();
+		$('div' + $tab.attr('href')).show();
 		$tab.parent().addClass('active');
 
 		return false;

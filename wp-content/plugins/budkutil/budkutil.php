@@ -29,6 +29,15 @@ function check_db() {
             )
         );
 
+    if($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='ucet_provize'") == 0)
+        $wpdb->insert($wpdb->options, 
+            array( 
+                'option_name' => 'ucet_provize', 
+                'option_value' => 0 , 
+                'autoload' => 'no' 
+            )
+        );
+
     if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_provize")))
     {
         $sql =   "CREATE TABLE bk_provize (provize_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(provize_id),
@@ -363,9 +372,9 @@ if (!class_exists("budkutil_admin_menu")) {
                               'administrator', 'provize', 
                               array(&$this, 'provize_page'));
         
-                add_submenu_page('bk_page', 'Uživatelé', 'Správa uživatelů', 
-                              'administrator', 'uzivatele', 
-                              array(&$this, 'uzivatele_page'));
+                //add_submenu_page('bk_page', 'Uživatelé', 'Správa uživatelů', 
+                //              'administrator', 'uzivatele', 
+                //              array(&$this, 'uzivatele_page'));
         
                 remove_submenu_page('bk_page', 'bk_page');
 
@@ -411,10 +420,10 @@ if (!class_exists("budkutil_admin_menu")) {
 
             if($_POST['ulozit_glob_provize'])
             {
-                if($wpdb->query("UPDATE $wpdb->options SET option_value='".$_POST['vyse_glob_provize']."' WHERE option_name='provize'"))
-                    echo '<div class="updated"><p><strong>Výše provize uložena.</strong></p></div>';
-                else
+                if($wpdb->update($wpdb->options, array('option_value'=>$_POST['vyse_glob_provize']), array('option_name'=>'provize')) === false AND $wpdb->update($wpdb->options, array('option_value'=>$_POST['ucet_provize']), array('option_name'=>'ucet_provize')) === false)
                     echo '<div class="error"><p><strong>Výši provize se nepodařilo uložit.</strong></p></div>';
+                else
+                    echo '<div class="updated"><p><strong>Výše provize uložena.</strong></p></div>';
             }
 
             if($_POST['ulozit_indi_provize'])
@@ -593,6 +602,8 @@ if (!class_exists("budkutil_admin_menu")) {
                 </h2>';
 
                 $glob_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
+                $ucet_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='ucet_provize'");
+
                 echo '
                 <form method="post" class="postbox">
                     <div class="inside">
@@ -603,6 +614,14 @@ if (!class_exists("budkutil_admin_menu")) {
                                 </td>
                                 <td>
                                     <input type="text" size="5" name="vyse_glob_provize" value="'.$glob_provize.'" /> %
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Bankovní účet:
+                                </td>
+                                <td>
+                                    <input type="text" name="ucet_provize" value="'.$ucet_provize.'" /> %
                                 </td>
                             </tr>
                             <tr>
