@@ -370,8 +370,52 @@ function test_modify_user_table_row( $val, $column_name, $user_id ) {
  
 add_filter( 'manage_users_custom_column', 'test_modify_user_table_row', 10, 3 );
 
+add_action( 'show_user_profile', 'budkutil_show_extra_profile_fields' );
+add_action( 'edit_user_profile', 'budkutil_show_extra_profile_fields' );
 
+function budkutil_show_extra_profile_fields( $user ) { 
+    global $wpdb;
 
+    ?>
+
+    <h3>BuddyPress - profilové informace</h3>
+
+    <table class="form-table">
+
+    <?
+    $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields");
+
+    foreach ($extra_fields as $field) {
+        $extra_field_id = $field->id;
+    ?>
+        <tr>
+            <th><label for="<? echo 'bp_meta_'.$extra_field_id;?>"><? echo $field->name;?></label></th>
+
+            <td>
+                <input type="text" name="<? echo 'bp_meta_'.$extra_field_id;?>" id="<? echo 'bp_meta_'.$extra_field_id;?>" value="<?php echo esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ); ?>" class="regular-text" /><br />
+                <span class="description"></span>
+            </td>
+        </tr>
+    <?}?>
+    </table>
+<?php }
+
+add_action( 'personal_options_update', 'my_save_extra_profile_fields' );
+add_action( 'edit_user_profile_update', 'my_save_extra_profile_fields' );
+
+function my_save_extra_profile_fields( $user_id ) {
+    global $wpdb;
+    
+    if ( !current_user_can( 'edit_user', $user_id ) )
+        return false;
+
+    $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields");
+
+    foreach ($extra_fields as $field) {
+        $extra_field_id = $field->id;
+        update_usermeta( $user_id, 'bp_meta_'.$extra_field_id, $_POST['bp_meta_'.$extra_field_id] );
+    }
+}
 
 
 
