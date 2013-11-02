@@ -405,7 +405,7 @@ add_action( 'edit_user_profile_update', 'my_save_extra_profile_fields' );
 
 function my_save_extra_profile_fields( $user_id ) {
     global $wpdb;
-    
+
     if ( !current_user_can( 'edit_user', $user_id ) )
         return false;
 
@@ -455,9 +455,9 @@ if (!class_exists("budkutil_admin_menu")) {
                               'administrator', 'provize', 
                               array(&$this, 'provize_page'));
         
-                //add_submenu_page('bk_page', 'Uživatelé', 'Správa uživatelů', 
-                //              'administrator', 'uzivatele', 
-                //              array(&$this, 'uzivatele_page'));
+                add_submenu_page('bk_page', 'Nastavení', 'Nastavení', 
+                              'administrator', 'nastaveni', 
+                              array(&$this, 'nastaveni_page'));
         
                 remove_submenu_page('bk_page', 'bk_page');
 
@@ -503,7 +503,7 @@ if (!class_exists("budkutil_admin_menu")) {
 
             if($_POST['ulozit_glob_provize'])
             {
-                if($wpdb->update($wpdb->options, array('option_value'=>$_POST['vyse_glob_provize']), array('option_name'=>'provize')) === false AND $wpdb->update($wpdb->options, array('option_value'=>$_POST['ucet_provize']), array('option_name'=>'ucet_provize')) === false)
+                if($wpdb->update($wpdb->options, array('option_value'=>$_POST['vyse_glob_provize']), array('option_name'=>'provize')) === false)
                     echo '<div class="error"><p><strong>Výši provize se nepodařilo uložit.</strong></p></div>';
                 else
                     echo '<div class="updated"><p><strong>Výše provize uložena.</strong></p></div>';
@@ -685,7 +685,6 @@ if (!class_exists("budkutil_admin_menu")) {
                 </h2>';
 
                 $glob_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
-                $ucet_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='ucet_provize'");
 
                 echo '
                 <form method="post" class="postbox">
@@ -697,14 +696,6 @@ if (!class_exists("budkutil_admin_menu")) {
                                 </td>
                                 <td>
                                     <input type="text" size="5" name="vyse_glob_provize" value="'.$glob_provize.'" /> %
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    Bankovní účet:
-                                </td>
-                                <td>
-                                    <input type="text" name="ucet_provize" value="'.$ucet_provize.'" /> %
                                 </td>
                             </tr>
                             <tr>
@@ -744,8 +735,43 @@ if (!class_exists("budkutil_admin_menu")) {
             echo '</div>';
         }
  
-        function uzivatele_page() {
-        
+        function nastaveni_page() {
+            global $wpdb;
+
+            if($_POST['ulozit_nastaveni'])
+            {
+                if($wpdb->update($wpdb->options, array('option_value'=>$_POST['ucet_provize']), array('option_name'=>'ucet_provize')) === false)
+                    echo '<div class="error"><p><strong>Nastavení bylo úspěšně uloženo.</strong></p></div>';
+                else
+                    echo '<div class="updated"><p><strong>Nastavení se nepodailo uložit.</strong></p></div>';
+            }
+
+            echo '<div class="wrap">';
+            echo '<h2>Nastavení</h2>';
+
+             $ucet_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='ucet_provize'");
+            echo '
+            <form method="post">
+                <table>
+                    <tr>
+                        <td>
+                            Bankovní účet:
+                        </td>
+                        <td>
+                            <input type="text" name="ucet_provize" value="'.$ucet_provize.'" />
+                            <span class="description">Bankovní účet pro příjem provizí od uživatelů. <a href="?page=provize">Přejít na nastavení provizí ></a></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th valign="top" scope="row"></th>
+                        <td>
+                            <input type="submit" class="button button-primary" name="ulozit_nastaveni" value="Uložit nastavení" />
+                        </td>
+                    </tr>
+                </table>
+            </form>';
+
+            echo '</div>';
         }
 
     }
