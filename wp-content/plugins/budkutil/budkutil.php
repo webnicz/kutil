@@ -20,6 +20,12 @@ function check_db() {
     if(is_null($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE active!=''")))
         $wpdb->query("ALTER TABLE $wpdb->terms ADD active INT NOT NULL DEFAULT 1");
 
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE user_id!=''")))
+        $wpdb->query("ALTER TABLE $wpdb->terms ADD user_id INT NOT NULL DEFAULT 0");
+
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->terms WHERE datetime!=''")))
+        $wpdb->query("ALTER TABLE $wpdb->terms ADD datetime INT NOT NULL DEFAULT 0");
+
     if($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='provize'") == 0)
         $wpdb->insert($wpdb->options, 
             array( 
@@ -64,7 +70,14 @@ function pridat_pole_kategorie($taxonomy) {
         <label for="tag-zobr_field">Zobrazovat:</label>
         <input type="checkbox" id="zobr_field" name="zobr" value="1" checked="checked" />
         <p>Tato položka povoluje zobrazovat se kategorii ve front-endu</p>
-    </div>';
+    </div>
+
+    <!--  styl pro tabulku kategorií woocmmerce  -->
+    <style>
+        #col-right {
+            width: 100% !important;
+        }
+    </style>';
 
     echo $pole;
 }
@@ -74,6 +87,8 @@ function pridat_sloupec_kategorie( $columns ) {
     $new_columns = array();
     $new_columns['cb'] = $columns['cb'];
     $new_columns['active'] = __( 'Aktivní', 'woocommerce' );
+    $new_columns['vytvoreno'] = __( 'Vytvořeno', 'woocommerce' );
+    $new_columns['vytvoril'] = __( 'Vytvořil', 'woocommerce' );
 
     unset( $columns['cb'] );
 
@@ -96,6 +111,28 @@ function pridat_udaj_kategorie( $columns, $column, $id ) {
         $columns .= $text;
 
     }
+    if ( $column == 'vytvoril' ) {
+
+        $user_id = $wpdb->get_var("SELECT user_id FROM $wpdb->terms WHERE term_id='$id'");
+        if($user_id != 0)
+            $text = get_userdata($user_id)->display_name;
+        else
+            $text = "---";
+
+        $columns .= $text;
+
+    }
+    if ( $column == 'vytvoreno' ) {
+
+        $time = $wpdb->get_var("SELECT datetime FROM $wpdb->terms WHERE term_id='$id'");
+        if($time != 0)
+            $text = date('<b>j.n.Y</b> G:i', $time);
+        else
+            $text = "---";
+
+        $columns .= $text;
+
+    }
 
     return $columns;
 }
@@ -109,6 +146,8 @@ function ulozit_udaj_kategorie( $term_id, $tt_id, $taxonomy ) {
     if ( strlen($_POST['zobr']) > 0 ){
     
         $wpdb->query("UPDATE $wpdb->terms SET active='".($_POST['zobr'])."' WHERE term_id='$term_id'");
+        $wpdb->query("UPDATE $wpdb->terms SET user_id='".get_current_user_id()."' WHERE term_id='$term_id' AND user_id='0'");
+        $wpdb->query("UPDATE $wpdb->terms SET datetime='".time()."' WHERE term_id='$term_id' AND datetime='0'");
     }
 }
 
