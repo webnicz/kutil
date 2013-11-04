@@ -383,21 +383,52 @@ function budkutil_show_extra_profile_fields( $user ) {
     <table class="form-table">
 
     <?
-    $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields");
+    $groups = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups");
 
-    foreach ($extra_fields as $field) {
-        $extra_field_id = $field->id;
+    foreach ($groups as $group) {
+
+        $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='0' AND group_id='".$group->id."'");
+
+        echo "<tr><td colspan=\"2\"><br /><b>$group->name</b></td><tr>";
+
+        foreach ($extra_fields as $field) {
+            $extra_field_id = $field->id;
+                
+            if($field->type == "selectbox")
+            {
+                $input = '<select name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'">';
+                $input .= '<option value="none"></option>';
+                $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
+                    foreach ($options as $option)
+                    {
+                        $selected = '';
+                        if(esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ) == $option->option_order)
+                            $selected = 'selected=\"selected\"';
+
+                        $input .= '<option value="'.$option->option_order.'" '.$selected.'>'.$option->name.'</option>';
+                    } 
+                $input .= '</select><br />';
+            }
+            else
+            {
+                $input = '<input type="text" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'" value="'.esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ).'" class="regular-text" /><br />';
+            }
+                
+            echo '<tr>
+                <th><label for="bp_meta_'.$extra_field_id.'">'.$field->name.'</label></th>
+
+                <td>
+                    '.$input.'
+                    <span class="description"></span>
+                </td>
+            </tr>';
+
+        }
+    }
     ?>
-        <tr>
-            <th><label for="<? echo 'bp_meta_'.$extra_field_id;?>"><? echo $field->name;?></label></th>
-
-            <td>
-                <input type="text" name="<? echo 'bp_meta_'.$extra_field_id;?>" id="<? echo 'bp_meta_'.$extra_field_id;?>" value="<?php echo esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ); ?>" class="regular-text" /><br />
-                <span class="description"></span>
-            </td>
-        </tr>
-    <?}?>
     </table>
+
+    <br /><br /><br />
 <?php }
 
 add_action( 'personal_options_update', 'my_save_extra_profile_fields' );
