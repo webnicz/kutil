@@ -394,24 +394,29 @@ function budkutil_show_extra_profile_fields( $user ) {
         foreach ($extra_fields as $field) {
             $extra_field_id = $field->id;
                 
-            if($field->type == "selectbox")
-            {
-                $input = '<select name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'">';
-                $input .= '<option value="none"></option>';
-                $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
-                    foreach ($options as $option)
-                    {
-                        $selected = '';
-                        if(esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ) == $option->option_order)
-                            $selected = 'selected=\"selected\"';
+            switch ($field->type) {
+                case 'selectbox':
+                    $input = '<select name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'">';
+                    $input .= '<option value="none"></option>';
+                    $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
+                        foreach ($options as $option)
+                        {
+                            $selected = '';
+                            if(esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ) == $option->option_order)
+                                $selected = 'selected=\"selected\"';
 
-                        $input .= '<option value="'.$option->option_order.'" '.$selected.'>'.$option->name.'</option>';
-                    } 
-                $input .= '</select><br />';
-            }
-            else
-            {
-                $input = '<input type="text" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'" value="'.esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ).'" class="regular-text" /><br />';
+                            $input .= '<option value="'.$option->option_order.'" '.$selected.'>'.$option->name.'</option>';
+                        } 
+                    $input .= '</select><br />';
+                    break;
+
+                case 'textarea':
+                    $input = '<textarea cols="20" rows="5" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'">'.esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ).'</textarea><br />';
+                    break;
+                
+                default:
+                    $input = '<input type="text" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'" value="'.esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ).'" class="regular-text" /><br />';
+                    break;
             }
                 
             echo '<tr>
