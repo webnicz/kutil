@@ -85,12 +85,15 @@ add_filter("product_cat_add_form_fields", "pridat_pole_kategorie");
 
 function pridat_sloupec_kategorie( $columns ) {
     $new_columns = array();
+
     $new_columns['cb'] = $columns['cb'];
-    $new_columns['active'] = __( 'Aktivní', 'woocommerce' );
+    unset( $columns['cb'] );
+    foreach ($columns as $key => $value)
+        $new_columns[$key] = $value;
+
     $new_columns['vytvoreno'] = __( 'Vytvořeno', 'woocommerce' );
     $new_columns['vytvoril'] = __( 'Vytvořil', 'woocommerce' );
-
-    unset( $columns['cb'] );
+    $new_columns['active'] = __( 'Aktivní', 'woocommerce' );
 
     return array_merge( $new_columns, $columns );
 }
