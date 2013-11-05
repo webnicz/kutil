@@ -35,6 +35,15 @@ function check_db() {
             )
         );
 
+    if($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='den_vyuctovani'") == 0)
+        $wpdb->insert($wpdb->options, 
+            array( 
+                'option_name' => 'den_vyuctovani', 
+                'option_value' => '1' , 
+                'autoload' => 'no' 
+            )
+        );
+
     if($wpdb->get_var("SELECT COUNT(1) FROM $wpdb->options WHERE option_name='ucet_provize'") == 0)
         $wpdb->insert($wpdb->options, 
             array( 
@@ -779,26 +788,40 @@ if (!class_exists("budkutil_admin_menu")) {
 
             if($_POST['ulozit_nastaveni'])
             {
-                if($wpdb->update($wpdb->options, array('option_value'=>$_POST['ucet_provize']), array('option_name'=>'ucet_provize')) === false)
-                    echo '<div class="error"><p><strong>Nastavení bylo úspěšně uloženo.</strong></p></div>';
+                $cislo = $wpdb->update($wpdb->options, array('option_value'=>$_POST['ucet_provize']), array('option_name'=>'ucet_provize'));
+                $den   = $wpdb->update($wpdb->options, array('option_value'=>$_POST['den_vyuctovani']), array('option_name'=>'den_vyuctovani'));
+
+                if($cislo === false AND $den === false)
+                    echo '<div class="error"><p><strong>Nastavení se nepodailo uložit.</strong></p></div>';
                 else
-                    echo '<div class="updated"><p><strong>Nastavení se nepodailo uložit.</strong></p></div>';
+                    echo '<div class="updated"><p><strong>Nastavení bylo úspěšně uloženo.</strong></p></div>';
             }
 
             echo '<div class="wrap">';
             echo '<h2>Nastavení</h2>';
 
-             $ucet_provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='ucet_provize'");
+             $ucet_provize   = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='ucet_provize'");
+             $den_vyuctovani = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='den_vyuctovani'");
+
             echo '
             <form method="post">
                 <table>
                     <tr>
-                        <td>
+                        <th valign="top" scope="row">
                             Bankovní účet:
-                        </td>
+                        </th>
                         <td>
-                            <input type="text" name="ucet_provize" value="'.$ucet_provize.'" />
+                            <input type="text" name="ucet_provize" value="'.$ucet_provize.'" /><br />
                             <span class="description">Bankovní účet pro příjem provizí od uživatelů. <a href="?page=provize">Přejít na nastavení provizí ></a></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th valign="top" scope="row">
+                            Den vyúčtování provizí:
+                        </th>
+                        <td>
+                            <input type="text" size="2" name="den_vyuctovani" value="'.$den_vyuctovani.'" />. den měsíce<br />
+                            <span class="description">n-tý den měsíce, ve kterém budou vyúčtovány provize a rozeslány notifikace.
                         </td>
                     </tr>
                     <tr>
