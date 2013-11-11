@@ -405,7 +405,8 @@ function budkutil_show_extra_profile_fields( $user ) {
 
         foreach ($extra_fields as $field) {
             $extra_field_id = $field->id;
-                
+            $input = "";
+
             switch ($field->type) {
                 case 'selectbox':
                     $input = '<select name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'">';
@@ -415,19 +416,102 @@ function budkutil_show_extra_profile_fields( $user ) {
                         {
                             $selected = '';
                             if(esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ) == $option->option_order)
-                                $selected = 'selected=\"selected\"';
+                                $selected = 'selected="selected"';
 
                             $input .= '<option value="'.$option->option_order.'" '.$selected.'>'.$option->name.'</option>';
                         } 
                     $input .= '</select><br />';
+                    $input .= '<p class="description">'.$field->description.'</p>';
+                    break;
+
+                case 'checkbox':
+                    $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
+                        foreach ($options as $option)
+                        {
+                            $selected = '';
+                            if(esc_attr( get_the_author_meta( 'bp_meta_'.$option->id, $user->ID ) ) == $option->option_order)
+                                $selected = 'checked="checked"';
+
+                            $input .= '<input type="checkbox" name="bp_meta_'.$option->id.'" id="bp_meta_'.$option->id.'" value="'.$option->option_order.'" '.$selected.' /> <i>'.$option->name.'</i><br />';//$extra_field_id
+                        } 
+                    $input .= '<p class="description">'.$field->description.'</p>';
                     break;
 
                 case 'textarea':
                     $input = '<textarea cols="20" rows="5" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'">'.esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ).'</textarea><br />';
+                    $input .= '<p class="description">'.$field->description.'</p>';
                     break;
+
+                case 'multiselectbox':
+                    $input = '<select name="bp_meta_'.$extra_field_id.'[]" multiple="multiple" id="bp_meta_'.$extra_field_id.'">';
+                    $input .= '<option value="none"></option>';
+                    $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
+                    $data = explode(';', get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ));
+
+                        foreach ($options as $option)
+                        {
+                            $selected = '';
+                            if(in_array($option->option_order, $data))
+                                $selected = 'selected="selected"';
+
+                            $input .= '<option value="'.$option->option_order.'" '.$selected.'>'.$option->name.'</option>';
+                        } 
+                    $input .= '</select><br />';
+                    $input .= '<p class="description">'.$field->description.'</p>';
+                    break;
+
+                case 'radio':
+                    $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
+                        foreach ($options as $option)
+                        {
+                            $selected = '';
+                            if(esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ) == $option->option_order)
+                                $selected = 'checked="checked"';
+
+                            $input .= '<input type="radio" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'" value="'.$option->option_order.'" '.$selected.' /> <i>'.$option->name.'</i><br />';
+                        } 
+                    $input .= '<p class="description">'.$field->description.'</p>';
+                    break;
+
+                case 'datebox':
+                    
+                    $datum = get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID );
+
+                    $option_dny = '<option value="">---</option>';
+                    for ($i=0; $i <= 31; $i++) { 
+                        $selected = '';
+                        if(date('j',$datum) == $i)
+                            $selected = 'selected="selected"';
+
+                        $option_dny .= '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
+                    }
+
+                    $option_roky = '<option value="">-------</option>';
+                    for ($i=1930; $i <= date(Y)-10; $i++) { 
+                        $selected = '';
+                        if(date('Y',$datum) == $i)
+                            $selected = 'selected="selected"';
+
+                        $option_roky .= '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
+                    }
+
+                    $option_mesice = '<option value="">-------</option>';
+                    $mesice = array("January","February","March","April","May","June","July","August","September","October","November","December");
+                    foreach ($mesice as $mesic) {
+                        $selected = '';
+                        if(date('F',$datum) == $mesic)
+                            $selected = 'selected="selected"';
+
+                        $option_mesice .= '<option value="'.$mesic.'" '.$selected.'>'.$mesic.'</option>';
+                    }
+
+                    $input = '<select name="'.$extra_field_id.'_day">'.$option_dny.'</select>. <select name="'.$extra_field_id.'_month">'.$option_mesice.'</select> <select name="'.$extra_field_id.'_year">'.$option_roky.'</select>';
+                    $input .= '<p class="description">'.$field->description.'</p>';
+                    break;    
                 
                 default:
                     $input = '<input type="text" name="bp_meta_'.$extra_field_id.'" id="bp_meta_'.$extra_field_id.'" value="'.esc_attr( get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ) ).'" class="regular-text" /><br />';
+                    $input .= '<p class="description">'.$field->description.'</p>';
                     break;
             }
                 
@@ -456,12 +540,23 @@ function my_save_extra_profile_fields( $user_id ) {
 
     if ( !current_user_can( 'edit_user', $user_id ) )
         return false;
-
+echo "<pre>";
     $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields");
 
     foreach ($extra_fields as $field) {
         $extra_field_id = $field->id;
-        update_usermeta( $user_id, 'bp_meta_'.$extra_field_id, $_POST['bp_meta_'.$extra_field_id] );
+        $post_field = $_POST['bp_meta_'.$extra_field_id];
+
+        if($field->type == "datebox")
+        {
+            $post_field = strtotime($_POST[$extra_field_id.'_day'].". ".$_POST[$extra_field_id.'_month']." ".$_POST[$extra_field_id.'_year']);
+        }
+
+        if(is_array($post_field))
+            $post_field = implode(';', $post_field);
+
+        //foreach ($post_field as $value) 
+        update_usermeta( $user_id, 'bp_meta_'.$extra_field_id, $post_field);
     }
 }
 
@@ -798,6 +893,7 @@ if (!class_exists("budkutil_admin_menu")) {
             }
 
             echo '<div class="wrap">';
+            echo '<div class="icon32" id="icon-options-general"><br></div>';
             echo '<h2>Nastavení</h2>';
 
              $ucet_provize   = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='ucet_provize'");
@@ -805,7 +901,7 @@ if (!class_exists("budkutil_admin_menu")) {
 
             echo '
             <form method="post">
-                <table>
+                <table class="form-table">
                     <tr>
                         <th valign="top" scope="row">
                             Bankovní účet:
@@ -820,7 +916,7 @@ if (!class_exists("budkutil_admin_menu")) {
                             Den vyúčtování provizí:
                         </th>
                         <td>
-                            <input type="text" size="2" name="den_vyuctovani" value="'.$den_vyuctovani.'" />. den měsíce<br />
+                            <input type="text" size="1" name="den_vyuctovani" value="'.$den_vyuctovani.'" />. den měsíce<br />
                             <span class="description">n-tý den měsíce, ve kterém budou vyúčtovány provize a rozeslány notifikace.
                         </td>
                     </tr>
