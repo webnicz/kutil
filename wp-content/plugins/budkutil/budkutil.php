@@ -444,7 +444,6 @@ function budkutil_show_extra_profile_fields( $user ) {
 
                 case 'multiselectbox':
                     $input = '<select name="bp_meta_'.$extra_field_id.'[]" multiple="multiple" id="bp_meta_'.$extra_field_id.'">';
-                    $input .= '<option value="none"></option>';
                     $options = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='".$field->id."' AND type='option'");
                     $data = explode(';', get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ));
 
