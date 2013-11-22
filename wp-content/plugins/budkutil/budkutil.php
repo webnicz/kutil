@@ -54,13 +54,39 @@ function check_db() {
         );
 
     if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_provize")))
-    {
+    {//echo $wpdb->get_var("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='bk_provize' AND TABLE_SCHEMA = '".DB_NAME."'");
         $sql =   "CREATE TABLE bk_provize (provize_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(provize_id),
                   user_id INT NOT NULL,
                   provize_datum INT NOT NULL,
                   provize_vyse FLOAT,
                   provize_ip VARCHAR(20),
                   poznamka VARCHAR(250))";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta($sql);
+    }
+
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_parametry")))
+    {//echo $wpdb->get_var("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='bk_provize' AND TABLE_SCHEMA = '".DB_NAME."'");
+        $sql =   "CREATE TABLE bk_parametry (parametr_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(parametr_id),
+                  parametr_nazev VARCHAR(250),
+                  neaktivni_v VARCHAR(250),
+                  parametr_ip VARCHAR(20),
+                  parametr_time VARCHAR(20),
+                  parametr_poznamka VARCHAR(50))";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta($sql);
+    }
+
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_hodnoty")))
+    {//echo $wpdb->get_var("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='bk_provize' AND TABLE_SCHEMA = '".DB_NAME."'");
+        $sql =   "CREATE TABLE bk_hodnoty (hodnota_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(hodnota_id),
+                  parametr_id INT,
+                  hodnota_nazev VARCHAR(250),
+                  parametr_img VARCHAR(100),
+                  parametr_ip VARCHAR(20),
+                  parametr_time VARCHAR(20))";
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);
@@ -351,6 +377,168 @@ class Provize_List_Table extends WP_List_Table {
     }
 }
 
+class Sady_List_Table extends WP_List_Table {
+
+    /**
+     * Constructor, we override the parent to pass our own arguments
+     * We usually focus on three parameters: singular and plural labels, as well as whether the class supports AJAX.
+     */
+     function __construct() {
+         parent::__construct( array(
+        'singular'=> 'wp_sady_text_link', //Singular label
+        'plural' => 'wp_sady_test_links', //plural label, also this well be one of the table css class
+        'ajax'  => false //We won't support Ajax for this table
+        ) );
+     }
+
+     function extra_tablenav( $which ) {
+        if ( $which == "top" ){
+            //The code that goes before the table is here
+            echo"";//Hello, I'm before the table
+        }
+        if ( $which == "bottom" ){
+            //The code that goes after the table is there
+            echo"";//Hi, I'm after the table
+        }
+    }
+
+    function get_columns() {
+        return $columns= array(
+            //'cb' => '<input type="checkbox" name="book[]" value="%s" />',
+            'col_sada_id'=>'ID',
+            'col_sada_jmeno'=>'Název sady (upravit)',
+            'col_sada_vyse'=>'Hodnoty',
+            'col_sada_datum'=>'Datum vyrvoření',
+            'col_sada_poznamka'=>'Poznámka',
+            'col_sada_smazat'=>'Smazat'
+        );
+    }
+
+    public function get_sortable_columns() {
+        return $sortable = array(
+            'col_sada_id'=>array('parametry_id',true),
+            //'col_parametry_jmeno'=>array('user_id',true),
+            'col_sada_datum'=>array('parametry_time',true),
+            'col_sada_jmeno'=>array('parametry_nazev',true)
+        );
+    }
+
+    function column_booktitle($item) {
+      $actions = array(
+                'delete'    => sprintf('<a href="?page=%s&action=%s&sada=%s">Delete</a>',$_REQUEST['page'],'delete',$item['ID']),
+            );
+
+      return sprintf('%1$s %2$s', $item['ID'], $this->row_actions($actions) );
+    }
+
+    function get_bulk_actions() {
+      $actions = array(
+        'delete'    => 'Smazat'
+      );
+      return $actions;
+    }
+
+    function column_cb($item) {
+        return sprintf(
+            '<input type="checkbox" name="sada[]" value="%s" />', $item['ID']
+        );    
+    }
+
+    function prepare_items() {
+        global $wpdb, $_wp_column_headers;
+        $screen = get_current_screen();
+
+        /* -- Preparing your query -- */
+            $query = "SELECT * FROM bk_parametry";
+
+        /* -- Ordering parameters -- */
+            //Parameters that are going to be used to order the result
+            $orderby = !empty($_GET["orderby"]) ? mysql_real_escape_string($_GET["orderby"]) : 'ASC';
+            $order = !empty($_GET["order"]) ? mysql_real_escape_string($_GET["order"]) : '';
+            if(!empty($orderby) & !empty($order)){ $query.=' ORDER BY '.$orderby.' '.$order; }
+            else $query.=' ORDER BY provize_id DESC';
+
+        /* -- Pagination parameters -- */
+            //Number of elements in your table?
+            $totalitems = $wpdb->query($query); //return the total number of affected rows
+            //How many to display per page?
+            $perpage = 20;
+            //Which page is this?
+            $paged = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
+            //Page Number
+            if(empty($paged) || !is_numeric($paged) || $paged<=0 ){ $paged=1; }
+            //How many pages do we have in total?
+            $totalpages = ceil($totalitems/$perpage);
+            //adjust the query to take pagination into account
+            if(!empty($paged) && !empty($perpage)){
+                $offset=($paged-1)*$perpage;
+                $query.=' LIMIT '.(int)$offset.','.(int)$perpage;
+            }
+
+        /* -- Register the pagination -- */
+            $this->set_pagination_args( array(
+                "total_items" => $totalitems,
+                "total_pages" => $totalpages,
+                "per_page" => $perpage,
+            ) );
+            //The pagination links are automatically built according to those parameters
+
+        /* -- Register the Columns -- */
+            $columns = $this->get_columns();
+            //$_wp_column_headers[$screen->id]=$columns;
+            $hidden = array();
+            $sortable = $this->get_sortable_columns();
+            $this->_column_headers = array($columns, $hidden, $sortable);
+
+        /* -- Fetch the items -- */
+            $this->items = $wpdb->get_results($query);
+    }
+
+    function display_rows() {
+
+        //Get the records registered in the prepare_items method
+        $records = $this->items;
+        $columns = $this->get_columns();
+
+        //Get the columns registered in the get_columns and get_sortable_columns methods
+        //list( $columns, $hidden ) =  //get_sortable_columns
+        $this->get_column_info();
+
+        //Loop for each record
+        if(!empty($records)){foreach($records as $rec){
+
+            //Open the line
+            echo '<tr id="record_'.$rec->provize_id.'">';
+            foreach ( $columns as $column_name => $column_display_name ) {
+
+                //Style attributes for each col
+                $class = "class='$column_name column-$column_name'";
+                $style = "";
+                //if ( in_array( $column_name, $hidden ) ) $style = ' style="display:none;"';
+                //$attributes = $class . $style;
+
+                //edit link
+                $editlink  = '/wp-admin/link.php?action=edit&link_id='.(int)$rec->provize_id;
+
+                //Display the cell
+                switch ( $column_name ) {
+                    //case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
+                    case "col_sada_id": echo '<td '.$attributes.'>'.stripslashes($rec->provize_id).'</td>';  break;
+                    case "col_sada_jmeno": echo '<td '.$attributes.'><a href="?page=sady&action=edit&sid='.$rec->parametr_id.'"><b>'.$red->parametr_nazev.'</b></a></td>'; break;
+                    case "col_sada_hodnoty": echo '<td '.$attributes.'>'.' %</td>'; break;
+                    case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->poznamka).'</i></td>'; break;
+                    case "col_sada_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->parametr_time)).'</td>'; break;
+                    case "col_sada_smazat": echo '<td '.$attributes.'><a class="del" href="?page=sady&delete='.$rec->parametr_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
+                    
+                }
+            }
+
+            //Close the line
+            echo'</tr>';
+        }}
+    }
+}
+
 function test_modify_user_table( $column ) {
     $column['provize'] = 'Provize';
  
@@ -559,7 +747,29 @@ echo "<pre>";
     }
 }
 
+add_action('admin_menu', 'manchu_myposts');
+function manchu_myposts()
+{
+    if (function_exists('add_submenu_page'))
+    {
+        //$parent, $page_title, $menu_title, $access_level, $file, $function = ''
+        add_submenu_page('edit.php?post_type=product','Sady parametrů','Sady parametrů', 1, 'sady','sady_page');
+    }
+}
 
+function cb_posts_for_current_author($query) {
+     global $pagenow;
+
+     if( 'edit.php?post_type=product' != $pagenow || !$query->is_admin )
+     return $query;
+
+     if( !current_user_can( 'manage_options' ) ) {
+     global $user_ID;
+     $query->set('author', $user_ID );
+     }
+     return $query;
+}
+add_filter('pre_get_posts', 'cb_posts_for_current_author');
 
 
 
@@ -575,6 +785,23 @@ echo "<pre>";
 
 
 /* ROZHRANí */
+
+
+function sady_page() {
+    //global $wpdb;
+
+    echo '<div class="wrap">';
+    echo '<h2>Sady parametrů</h2>';
+
+    $wp_list_table = new Sady_List_Table();
+    $wp_list_table->prepare_items();
+    //$wp_list_table->search_box('vyhledat podle ID', 'provize_id');
+    $wp_list_table->display();
+
+    echo '</div>';
+}
+
+
 
 if (!class_exists("budkutil_admin_menu")) {
  
