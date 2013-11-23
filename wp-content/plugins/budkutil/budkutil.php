@@ -416,10 +416,10 @@ class Sady_List_Table extends WP_List_Table {
 
     public function get_sortable_columns() {
         return $sortable = array(
-            'col_sada_id'=>array('parametry_id',true),
+            'col_sada_id'=>array('parametr_id',true),
             //'col_parametry_jmeno'=>array('user_id',true),
-            'col_sada_datum'=>array('parametry_time',true),
-            'col_sada_jmeno'=>array('parametry_nazev',true)
+            'col_sada_datum'=>array('parametr_time',true),
+            'col_sada_jmeno'=>array('parametr_nazev',true)
         );
     }
 
@@ -456,7 +456,7 @@ class Sady_List_Table extends WP_List_Table {
             $orderby = !empty($_GET["orderby"]) ? mysql_real_escape_string($_GET["orderby"]) : 'ASC';
             $order = !empty($_GET["order"]) ? mysql_real_escape_string($_GET["order"]) : '';
             if(!empty($orderby) & !empty($order)){ $query.=' ORDER BY '.$orderby.' '.$order; }
-            else $query.=' ORDER BY provize_id DESC';
+            else $query.=' ORDER BY parametr_id DESC';
 
         /* -- Pagination parameters -- */
             //Number of elements in your table?
@@ -508,7 +508,7 @@ class Sady_List_Table extends WP_List_Table {
         if(!empty($records)){foreach($records as $rec){
 
             //Open the line
-            echo '<tr id="record_'.$rec->provize_id.'">';
+            echo '<tr id="record_'.$rec->parametr_id.'">';
             foreach ( $columns as $column_name => $column_display_name ) {
 
                 //Style attributes for each col
@@ -518,15 +518,15 @@ class Sady_List_Table extends WP_List_Table {
                 //$attributes = $class . $style;
 
                 //edit link
-                $editlink  = '/wp-admin/link.php?action=edit&link_id='.(int)$rec->provize_id;
+                $editlink  = '/wp-admin/link.php?action=edit&link_id='.(int)$rec->parametr_id;
 
                 //Display the cell
                 switch ( $column_name ) {
                     //case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
-                    case "col_sada_id": echo '<td '.$attributes.'>'.stripslashes($rec->provize_id).'</td>';  break;
-                    case "col_sada_jmeno": echo '<td '.$attributes.'><a href="?page=sady&action=edit&sid='.$rec->parametr_id.'"><b>'.$red->parametr_nazev.'</b></a></td>'; break;
+                    case "col_sada_id": echo '<td '.$attributes.'>'.stripslashes($rec->parametr_id).'</td>';  break;
+                    case "col_sada_jmeno": echo '<td '.$attributes.'><a href="?page=sady&action=edit&sid='.$rec->parametr_id.'"><b>'.$rec->parametr_nazev.'</b></a></td>'; break;
                     case "col_sada_hodnoty": echo '<td '.$attributes.'>'.' %</td>'; break;
-                    case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->poznamka).'</i></td>'; break;
+                    case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->parametr_poznamka).'</i></td>'; break;
                     case "col_sada_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->parametr_time)).'</td>'; break;
                     case "col_sada_smazat": echo '<td '.$attributes.'><a class="del" href="?page=sady&delete='.$rec->parametr_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
                     
@@ -771,7 +771,22 @@ function cb_posts_for_current_author($query) {
 }
 add_filter('pre_get_posts', 'cb_posts_for_current_author');
 
-
+function getRealIpAddr()
+{
+    if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
+    {
+      $ip=$_SERVER['HTTP_CLIENT_IP'];
+    }
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
+    {
+      $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+    else
+    {
+      $ip=$_SERVER['REMOTE_ADDR'];
+    }
+    return $ip;
+}
 
 
 
@@ -788,15 +803,142 @@ add_filter('pre_get_posts', 'cb_posts_for_current_author');
 
 
 function sady_page() {
-    //global $wpdb;
+    global $wpdb;
 
     echo '<div class="wrap">';
-    echo '<h2>Sady parametrů</h2>';
 
-    $wp_list_table = new Sady_List_Table();
-    $wp_list_table->prepare_items();
-    //$wp_list_table->search_box('vyhledat podle ID', 'provize_id');
-    $wp_list_table->display();
+    if($_POST['ulozit_sada'])
+    {
+        $error = 0;
+        if(!$wpdb->insert('bk_parametry', 
+            array( 
+                'parametr_nazev' => $_POST['nazev'], 
+                'neaktivni_v' => $_POST['poradi2'], 
+                'parametr_time' => time(),
+                'parametr_ip' => getRealIpAddr(),
+                'parametr_poznamka' => $_POST['poznamka']
+            )
+        )) ++$error;
+        
+        if($error == 0)
+            echo '<div class="updated"><p><strong>Nová sada parametrů úspěšně uložena.</strong></p></div>';
+        else
+            echo '<div class="error"><p><strong>Novou sadu parametrů se nepodařilo uložit.</strong></p></div>';
+
+    }
+
+    if($_GET['action'] == "add_sada")
+    {
+        //plugin_dir_path( __FILE__ )
+                echo '
+                <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
+                <script src="/wp-content/plugins/budkutil/js/jquery-ui/js/jquery-ui-1.8.19.custom.min.js"></script>  
+                <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/jquery-ui/css/blitzer/jquery-ui-1.8.19.custom.css" type="text/css" media="screen" />';
+
+                echo '
+                <style>
+                    #sortable1, #sortable2, #sortable3 { border: 1px solid rgb(188,188,188);list-style-type: none !important; margin: 0; padding: 0; float: left; margin-right: 10px; background: #eee; width: 280px !important; }
+                    #sortable1 li, #sortable2 li, #sortable3 li {  border-top: 1px solid #ccc; list-style-type: none !important; padding: 5px; font-size: 1.2em; width: 253px !important; border: 0px !important}
+                    #sortable2 {background: rgb(188,188,188) !important;padding: 10px;overflow: auto;height: 280px;}
+                    #sortable2 li {color: red;}
+                    #sortable1 {overflow: auto;height: 300px;}
+                </style>
+                <script>
+                    jQuery(function() {
+                        jQuery( "ul.droptrue" ).sortable({
+                            connectWith: "ul",
+                      update: function(event, ui) {
+                        var data = "";
+
+                        jQuery("#sortable1 li").each(function(i, el){
+                            var p = jQuery(el).attr("title");
+                            data += p+"="+jQuery(el).index()+",";
+                        });
+
+                        jQuery("#poradi").val(data);
+                        }
+                        });
+
+                        jQuery( "ul.dropfalse" ).sortable({
+                            connectWith: "ul",
+                      update: function(event, ui) {
+                        var data = "";
+
+                        jQuery("#sortable2 li").each(function(i, el){
+                            var p = jQuery(el).attr("title");
+                            data += p+"="+jQuery(el).index()+",";
+                        });
+
+                        jQuery("#poradi2").val(data);
+                        }
+                        });
+
+                        jQuery( "#sortable1, #sortable2" ).disableSelection();
+                    });
+                </script>
+                ';
+
+            echo '
+ 
+                <h2>Nová sada parametrů</h2>
+                <form method="post">
+                    <table class="form-table">
+                        <tbody>
+                            <tr>
+                                <th valign="top" scope="row">Název:</th>
+                                <td>
+                                    <input type="text" name="nazev" />
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Kategorie:</th>
+                                <td>
+                                    <div style="width: 290px;float: left">
+                                        <b>Zobrazováno v kategoriích:</b>              
+                                    </div>
+                                    <div>
+                                        <b>Nezobrazováno v kategoriích:</b>
+                                    </div>
+                                    <input type="hidden" id="poradi" name="poradi" />
+                                    <input type="hidden" id="poradi2" name="poradi2" />
+                                    <ul id="sortable1" class="droptrue">';
+                                    
+                                        $kategorie = $wpdb->get_results("SELECT * FROM $wpdb->terms ORDER BY name");
+                                        foreach ($kategorie as $zaznam) 
+                                            echo '<li class="ui-state-default" title="'.$zaznam->term_id.'">'.$zaznam->name.'</li>';
+                                    
+                                    echo '
+                                    </ul>
+                                     
+                                    <ul id="sortable2" class="dropfalse">
+                                    </ul>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row"></th>
+                                <td>
+                                    <input type="submit" class="button button-primary" name="ulozit_sada" value="Uložit" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>';
+
+               
+    }
+    else
+    {
+        echo '
+        <h2>
+            Sady parametrů
+            <a class="add-new-h2" href="admin.php?page='.$_REQUEST['page'].'&action=add_sada">Nová sada parametrů</a>
+        </h2>';
+
+        $wp_list_table = new Sady_List_Table();
+        $wp_list_table->prepare_items();
+        //$wp_list_table->search_box('vyhledat podle ID', 'provize_id');
+        $wp_list_table->display();
+    }
 
     echo '</div>';
 }
@@ -806,7 +948,7 @@ function sady_page() {
 if (!class_exists("budkutil_admin_menu")) {
  
     class budkutil_admin_menu {
- 
+
         function budkutil_admin_menu() {
             add_action('admin_menu', array(&$this, 'add_menu_page'));
         }
@@ -833,28 +975,13 @@ if (!class_exists("budkutil_admin_menu")) {
             }
         }
 
-        function getRealIpAddr()
-        {
-            if (!empty($_SERVER['HTTP_CLIENT_IP']))   //check ip from share internet
-            {
-              $ip=$_SERVER['HTTP_CLIENT_IP'];
-            }
-            elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR']))   //to check ip is pass from proxy
-            {
-              $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
-            }
-            else
-            {
-              $ip=$_SERVER['REMOTE_ADDR'];
-            }
-            return $ip;
-        }
+        
  
         function menu_page() {    
             
         }
  
-        function provize_page() {
+        public function provize_page() {
             global $wpdb;    
             $PAGE = "provize";
 
@@ -890,7 +1017,7 @@ if (!class_exists("budkutil_admin_menu")) {
                             'user_id' => $value,
                             'provize_datum' => time(), 
                             'provize_vyse' => $_POST['provize'], 
-                            'provize_ip' => $this->getRealIpAddr(),
+                            'provize_ip' => getRealIpAddr(),
                             'poznamka' => $_POST['poznamka']
                         )
                     ))
@@ -910,7 +1037,7 @@ if (!class_exists("budkutil_admin_menu")) {
                         array( 
                             'provize_datum' => time(), 
                             'provize_vyse' => $_POST['provize'], 
-                            'provize_ip' => $this->getRealIpAddr(),
+                            'provize_ip' => getRealIpAddr(),
                             'poznamka' => $_POST['poznamka']
                         ),
                         array( 'provize_id' => $_GET['pid'])
