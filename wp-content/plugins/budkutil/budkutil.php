@@ -407,9 +407,9 @@ class Sady_List_Table extends WP_List_Table {
             //'cb' => '<input type="checkbox" name="book[]" value="%s" />',
             'col_sada_id'=>'ID',
             'col_sada_jmeno'=>'Název sady (upravit)',
-            'col_sada_vyse'=>'Hodnoty',
+            'col_sada_hodnoty'=>'Hodnoty',
             'col_sada_datum'=>'Datum vyrvoření',
-            'col_sada_poznamka'=>'Poznámka',
+            //'col_sada_poznamka'=>'Poznámka',
             'col_sada_smazat'=>'Smazat'
         );
     }
@@ -524,9 +524,9 @@ class Sady_List_Table extends WP_List_Table {
                 switch ( $column_name ) {
                     //case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
                     case "col_sada_id": echo '<td '.$attributes.'>'.stripslashes($rec->parametr_id).'</td>';  break;
-                    case "col_sada_jmeno": echo '<td '.$attributes.'><a href="?page=sady&action=edit&sid='.$rec->parametr_id.'"><b>'.$rec->parametr_nazev.'</b></a></td>'; break;
-                    case "col_sada_hodnoty": echo '<td '.$attributes.'>'.' %</td>'; break;
-                    case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->parametr_poznamka).'</i></td>'; break;
+                    case "col_sada_jmeno": echo '<td '.$attributes.'><a href="admin.php?page=sady&action=edit&sid='.$rec->parametr_id.'"><b>'.$rec->parametr_nazev.'</b></a></td>'; break;
+                    case "col_sada_hodnoty": echo '<td '.$attributes.'></td>'; break;
+                    //case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->parametr_poznamka).'</i></td>'; break;
                     case "col_sada_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->parametr_time)).'</td>'; break;
                     case "col_sada_smazat": echo '<td '.$attributes.'><a class="del" href="?page=sady&delete='.$rec->parametr_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
                     
@@ -807,6 +807,14 @@ function sady_page() {
 
     echo '<div class="wrap">';
 
+    if($_GET['delete'])
+    {
+            if($wpdb->delete('bk_parametry', array( 'parametr_id' => $_GET['delete'])))
+                echo '<div class="updated"><p><strong>Záznam byl smazán.</strong></p></div>';
+            else
+                echo '<div class="error"><p><strong>Záznam se nepodařilo smazat.</strong></p></div>';
+    }
+
     if($_POST['ulozit_sada'])
     {
         $error = 0;
@@ -825,6 +833,19 @@ function sady_page() {
         else
             echo '<div class="error"><p><strong>Novou sadu parametrů se nepodařilo uložit.</strong></p></div>';
 
+    }
+    elseif($_POST['upravit_sada'])
+    {
+            if($wpdb->update('bk_parametry', 
+                array( 
+                    'parametr_nazev' => $_POST['nazev'], 
+                    'neaktivni_v' => $_POST['poradi2'] 
+                ),
+                array( 'parametr_id' => $_GET['sid'])
+            ))
+                echo '<div class="updated"><p><strong>Úpravy byly úspěšně uloženy.</strong></p></div>';
+            else
+                echo '<div class="error"><p><strong>Úpravy se nepodařilo uložit.</strong></p></div>';
     }
 
     if($_GET['action'] == "add_sada")
@@ -925,6 +946,126 @@ function sady_page() {
                 </form>';
 
                
+    }
+    elseif($_GET['action'] == "edit")
+    {
+        $parametr = $wpdb->get_row("SELECT * FROM bk_parametry WHERE parametr_id='".$_GET['sid']."'");
+
+        echo '
+            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
+            <script src="/wp-content/plugins/budkutil/js/jquery-ui/js/jquery-ui-1.8.19.custom.min.js"></script>  
+            <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/jquery-ui/css/blitzer/jquery-ui-1.8.19.custom.css" type="text/css" media="screen" />';
+
+            echo '
+            <style>
+                #sortable1, #sortable2, #sortable3 { border: 1px solid rgb(188,188,188);list-style-type: none !important; margin: 0; padding: 0; float: left; margin-right: 10px; background: #eee; width: 280px !important; }
+                #sortable1 li, #sortable2 li, #sortable3 li {  border-top: 1px solid #ccc; list-style-type: none !important; padding: 5px; font-size: 1.2em; width: 253px !important; border: 0px !important}
+                #sortable2 {background: rgb(188,188,188) !important;padding: 10px;overflow: auto;height: 280px;}
+                #sortable2 li {color: red;}
+                #sortable1 {overflow: auto;height: 300px;}
+            </style>
+            <script>
+                jQuery(function() {
+                    jQuery( "ul.droptrue" ).sortable({
+                        connectWith: "ul",
+                  update: function(event, ui) {
+                    var data = "";
+
+                    jQuery("#sortable1 li").each(function(i, el){
+                        var p = jQuery(el).attr("title");
+                        data += p+"="+jQuery(el).index()+",";
+                    });
+
+                    jQuery("#poradi").val(data);
+                    }
+                    });
+
+                    jQuery( "ul.dropfalse" ).sortable({
+                        connectWith: "ul",
+                  update: function(event, ui) {
+                    var data = "";
+
+                    jQuery("#sortable2 li").each(function(i, el){
+                        var p = jQuery(el).attr("title");
+                        data += p+"="+jQuery(el).index()+",";
+                    });
+
+                    jQuery("#poradi2").val(data);
+                    }
+                    });
+
+                    jQuery( "#sortable1, #sortable2" ).disableSelection();
+                });
+            </script>
+            ';
+
+        echo '
+
+            <h2>Nová sada parametrů</h2>
+            <form method="post">
+                <table class="form-table">
+                    <tbody>
+                        <tr>
+                            <th valign="top" scope="row">Název:</th>
+                            <td>
+                                <input type="text" name="nazev" value="'.$parametr->parametr_nazev.'" />
+                            </td>
+                        </tr>
+                        <tr class="form-field form-required">
+                            <th valign="top" scope="row">Kategorie:</th>
+                            <td>
+                                <div style="width: 290px;float: left">
+                                    <b>Zobrazováno v kategoriích:</b>              
+                                </div>
+                                <div>
+                                    <b>Nezobrazováno v kategoriích:</b>
+                                </div>
+                                <input type="hidden" id="poradi" name="poradi" />
+                                <input type="hidden" id="poradi2" name="poradi2" />
+                                <ul id="sortable1" class="droptrue">';
+
+                                    $polotovar = explode(',',$parametr->neaktivni_v);
+                                    $vyrazeno = array(); 
+                                    foreach ($polotovar as $kategorie)
+                                    {
+                                        $elementy = explode('=', $kategorie);
+                                        array_push($vyrazeno, $elementy[0]);
+                                    }
+                                
+                                    $kategorie = $wpdb->get_results("SELECT * FROM $wpdb->terms ORDER BY name");
+                                    foreach ($kategorie as $zaznam) 
+                                    {
+                                        if(!in_array($zaznam->term_id, $vyrazeno))
+                                            echo '<li class="ui-state-default" title="'.$zaznam->term_id.'">'.$zaznam->name.'</li>';
+                                    }
+                                
+                                echo '
+                                </ul>
+                                 
+                                <ul id="sortable2" class="dropfalse">';
+                                    
+                                    foreach ($vyrazeno as $kategorie)
+                                    {
+                                        if(!empty($kategorie))
+                                        {
+                                            $zaznam = $wpdb->get_row("SELECT * FROM $wpdb->terms WHERE term_id='".$kategorie."'");
+                                            echo '<li class="ui-state-default" title="'.$kategorie.'">'.$zaznam->name.'</li>';    
+                                        } 
+                                    }
+                                
+                                echo '
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th valign="top" scope="row"></th>
+                            <td>
+                                <input type="submit" class="button button-primary" name="upravit_sada" value="Uložit" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>';
     }
     else
     {
