@@ -38,12 +38,27 @@ function parametry_page() {
 
     if($_POST['ulozit_parametr'])
     {
+        $cesta_nahled = ABSPATH.'wp-content/plugins/budkutil/up_img/';
+
+        if($_FILES["nahled"]["size"] > 0)
+        {
+            if ($_FILES["nahled"]["error"] > 0)
+            {
+
+            }
+            else
+            {
+                $soubor = $cesta_nahled.time()."_".$_FILES["nahled"]["name"];
+                square_crop($_FILES["nahled"]["tmp_name"], $soubor, 50);        
+            }
+        }
+
         $error = 0;
         if(!$wpdb->insert('bk_hodnoty', 
             array( 
                 'hodnota_nazev' => $_POST['nazev'], 
-                'parametr_id' => $_POST['parametr'], 
-                'hodnota_img' => $_POST['img'], 
+                'parametr_id' => $_POST['parametr_id'], 
+                //'hodnota_img' => $_POST['nahled'], 
                 'hodnota_time' => time(),
                 'hodnota_ip' => getRealIpAddr()
             )
@@ -72,22 +87,106 @@ function parametry_page() {
 
     if($_GET['action'] == "add_parametr")
     {
-      
+        //plugin_dir_path( __FILE__ )
+            echo '
+ 
+                <h2>Nový parametry</h2>
+                <form method="post" enctype="multipart/form-data">
+                    <table class="form-table">
+                        <tbody>
+                            <tr>
+                                <th valign="top" scope="row">Název:</th>
+                                <td>
+                                    <input type="text" name="nazev" />
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Náhled:</th>
+                                <td>
+                                   <input type="file" name="nahled" />
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Sada:</th>
+                                <td>
+                                   <select name="parametr_id">';
+                                        $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+                                            foreach ($sady as $zaznam) 
+                                                echo '<option value="'.$zaznam->parametr_id.'">'.$zaznam->parametr_nazev.'</option>';
+                                   echo '
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row"></th>
+                                <td>
+                                    <input type="submit" class="button button-primary" name="ulozit_parametr" value="Uložit" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>';
 
                
     }
     elseif($_GET['action'] == "edit")
     {
-        
+        $parametr = $wpdb->get_row("SELECT * FROM bk_hodnoty WHERE hodnota_id='".$_GET['pid']."'");
 
-            
+        echo '
+ 
+                <h2>Nový parametry</h2>
+                <form method="post" enctype="multipart/form-data">
+                    <table class="form-table">
+                        <tbody>
+                            <tr>
+                                <th valign="top" scope="row">Název:</th>
+                                <td>
+                                    <input type="text" name="nazev" value="'.$parametr->hodnota_nazev.'" />
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Náhled:</th>
+                                <td>
+                                   <input type="file" name="nahled" />
+                                   '.$parametr->hodnota_img.'
+                                </td>
+                            </tr>
+                            <tr class="form-field form-required">
+                                <th valign="top" scope="row">Sada:</th>
+                                <td>
+                                   <select name="sada_parametru">';
+                                        $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+                                            
+                                        foreach ($sady as $zaznam) {
+
+                                            $selected = '';
+                                            if($parametr->parametr_id == $zaznam->parametr_id)
+                                                $selected = 'selected="selected"';
+
+                                            echo '<option '.$selected.' value="'.$zaznam->parametr_id.'">'.$zaznam->parametr_nazev.'</option>';
+                                        }
+                                                
+                                   echo '
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th valign="top" scope="row"></th>
+                                <td>
+                                    <input type="submit" class="button button-primary" name="ulozit_sada" value="Uložit" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>';        
     }
     else
     {
         echo '
         <h2>
             Jednotlivé parametry
-            <a class="add-new-h2" href="admin.php?page='.$_REQUEST['page'].'&action=add_sada">Nový parametr</a>
+            <a class="add-new-h2" href="admin.php?page='.$_REQUEST['page'].'&action=add_parametr">Nový parametr</a>
         </h2>';
 
         $wp_list_table = new Hodnoty_List_Table();
