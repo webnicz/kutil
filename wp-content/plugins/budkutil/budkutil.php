@@ -48,8 +48,9 @@ function parametry_page() {
             }
             else
             {
-                $soubor = $cesta_nahled.time()."_".$_FILES["nahled"]["name"];
-                square_crop($_FILES["nahled"]["tmp_name"], $soubor, 50);        
+                $soubor = time()."_".$_FILES["nahled"]["name"];
+                $cesta_nahled = $cesta_nahled.$soubor;
+                square_crop($_FILES["nahled"]["tmp_name"], $cesta_nahled, 50);        
             }
         }
 
@@ -58,7 +59,7 @@ function parametry_page() {
             array( 
                 'hodnota_nazev' => $_POST['nazev'], 
                 'parametr_id' => $_POST['parametr_id'], 
-                //'hodnota_img' => $_POST['nahled'], 
+                'hodnota_img' => $soubor, 
                 'hodnota_time' => time(),
                 'hodnota_ip' => getRealIpAddr()
             )
@@ -72,12 +73,31 @@ function parametry_page() {
     }
     elseif($_POST['upravit_parametr'])
     {
-            if($wpdb->update('bk_hodnoty', 
-                array( 
+            $cesta_nahled = ABSPATH.'wp-content/plugins/budkutil/up_img/';
+
+            $fields = array( 
                     'hodnota_nazev' => $_POST['nazev'], 
-                    'parametr_id' => $_POST['parametr'], 
-                    'hodnota_img' => $_POST['img']
-                ),
+                    'parametr_id' => $_POST['parametr_id']
+                );
+
+            if($_FILES["nahled"]["size"] > 0)
+            {
+                if ($_FILES["nahled"]["error"] > 0)
+                {
+
+                }
+                else
+                {
+                    $soubor = time()."_".$_FILES["nahled"]["name"];
+                    $cesta_nahled = $cesta_nahled.$soubor;
+                    square_crop($_FILES["nahled"]["tmp_name"], $cesta_nahled, 50);        
+
+                    $fields['hodnota_img'] = $soubor;
+                }
+            }
+
+            if($wpdb->update('bk_hodnoty', 
+                $fields,
                 array( 'hodnota_id' => $_GET['pid'])
             ))
                 echo '<div class="updated"><p><strong>Úpravy byly úspěšně uloženy.</strong></p></div>';
@@ -133,9 +153,15 @@ function parametry_page() {
     {
         $parametr = $wpdb->get_row("SELECT * FROM bk_hodnoty WHERE hodnota_id='".$_GET['pid']."'");
 
+
+        if(!empty($parametr->hodnota_img))
+            $nahled = '<img src="'.ABSPATH.'wp-content/plugins/budkutil/up_img/'.$parametr->hodnota_img.'" alt="" />';
+        else
+            $nahled = '<i>Náhled není nastaven</i>';
+
         echo '
  
-                <h2>Nový parametry</h2>
+                <h2>Upravit parametr</h2>
                 <form method="post" enctype="multipart/form-data">
                     <table class="form-table">
                         <tbody>
@@ -148,14 +174,18 @@ function parametry_page() {
                             <tr class="form-field form-required">
                                 <th valign="top" scope="row">Náhled:</th>
                                 <td>
+                                   '.$nahled.'
+
+                                   <br /><br />
+                                   
+                                   <b>Nahrát nový:</b><br />
                                    <input type="file" name="nahled" />
-                                   '.$parametr->hodnota_img.'
                                 </td>
                             </tr>
                             <tr class="form-field form-required">
                                 <th valign="top" scope="row">Sada:</th>
                                 <td>
-                                   <select name="sada_parametru">';
+                                   <select name="parametr_id">';
                                         $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
                                             
                                         foreach ($sady as $zaznam) {
@@ -174,7 +204,7 @@ function parametry_page() {
                             <tr>
                                 <th valign="top" scope="row"></th>
                                 <td>
-                                    <input type="submit" class="button button-primary" name="ulozit_sada" value="Uložit" />
+                                    <input type="submit" class="button button-primary" name="upravit_parametr" value="Uložit" />
                                 </td>
                             </tr>
                         </tbody>
@@ -200,6 +230,54 @@ function parametry_page() {
 
 function sady_page() {
     global $wpdb;
+
+    $sortable_script = '
+    
+            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
+            <script src="/wp-content/plugins/budkutil/js/jquery-ui/js/jquery-ui-1.8.19.custom.min.js"></script>  
+            <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/jquery-ui/css/blitzer/jquery-ui-1.8.19.custom.css" type="text/css" media="screen" />
+    
+            <style>
+                #sortable1, #sortable2, #sortable3 { border: 1px solid rgb(188,188,188);list-style-type: none !important; margin: 0; padding: 0; float: left; margin-right: 10px; background: #eee; width: 280px !important; }
+                #sortable1 li, #sortable2 li, #sortable3 li {  border-top: 1px solid #ccc; list-style-type: none !important; padding: 5px; font-size: 1.2em; width: 253px !important; border: 0px !important}
+                #sortable2 {background: rgb(188,188,188) !important;padding: 10px;overflow: auto;height: 280px;}
+                #sortable2 li {color: red;}
+                #sortable1 {overflow: auto;height: 300px;}
+            </style>
+            <script>
+                jQuery(function() {
+                    jQuery( "ul.droptrue" ).sortable({
+                        connectWith: "ul",
+                  update: function(event, ui) {
+                    var data = "";
+
+                    jQuery("#sortable1 li").each(function(i, el){
+                        var p = jQuery(el).attr("title");
+                        data += p+"="+jQuery(el).index()+",";
+                    });
+
+                    jQuery("#poradi").val(data);
+                    }
+                    });
+
+                    jQuery( "ul.dropfalse" ).sortable({
+                        connectWith: "ul",
+                  update: function(event, ui) {
+                    var data = "";
+
+                    jQuery("#sortable2 li").each(function(i, el){
+                        var p = jQuery(el).attr("title");
+                        data += p+"="+jQuery(el).index()+",";
+                    });
+
+                    jQuery("#poradi2").val(data);
+                    }
+                    });
+
+                    jQuery( "#sortable1, #sortable2" ).disableSelection();
+                });
+            </script>
+            ';
 
     echo '<div class="wrap">';
 
@@ -247,53 +325,7 @@ function sady_page() {
     if($_GET['action'] == "add_sada")
     {
         //plugin_dir_path( __FILE__ )
-                echo '
-                <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
-                <script src="/wp-content/plugins/budkutil/js/jquery-ui/js/jquery-ui-1.8.19.custom.min.js"></script>  
-                <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/jquery-ui/css/blitzer/jquery-ui-1.8.19.custom.css" type="text/css" media="screen" />';
-
-                echo '
-                <style>
-                    #sortable1, #sortable2, #sortable3 { border: 1px solid rgb(188,188,188);list-style-type: none !important; margin: 0; padding: 0; float: left; margin-right: 10px; background: #eee; width: 280px !important; }
-                    #sortable1 li, #sortable2 li, #sortable3 li {  border-top: 1px solid #ccc; list-style-type: none !important; padding: 5px; font-size: 1.2em; width: 253px !important; border: 0px !important}
-                    #sortable2 {background: rgb(188,188,188) !important;padding: 10px;overflow: auto;height: 280px;}
-                    #sortable2 li {color: red;}
-                    #sortable1 {overflow: auto;height: 300px;}
-                </style>
-                <script>
-                    jQuery(function() {
-                        jQuery( "ul.droptrue" ).sortable({
-                            connectWith: "ul",
-                      update: function(event, ui) {
-                        var data = "";
-
-                        jQuery("#sortable1 li").each(function(i, el){
-                            var p = jQuery(el).attr("title");
-                            data += p+"="+jQuery(el).index()+",";
-                        });
-
-                        jQuery("#poradi").val(data);
-                        }
-                        });
-
-                        jQuery( "ul.dropfalse" ).sortable({
-                            connectWith: "ul",
-                      update: function(event, ui) {
-                        var data = "";
-
-                        jQuery("#sortable2 li").each(function(i, el){
-                            var p = jQuery(el).attr("title");
-                            data += p+"="+jQuery(el).index()+",";
-                        });
-
-                        jQuery("#poradi2").val(data);
-                        }
-                        });
-
-                        jQuery( "#sortable1, #sortable2" ).disableSelection();
-                    });
-                </script>
-                ';
+            echo $sortable_script;    
 
             echo '
  
@@ -347,57 +379,11 @@ function sady_page() {
     {
         $parametr = $wpdb->get_row("SELECT * FROM bk_parametry WHERE parametr_id='".$_GET['sid']."'");
 
-        echo '
-            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> 
-            <script src="/wp-content/plugins/budkutil/js/jquery-ui/js/jquery-ui-1.8.19.custom.min.js"></script>  
-            <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/jquery-ui/css/blitzer/jquery-ui-1.8.19.custom.css" type="text/css" media="screen" />';
-
-            echo '
-            <style>
-                #sortable1, #sortable2, #sortable3 { border: 1px solid rgb(188,188,188);list-style-type: none !important; margin: 0; padding: 0; float: left; margin-right: 10px; background: #eee; width: 280px !important; }
-                #sortable1 li, #sortable2 li, #sortable3 li {  border-top: 1px solid #ccc; list-style-type: none !important; padding: 5px; font-size: 1.2em; width: 253px !important; border: 0px !important}
-                #sortable2 {background: rgb(188,188,188) !important;padding: 10px;overflow: auto;height: 280px;}
-                #sortable2 li {color: red;}
-                #sortable1 {overflow: auto;height: 300px;}
-            </style>
-            <script>
-                jQuery(function() {
-                    jQuery( "ul.droptrue" ).sortable({
-                        connectWith: "ul",
-                  update: function(event, ui) {
-                    var data = "";
-
-                    jQuery("#sortable1 li").each(function(i, el){
-                        var p = jQuery(el).attr("title");
-                        data += p+"="+jQuery(el).index()+",";
-                    });
-
-                    jQuery("#poradi").val(data);
-                    }
-                    });
-
-                    jQuery( "ul.dropfalse" ).sortable({
-                        connectWith: "ul",
-                  update: function(event, ui) {
-                    var data = "";
-
-                    jQuery("#sortable2 li").each(function(i, el){
-                        var p = jQuery(el).attr("title");
-                        data += p+"="+jQuery(el).index()+",";
-                    });
-
-                    jQuery("#poradi2").val(data);
-                    }
-                    });
-
-                    jQuery( "#sortable1, #sortable2" ).disableSelection();
-                });
-            </script>
-            ';
+        echo $sortable_script;
 
         echo '
 
-            <h2>Nová sada parametrů</h2>
+            <h2>Upravit sadu parametrů</h2>
             <form method="post">
                 <table class="form-table">
                     <tbody>

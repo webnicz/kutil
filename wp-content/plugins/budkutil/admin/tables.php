@@ -317,7 +317,7 @@ class Sady_List_Table extends WP_List_Table {
                     case "col_sada_hodnoty": echo '<td '.$attributes.'></td>'; break;
                     //case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->parametr_poznamka).'</i></td>'; break;
                     case "col_sada_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->parametr_time)).'</td>'; break;
-                    case "col_sada_smazat": echo '<td '.$attributes.'><a class="del" href="?page=sady&delete='.$rec->parametr_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
+                    case "col_sada_smazat": echo '<td '.$attributes.'><a class="del" href="admin.php?page=sady&delete='.$rec->parametr_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
                     
                 }
             }
@@ -357,7 +357,7 @@ class Hodnoty_List_Table extends WP_List_Table {
         return $columns= array(
             //'cb' => '<input type="checkbox" name="book[]" value="%s" />',
             'col_hodnoty_id'=>'ID',
-            'col_hodnoty_nahld'=>'Náhled',
+            'col_hodnoty_nahled'=>'Náhled',
             'col_hodnoty_jmeno'=>'Název parametru (upravit)',
             'col_hodnoty_hodnoty'=>'Sada',
             'col_hodnoty_datum'=>'Datum vyrvoření',
@@ -447,7 +447,7 @@ class Hodnoty_List_Table extends WP_List_Table {
     }
 
     function display_rows() {
-
+        global $wpdb;
         //Get the records registered in the prepare_items method
         $records = $this->items;
         $columns = $this->get_columns();
@@ -472,15 +472,22 @@ class Hodnoty_List_Table extends WP_List_Table {
                 //edit link
                 $editlink  = '/wp-admin/link.php?action=edit&link_id='.(int)$rec->parametr_id;
 
+                $nahled = "";
+                if($rec->hodnota_img)                
+                    $nahled = '<img src="'.ABSPATH.'wp-content/plugins/budkutil/up_img/'.$rec->hodnota_img.'" alt="" />';
+
+                $sada = $wpdb->get_row("SELECT * FROM bk_parametry WHERE parametr_id='".$rec->parametr_id."'");
+
                 //Display the cell
                 switch ( $column_name ) {
                     //case "cb": echo '<td '.$attributes.'>'.$column_display_name.'</td>';  break;
-                    case "col_sada_id": echo '<td '.$attributes.'>'.stripslashes($rec->parametr_id).'</td>';  break;
-                    case "col_sada_jmeno": echo '<td '.$attributes.'><a href="admin.php?page=sady&action=edit&sid='.$rec->parametr_id.'"><b>'.$rec->parametr_nazev.'</b></a></td>'; break;
-                    case "col_sada_hodnoty": echo '<td '.$attributes.'></td>'; break;
-                    //case "col_sada_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->parametr_poznamka).'</i></td>'; break;
-                    case "col_sada_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->parametr_time)).'</td>'; break;
-                    case "col_sada_smazat": echo '<td '.$attributes.'><a class="del" href="?page=sady&delete='.$rec->parametr_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
+                    case "col_hodnoty_id": echo '<td '.$attributes.'>'.stripslashes($rec->hodnota_id).'</td>';  break;
+                    case "col_hodnoty_nahled": echo '<td '.$attributes.'>'.$nahled.'</td>'; break;
+                    case "col_hodnoty_jmeno": echo '<td '.$attributes.'><a href="admin.php?page=parametry&action=edit&pid='.$rec->hodnota_id.'"><b>'.$rec->hodnota_nazev.'</b></a></td>'; break;
+                    case "col_hodnoty_hodnoty": echo '<td '.$attributes.'>'.$sada->parametr_nazev.' (<a href="admin.php?page=sady&action=edit&sid='.$rec->parametr_id.'">Upravit</a>)</td>'; break;
+                    //case "col_hodnoty_poznamka": echo '<td '.$attributes.'><i>'.stripslashes($rec->hodnota_poznamka).'</i></td>'; break;
+                    case "col_hodnoty_datum": echo '<td '.$attributes.'>'.date('j.n.Y G:i',stripslashes($rec->hodnota_time)).'</td>'; break;
+                    case "col_hodnoty_smazat": echo '<td '.$attributes.'><a class="del" href="admin.php?page=parametry&delete='.$rec->hodnota_id.'"><img src="/wp-content/plugins/budkutil/img/delete.png" alt="delete" /></a></td>'; break;
                     
                 }
             }
