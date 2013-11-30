@@ -146,6 +146,57 @@ function test_modify_user_table_row( $val, $column_name, $user_id ) {
  
 add_filter( 'manage_users_custom_column', 'test_modify_user_table_row', 10, 3 );
 
+add_action( 'woocommerce_product_write_panel_tabs', 'budkutil_extra_panel' );
+
+function budkutil_extra_panel() {
+    ?>
+    <li class="attributes_tab attribute_options"><a href="#budkutil_sady" title="">Sady parametrů</a></li>
+    <?php
+}
+
+add_action( 'woocommerce_product_write_panels', 'budkutil_sady_panel' ); 
+
+function budkutil_sady_panel($post) {
+    global $wpdb;
+    ?>
+    <div id="budkutil_sady" class="panel wc-metaboxes-wrapper">
+
+            <p class="toolbar">
+                
+            </p>
+
+            <div class="woocommerce_attributes_sady wc-metaboxes">
+
+                
+            </div>
+
+            <p class="toolbar">
+                <button type="button" class="button button-primary add_attribute" id="add_sada">Přidat</button>
+                <select name="sada" class="attribute_taxonomy">
+                    <option value="">Vyberte sadu parametrů</option>
+                    <?
+                    $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+                    foreach ($sady as $sada) {
+                        echo '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
+                    }
+                    ?>
+                </select>
+
+                <button type="button" class="button save_attributes">Uložit</button>
+            </p>
+        </div>
+        <script>
+        jQuery('#add_sada').click( function () {
+            var sada = jQuery('select[name=sada]').val();
+            
+            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada }, function(data) { 
+                jQuery('.woocommerce_attributes_sady').append(data);
+            });
+        });
+        </script>
+    <?
+}
+
 add_action( 'show_user_profile', 'budkutil_show_extra_profile_fields' );
 add_action( 'edit_user_profile', 'budkutil_show_extra_profile_fields' );
 
