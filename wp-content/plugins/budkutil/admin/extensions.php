@@ -166,8 +166,15 @@ function budkutil_sady_panel($post) {
             </p>
 
             <div class="woocommerce_attributes_sady wc-metaboxes">
+                <?
+                $sady = $wpdb->get_results("SELECT * FROM bk_produkty_sady WHERE produkt_id='".$_GET['post']."'");
+                foreach ($sady as $sada) {
+                    $sada_id = $sada->sada_id;
+                    $parametr_id = $sada->parametr_id;
 
-                
+                    include ABSPATH."wp-content/plugins/budkutil/js/nastaveni_parametru_vypis.php";
+                }
+                ?>
             </div>
 
             <p class="toolbar">
@@ -182,17 +189,48 @@ function budkutil_sady_panel($post) {
                     ?>
                 </select>
 
-                <button type="button" class="button save_attributes">Uložit</button>
+                <button type="button" class="button save_attributes" id="save_sada">Uložit</button>
             </p>
         </div>
         <script>
         jQuery('#add_sada').click( function () {
-            var sada = jQuery('select[name=sada]').val();
-            
-            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada }, function(data) { 
+            var vybrano = jQuery('select[name=sada] option:selected').html();
+            var sada    = jQuery('select[name=sada]').val();
+            var aktivni = new Array();
+
+            var aktivni = new Array();
+               for(i=0; i <= jQuery('.nazev_sady').length; i++)
+                    if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
+                        aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
+
+            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada, get_aktivni: aktivni }, function(data) { 
+                jQuery('.woocommerce_attributes_sady').append(data);
+                jQuery('.sady_empty').delay(1500).fadeOut();
+                jQuery('select[name=sada] option:contains('+vybrano+')').remove();
+            });
+        });
+
+        jQuery('#save_sada').click( function () {
+            var aktivni = new Array();
+            var pole    = jQuery('.woocommerce_attributes_sady select').serialize();
+
+            var aktivni = new Array();
+               for(i=0; i <= jQuery('.nazev_sady').length; i++)
+                    if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
+                        aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
+
+            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry_save.php', { get_pid: <? echo $_GET['post'];?>, get_pole: pole, get_aktivni: aktivni }, function(data) { 
                 jQuery('.woocommerce_attributes_sady').append(data);
             });
         });
+
+        function odebrat_sadu(sada_id) {
+            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry_delete.php', { get_pid: <? echo $_GET['post'];?>, get_sada: sada_id }, function(data) { 
+                jQuery('.nazev_sady[id='+sada_id+']').parent().fadeOut();
+            });
+        }
+
+        
         </script>
     <?
 }
