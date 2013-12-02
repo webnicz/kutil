@@ -460,4 +460,25 @@ function bk_patametry($query) {
      return $query;
 }
 add_filter('pre_get_posts', 'bk_patametry');
+
+function budkutil_edit_product_columns( $existing_columns ) {
+    global $woocommerce;
+    $columns["product_owner"] = "Přidal";
+
+    return $columns;
+}
+
+add_filter( 'manage_edit-product_columns', 'budkutil_edit_product_columns' );
+
+function budkutil_custom_product_columns( $column ) {
+    global $post, $woocommerce, $the_product;
+
+    switch ($column) {
+        case "product_owner" :
+            echo '<a href="/wp-admin/user-edit.php?user_id='.$post->post_author.'">'.get_userdata($post->post_author)->display_name.'</a>';
+        break;
+    }
+}
+
+add_action('manage_product_posts_custom_column', 'budkutil_custom_product_columns', 2 );
 ?>
