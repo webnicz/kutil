@@ -481,4 +481,31 @@ function budkutil_custom_product_columns( $column ) {
 }
 
 add_action('manage_product_posts_custom_column', 'budkutil_custom_product_columns', 2 );
-?>
+
+function budkutil_provize_order($postID) {
+    global $wpdb;
+
+    echo '<div style="clear: both"></div></div><div class="totals_group">
+    <h4>Provize:</h4><br />';
+
+    $produkty = $wpdb->get_results("SELECT * FROM wp_woocommerce_order_items WHERE order_id='".$postID."'");
+    foreach ($produkty as $produkt) {
+
+        $ks = $wpdb->get_var("SELECT meta_value FROM wp_woocommerce_order_itemmeta WHERE meta_key='_qty' AND order_item_id='".$produkt->order_item_id."'");
+        $cena_order = $wpdb->get_var("SELECT meta_value  FROM wp_woocommerce_order_itemmeta WHERE meta_key='_line_total' AND order_item_id='".$produkt->order_item_id."'");
+        $id_product = $wpdb->get_var("SELECT meta_value  FROM wp_woocommerce_order_itemmeta WHERE meta_key='_product_id' AND order_item_id='".$produkt->order_item_id."'");
+        $cena_produkt = $wpdb->get_var("SELECT meta_value  FROM wp_postmeta WHERE meta_key='_regular_price' AND post_id='".$id_product."'");
+
+        $provize_ks = $cena_order-$cena_produkt;
+        $provize = $provize_ks*$ks;
+        $provize_celkem += $provize;
+
+        echo '<h4><i>'.$produkt->order_item_name.'</i></h4>
+        Provize ks: '.$provize_ks.' Kč<br />
+        Provize celkem: '.$provize.'Kč<br />';
+    }
+
+    echo "<br /><b>Celkem: $provize_celkem Kč</b>";
+}
+
+add_action( 'woocommerce_admin_order_totals_after_shipping', 'budkutil_provize_order', $post->ID );
