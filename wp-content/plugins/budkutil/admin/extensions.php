@@ -509,3 +509,35 @@ function budkutil_provize_order($postID) {
 }
 
 add_action( 'woocommerce_admin_order_totals_after_shipping', 'budkutil_provize_order', $post->ID );
+
+function pridat_produkt_uzivatel( $atts ) {
+    $html = '
+        <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
+
+        <div id="dropbox">
+            <span class="message">Přetáhnutím obrázku na tuto plochu bude nahrán na server. <br /><i>(podporované formáty: PNG, JPG, GIF)</i></span>
+        </div>
+                                    
+      <script>
+      jQuery(".uploaded").live("click", function(){
+        
+              var adr = jQuery(this).parent().attr("title");
+              
+              jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { img: adr, klic: "f9dks"} ,
+              function(data){
+                //alert("Data Loaded: " + data);
+              });
+          
+            jQuery(this).parent().parent().fadeOut( function() {
+                jQuery(this).parent().toggle("slow");
+            });
+        }); 
+      </script>
+              
+        <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js"></script>
+
+        <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>';
+
+    return $html;
+}
+add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
