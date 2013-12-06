@@ -511,7 +511,9 @@ function budkutil_provize_order($postID) {
 add_action( 'woocommerce_admin_order_totals_after_shipping', 'budkutil_provize_order', $post->ID );
 
 function pridat_produkt_uzivatel( $atts ) {
-    $html = '
+    global $wpdb;
+
+    $upload = '
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
 
         <div id="dropbox">
@@ -538,6 +540,98 @@ function pridat_produkt_uzivatel( $atts ) {
 
         <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>';
 
-    return $html;
+    $links = '
+    <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
+
+    <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
+    <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>';
+
+    $script = '<script type="text/javascript">
+    jQuery(document).ready(function(){
+        jQuery("#browser").treeview({
+            toggle: function() {
+                console.log("%s was toggled.", jQuery(this).find(">span").text());
+            }
+        });
+        
+        jQuery("#add").click(function() {
+            var branches = jQuery("<li><span class=\'folder\'>New Sublist</span><ul>" + 
+                "<li><span class=\'file\'>Item1</span></li>" + 
+                "<li><span class=\'file\'>Item2</span></li></ul></li>").appendTo("#browser");
+            jQuery("#browser").treeview({
+                add: branches
+            });
+        });
+    });
+    </script>';
+
+    $kategorie = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat' AND parent='0'");
+    foreach ($kategorie as $zaznam) {
+
+        $rodic = $wpdb->get_row("SELECT * FROM wp_terms WHERE  term_id='".$zaznam->term_id."'");
+        $deti = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE parent='".$zaznam->term_id."'");
+        foreach ($deti as $dite) {
+            $jedno = $wpdb->get_row("SELECT * FROM wp_terms WHERE term_id='".$dite->term_id."'");
+            $dite_polozka[$zaznam->term_id][] = $jedno->name;
+        }
+
+        if(sizeof($dite_polozka[$zaznam->term_id]) > 0)
+        {
+            $tree_frag .= '
+            <li><span class="folder">'.$rodic->name.'</span>
+                <ul>
+                    ';
+                    foreach ($dite_polozka[$zaznam->term_id] as $podkaegorie) {
+                        $tree_frag .= '<li><span class="file">'.$podkaegorie.'</span></li>';
+                    }
+                    
+              $tree_frag .= '              
+                </ul>
+            </li>';
+        }
+        else
+        {
+            $tree_frag .= '<li><span class="folder">'.$rodic->name.'</span>
+            <ul>
+                <li><span class="file">'.$rodic->name.'</span></li>
+            </ul>
+        </li>';
+        }
+    }
+
+    $tree = '<ul id="browser" class="filetree treeview-famfamfam">
+        '.$tree_frag.'
+    </ul>';
+
+    $form = '
+    <form method="post">
+        <table>
+            <tr>
+                <td>Název:</td>
+                <td>
+                    <input type="text" value="" name="" />
+                </td>
+            </tr>
+            <tr>
+                <td>Popis:</td>
+                <td>
+                    <textarea rows="5" cols="30" name=""></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>Kategorie:</td>
+                <td>
+                    '.$tree.'
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    '.$upload.'
+                </td>
+            </tr>
+        </table>
+    </form>';    
+
+    return $links.$script.$form;
 }
 add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
