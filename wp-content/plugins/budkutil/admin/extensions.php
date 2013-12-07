@@ -510,6 +510,60 @@ function budkutil_provize_order($postID) {
 
 add_action( 'woocommerce_admin_order_totals_after_shipping', 'budkutil_provize_order', $post->ID );
 
+
+function category_tree(array $zaznamy, $parentId = 0) {
+    global $wpdb;
+
+    /*$neco = $wpdb->get_results("SELECT t1.term_id AS lev1, t2.term_id as lev2, t3.term_id as lev3, t4.term_id as lev4
+    FROM wp_term_taxonomy AS t1
+    LEFT JOIN wp_term_taxonomy AS t2 ON t2.parent = t1.term_id
+    LEFT JOIN wp_term_taxonomy AS t3 ON t3.parent = t2.term_id
+    LEFT JOIN wp_term_taxonomy AS t4 ON t4.parent = t3.term_id
+    WHERE t1.taxonomy='product_cat'");*/
+    
+    $vetev = array();
+
+    foreach ($zaznamy as $zaznam) {
+        if ($zaznam->parent == $parentId) {
+            $children = category_tree($zaznamy, $zaznam->term_id);
+            if ($children) {
+                $zaznam->children = $children;
+            }
+            $vetev[] = $zaznam;
+        }
+    }
+
+    return $vetev;
+}
+
+function seznam($data_array, $i = 0, $list_tag = 'ul') {
+    
+    if ($list_tag != 'ul' && $list_tag != 'ol')
+        $list_tag = 'ul';
+
+    if (!is_array($data_array) || empty($data_array))
+        return;
+
+    //if($i == 0)
+    //    echo '<'.$list_tag.'>';
+    //else
+    if($data_array[0][parent] == 0)
+        $label = "Kategorie";
+    else
+        $label = "Podkategorie ".$data_array[0][parent];
+
+    echo '<li><span class="folder">'.$label.'</span><'.$list_tag.'>';
+    
+    foreach ($data_array as $element) {
+        echo '<li><span class="file">'.$element[term_id].'</span></li>';
+
+        if (is_array($element[children])) {
+            seznam($element[children], ++$i);
+        }
+    }
+    echo '</'.$list_tag.'></li>';
+}
+
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
 
@@ -565,43 +619,15 @@ function pridat_produkt_uzivatel( $atts ) {
     });
     </script>';
 
-    $kategorie = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat' AND parent='0'");
-    foreach ($kategorie as $zaznam) {
 
-        $rodic = $wpdb->get_row("SELECT * FROM wp_terms WHERE  term_id='".$zaznam->term_id."'");
-        $deti = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE parent='".$zaznam->term_id."'");
-        foreach ($deti as $dite) {
-            $jedno = $wpdb->get_row("SELECT * FROM wp_terms WHERE term_id='".$dite->term_id."'");
-            $dite_polozka[$zaznam->term_id][] = $jedno->name;
-        }
-
-        if(sizeof($dite_polozka[$zaznam->term_id]) > 0)
-        {
-            $tree_frag .= '
-            <li><span class="folder">'.$rodic->name.'</span>
-                <ul>
-                    ';
-                    foreach ($dite_polozka[$zaznam->term_id] as $podkaegorie) {
-                        $tree_frag .= '<li><span class="file">'.$podkaegorie.'</span></li>';
-                    }
-                    
-              $tree_frag .= '              
-                </ul>
-            </li>';
-        }
-        else
-        {
-            $tree_frag .= '<li><span class="folder">'.$rodic->name.'</span>
-            <ul>
-                <li><span class="file">'.$rodic->name.'</span></li>
-            </ul>
-        </li>';
-        }
-    }
-
-    $tree = '<ul id="browser" class="filetree treeview-famfamfam">
-        '.$tree_frag.'
-    </ul>';
+    $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat'");
+    $tree = category_tree($zaznamy);
+    $array = json_decode(json_encode($tree), true);
+    ob_start();
+    echo '<ul id="browser" class="filetree treeview-famfamfam">';
+    seznam($array);
+    echo "</ul>";
+    $tree = ob_get_clean();
 
     $form = '
     <form method="post">
