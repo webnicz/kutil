@@ -544,9 +544,6 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
     if (!is_array($data_array) || empty($data_array))
         return;
 
-    //if($i == 0)
-    //    echo '<'.$list_tag.'>';
-    //else
     if($data_array[0][parent] == 0)
         $label = "Kategorie";
     else
@@ -566,6 +563,28 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
 
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
+
+    if(isset($_POST['pridat_novy_produkt']))
+    {
+        $novy_produkt_nazev         = sanitize_text_field($_POST['novy_produkt_nazev']);
+        $novy_produkt_popis         = sanitize_text_field($_POST['novy_produkt_popis']);
+        $novy_produkt_cena          = sanitize_text_field($_POST['novy_produkt_cena']);
+        $novy_produkt_ks            = sanitize_text_field($_POST['novy_produkt_ks']);
+        $novy_produkt_viditelnost   = sanitize_text_field($_POST['novy_produkt_viditelnost']);
+        $novy_produkt_kategorie     = $_POST['novy_produkt_nazev'];
+
+        $error = 0;
+        if(!$wpdb->insert('wp_posts', 
+            array( 
+                
+            )
+        )) ++$error;
+        
+        if($error == 0)
+            echo '<div class="updated"><p><strong>Nová sada parametrů úspěšně uložena.</strong></p></div>';
+        else
+            echo '<div class="error"><p><strong>Novou sadu parametrů se nepodařilo uložit.</strong></p></div>';
+    }
 
     $upload = '
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
@@ -596,7 +615,8 @@ function pridat_produkt_uzivatel( $atts ) {
 
     $links = '
     <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
-
+    <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js"></script>
+    <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
     <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
     <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>';
 
@@ -635,13 +655,13 @@ function pridat_produkt_uzivatel( $atts ) {
             <tr>
                 <td>Název:</td>
                 <td>
-                    <input type="text" value="" name="" />
+                    <input type="text" value="'.$_POST['novy_produkt_nazev'].'" name="novy_produkt_nazev" />
                 </td>
             </tr>
             <tr>
                 <td>Popis:</td>
                 <td>
-                    <textarea rows="5" cols="30" name=""></textarea>
+                    <textarea rows="5" cols="30" name="novy_produkt_popis"></textarea>
                 </td>
             </tr>
             <tr>
@@ -651,8 +671,34 @@ function pridat_produkt_uzivatel( $atts ) {
                 </td>
             </tr>
             <tr>
+                <td>Cena:</td>
+                <td>
+                    <input type="text" value="" name="novy_produkt_cena" size="5" /> Kč
+                </td>
+            </tr>
+            <tr>
+                <td>Kusů:</td>
+                <td>
+                    <div class="numbers-row">
+                        <input type="text" name="novy_produkt_ks" value="1" size="2" /> Ks
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Veřejný:</td>
+                <td>
+                    <input type="checkbox" value="" name="novy_produkt_viditelnost" checked="checked" /> Produkt mohou vidět všichni uživatelé 
+                </td>
+            </tr>
+            <tr>
                 <td colspan="2">
                     '.$upload.'
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="Přidat" name="pridat_novy_produkt" />
                 </td>
             </tr>
         </table>
