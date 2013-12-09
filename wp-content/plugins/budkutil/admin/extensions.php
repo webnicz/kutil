@@ -1,4 +1,4 @@
-<?
+    <?
 function pridat_pole_kategorie($taxonomy) {
   $pole = '
     <div class="form-field">
@@ -537,7 +537,8 @@ function category_tree(array $zaznamy, $parentId = 0) {
 }
 
 function seznam($data_array, $i = 0, $list_tag = 'ul') {
-    
+    global $wpdb;
+
     if ($list_tag != 'ul' && $list_tag != 'ol')
         $list_tag = 'ul';
 
@@ -545,14 +546,16 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
         return;
 
     if($data_array[0][parent] == 0)
-        $label = "Kategorie";
+        $label = "Hlavní kategorie";
     else
-        $label = "Podkategorie ".$data_array[0][parent];
+        $label = "Podkategorie"; //.$data_array[0][parent]
 
     echo '<li><span class="folder">'.$label.'</span><'.$list_tag.'>';
     
     foreach ($data_array as $element) {
-        echo '<li><span class="file">'.$element[term_id].'</span></li>';
+        $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$element[term_id]."'");
+
+        echo '<li><span class="file">'.$kat_nazev.'</span></li>';
 
         if (is_array($element[children])) {
             seznam($element[children], ++$i);
@@ -573,12 +576,22 @@ function pridat_produkt_uzivatel( $atts ) {
         $novy_produkt_viditelnost   = sanitize_text_field($_POST['novy_produkt_viditelnost']);
         $novy_produkt_kategorie     = $_POST['novy_produkt_nazev'];
 
-        $error = 0;
-        if(!$wpdb->insert('wp_posts', 
-            array( 
-                
-            )
-        )) ++$error;
+        $post = array(
+          'post_author'    => wp_get_current_user(), 
+          'post_content'   => $novy_produkt_popis, 
+          'post_date'      => date('Y-m-d H:i:s'),
+          'post_status'    => 'draft', //publish
+          'post_title'     => $novy_produkt_nazev, 
+          'post_type'      => 'product'
+        );  
+
+        /*wp_insert_post($post);
+        $last = wp_get_recent_posts( '1');
+        $last_id = $last['0']['ID'];
+
+        add_post_meta($post_id, '_regular_price', $novy_produkt_cena);*/
+
+        
         
         if($error == 0)
             echo '<div class="updated"><p><strong>Nová sada parametrů úspěšně uložena.</strong></p></div>';
