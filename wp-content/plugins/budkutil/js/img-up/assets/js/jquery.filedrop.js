@@ -29,6 +29,7 @@
 	var opts = {},
 		default_opts = {
 			url: '',
+			edit_timestamp: '',
 			refresh: 1000,
 			paramname: 'userfile',
 			maxfiles: 25,

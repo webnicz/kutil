@@ -1,6 +1,6 @@
 <?php
-$demo_mode = true;
-$upload_dir = '';
+$demo_mode = false;
+$upload_dir = './tmp_img/';
 $allowed_ext = array('jpg','jpeg','png','gif');
 
 
@@ -33,7 +33,9 @@ if(array_key_exists('pic',$_FILES) && $_FILES['pic']['error'] == 0 ){
 	
 	$cesta = $pic['name'];
 	$datum = time();
-	if(move_uploaded_file($pic['tmp_name'], $cesta)){
+	//preg_replace('/(.+\/)([a-z]+\.[a-zA-Z]{2,4})$/i', '${1}'.time().'_${2}', subject)
+
+	if(move_uploaded_file($pic['tmp_name'], $upload_dir.$_GET['time'].'_'.$cesta)){
 		exit_status('File was uploaded successfuly!');
 		
 		//$q = "INSERT INTO galerie (id,session,id_video,cesta,datum,popis)

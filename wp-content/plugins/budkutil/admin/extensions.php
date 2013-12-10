@@ -585,11 +585,11 @@ function pridat_produkt_uzivatel( $atts ) {
           'post_type'      => 'product'
         );  
 
-        /*wp_insert_post($post);
+        wp_insert_post($post);
         $last = wp_get_recent_posts( '1');
         $last_id = $last['0']['ID'];
 
-        add_post_meta($post_id, '_regular_price', $novy_produkt_cena);*/
+        add_post_meta($post_id, '_regular_price', $novy_produkt_cena);
 
         
         
@@ -605,13 +605,14 @@ function pridat_produkt_uzivatel( $atts ) {
         <div id="dropbox">
             <span class="message">Přetáhnutím obrázku na tuto plochu bude nahrán na server. <br /><i>(podporované formáty: PNG, JPG, GIF)</i></span>
         </div>
-                                    
+                          
+                          <input id="edit_timestamp" type="hidden" value="'.time().'" />
       <script>
       jQuery(".uploaded").live("click", function(){
         
               var adr = jQuery(this).parent().attr("title");
               
-              jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { img: adr, klic: "f9dks"} ,
+              jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { time: jQuery(\'#edit_timestamp\').val(), img: adr, klic: "f9dks"} ,
               function(data){
                 //alert("Data Loaded: " + data);
               });

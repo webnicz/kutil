@@ -1,7 +1,8 @@
 ﻿jQuery(function(){
 	
-	var dropbox = jQuery('#dropbox'),
-		message = jQuery('.message', dropbox);
+	var dropbox 	= jQuery('#dropbox'),
+		timestamp 	= jQuery('#edit_timestamp').val(),
+		message 	= jQuery('.message', dropbox);
 	
 	dropbox.filedrop({
 		// The name of the jQuery_FILES entry:
@@ -9,7 +10,8 @@
 		
 		maxfiles: 100,
     	maxfilesize: 2,
-		url: '/wp-content/plugins/budkutil/js/nahraj_obrazek.php',
+		url: '/wp-content/plugins/budkutil/js/nahraj_obrazek.php?time='+timestamp,
+		edit_timestamp: timestamp, 
 		
 		uploadFinished:function(i,file,response){
 			jQuery.data(file).addClass('done');
