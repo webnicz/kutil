@@ -1,4 +1,4 @@
-    <?
+<?
 function pridat_pole_kategorie($taxonomy) {
   $pole = '
     <div class="form-field">
@@ -545,17 +545,22 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
     if (!is_array($data_array) || empty($data_array))
         return;
 
-    if($data_array[0][parent] == 0)
-        $label = "Hlavní kategorie";
-    else
-        $label = "Podkategorie"; //.$data_array[0][parent]
+    $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$data_array[0][parent]."'");
 
-    echo '<li><span class="folder">'.$label.'</span><'.$list_tag.'>';
+    if($data_array[0][parent] == 0)
+        $kat_nazev = "Hlavní kategorie";
+    else
+        $kat_nazev = '<input type="checkbox" name="produkt_cat[]" value="'.$data_array[0][parent].'" /> '.$kat_nazev;
+
+    echo '<li><span class="folder">'.$kat_nazev.'</span><'.$list_tag.'>';
     
     foreach ($data_array as $element) {
         $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$element[term_id]."'");
 
-        echo '<li><span class="file">'.$kat_nazev.'</span></li>';
+        $nadrazeno = $wpdb->get_var("SELECT SUM(1) FROM wp_term_taxonomy WHERE parent='".$element[term_id]."'");
+
+        if($nadrazeno == 0)
+            echo '<li><span class="file"><input type="checkbox" name="produkt_cat[]" value="'.$element[term_id].'" /> '.$kat_nazev.'</span></li>';
 
         if (is_array($element[children])) {
             seznam($element[children], ++$i);
@@ -571,8 +576,8 @@ function pridat_produkt_uzivatel( $atts ) {
     {
         $novy_produkt_nazev         = sanitize_text_field($_POST['novy_produkt_nazev']);
         $novy_produkt_popis         = sanitize_text_field($_POST['novy_produkt_popis']);
-        $novy_produkt_cena          = sanitize_text_field($_POST['novy_produkt_cena']);
-        $novy_produkt_ks            = sanitize_text_field($_POST['novy_produkt_ks']);
+        $novy_produkt_cena          = filter_var($_POST['novy_produkt_cena'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        $novy_produkt_ks            = filter_var($_POST['novy_produkt_ks'], FILTER_SANITIZE_NUMBER_INT);
         $novy_produkt_viditelnost   = sanitize_text_field($_POST['novy_produkt_viditelnost']);
         $novy_produkt_kategorie     = $_POST['novy_produkt_nazev'];
 
@@ -586,11 +591,55 @@ function pridat_produkt_uzivatel( $atts ) {
         );  
 
         wp_insert_post($post);
-        $last = wp_get_recent_posts( '1');
-        $last_id = $last['0']['ID'];
+        //$last = wp_get_recent_posts( '1');
+        $last_id = $wpdb->insert_id;//$last['0']['ID'];
 
-        add_post_meta($post_id, '_regular_price', $novy_produkt_cena);
+        require_once( ABSPATH . 'wp-admin/includes/image.php' );
 
+        $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+        $mine = array("image/jpeg","image/pjpeg","image/png","image/gif");
+        $attachments = array();
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    if(preg_match('/^'.$_POST['edit_timestamp'].'/i', $file))
+                    {
+                        if(in_array(mime_content_type($dir . $file),$mine))
+                        {    
+                            $wp_filetype = wp_check_filetype(basename($file), null );
+                            $wp_upload_dir = wp_upload_dir();
+
+                            rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
+
+                            $attachment = array(
+                             'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
+                             'post_mime_type' => $wp_filetype['type'],
+                             'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
+                             'post_content' => '',
+                             'post_status' => 'inherit'
+                            );
+
+                            $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $last_id );
+
+                            $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
+                            wp_update_attachment_metadata( $attach_id, $attach_data );
+
+                            array_push($attachments, $attach_id);
+                        }
+                    }
+                }
+                closedir($dh);
+            }
+        }
+
+        add_post_meta($last_id, '_product_image_gallery', implode(',', $attachments));
+        add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
+        add_post_meta($last_id, '_stock', $novy_produkt_ks);
+        add_post_meta($last_id, '_manage_stock', 'yes');
+        if($novy_produkt_ks > 0)
+            add_post_meta($last_id, '_stock_status', 'instock');
+
+        wp_set_post_terms( $last_id, $_POST['produkt_cat']);
         
         
         if($error == 0)
@@ -606,7 +655,7 @@ function pridat_produkt_uzivatel( $atts ) {
             <span class="message">Přetáhnutím obrázku na tuto plochu bude nahrán na server. <br /><i>(podporované formáty: PNG, JPG, GIF)</i></span>
         </div>
                           
-                          <input id="edit_timestamp" type="hidden" value="'.time().'" />
+                          <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
       <script>
       jQuery(".uploaded").live("click", function(){
         
@@ -721,3 +770,5 @@ function pridat_produkt_uzivatel( $atts ) {
     return $links.$script.$form;
 }
 add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
+
+?>
