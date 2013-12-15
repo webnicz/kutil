@@ -578,7 +578,7 @@ function pridat_produkt_uzivatel( $atts ) {
         $novy_produkt_popis         = sanitize_text_field($_POST['novy_produkt_popis']);
         $novy_produkt_cena          = filter_var($_POST['novy_produkt_cena'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $novy_produkt_ks            = filter_var($_POST['novy_produkt_ks'], FILTER_SANITIZE_NUMBER_INT);
-        $novy_produkt_viditelnost   = sanitize_text_field($_POST['novy_produkt_viditelnost']);
+        $novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
         $novy_produkt_kategorie     = $_POST['novy_produkt_nazev'];
 
         $post = array(
@@ -593,6 +593,7 @@ function pridat_produkt_uzivatel( $atts ) {
         wp_insert_post($post);
         //$last = wp_get_recent_posts( '1');
         $last_id = $wpdb->insert_id;//$last['0']['ID'];
+        $wp_upload_dir = wp_upload_dir();
 
         require_once( ABSPATH . 'wp-admin/includes/image.php' );
 
@@ -607,7 +608,6 @@ function pridat_produkt_uzivatel( $atts ) {
                         if(in_array(mime_content_type($dir . $file),$mine))
                         {    
                             $wp_filetype = wp_check_filetype(basename($file), null );
-                            $wp_upload_dir = wp_upload_dir();
 
                             rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
 
@@ -641,133 +641,187 @@ function pridat_produkt_uzivatel( $atts ) {
 
         wp_set_post_terms( $last_id, $_POST['produkt_cat']);
         
-        
-        if($error == 0)
-            echo '<div class="updated"><p><strong>Nová sada parametrů úspěšně uložena.</strong></p></div>';
-        else
-            echo '<div class="error"><p><strong>Novou sadu parametrů se nepodařilo uložit.</strong></p></div>';
+        $pridan = true;
+        //add error report ##
     }
 
-    $upload = '
-        <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
+    if($pridan)
+    {
+        $form = '<div class="report positive">Produkt úspěšně vytvořen.</div>';
 
-        <div id="dropbox">
-            <span class="message">Přetáhnutím obrázku na tuto plochu bude nahrán na server. <br /><i>(podporované formáty: PNG, JPG, GIF)</i></span>
-        </div>
-                          
-                          <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
-      <script>
-      jQuery(".uploaded").live("click", function(){
-        
-              var adr = jQuery(this).parent().attr("title");
-              
-              jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { time: jQuery(\'#edit_timestamp\').val(), img: adr, klic: "f9dks"} ,
-              function(data){
-                //alert("Data Loaded: " + data);
-              });
-          
-            jQuery(this).parent().parent().fadeOut( function() {
-                jQuery(this).parent().toggle("slow");
-            });
-        }); 
-      </script>
-              
-        <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js"></script>
+        $form .= '<h4>Vyberte náhledový obrázek Vašeho produktu:</h4>';
 
-        <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>';
+        $form .= '<div id="vyber_nahled">';
+        //$obrazky = $wpdb->get_results("SELECT * FROM wp_postmeta WHERE post_id='".$last_id."' AND meta_key='_wp_attached_file'");
+        $obrazky = $wpdb->get_var("SELECT meta_value FROM wp_postmeta WHERE post_id='".$last_id."' AND meta_key='_product_image_gallery'");
+        $obrazky = explode(',', $obrazky);
+        foreach($obrazky as $obrazek) {
 
-    $links = '
-    <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
-    <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js"></script>
-    <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
-    <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
-    <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>';
+            $file = $wpdb->get_var("SELECT meta_value FROM wp_postmeta WHERE post_id='".$obrazek."'");
+            $form .= wp_get_attachment_image( $obrazek, array(150,150) );
+            //$form .= '<img src="'.$wp_upload_dir['url']."/".$file.'"  alt="'.$obrazek.'" />';
+        }
+        $form .= '</div>';
 
-    $script = '<script type="text/javascript">
-    jQuery(document).ready(function(){
-        jQuery("#browser").treeview({
-            toggle: function() {
-                console.log("%s was toggled.", jQuery(this).find(">span").text());
-            }
+        $form .= '<form method="post">
+            <input type="text" name="nahled_id" velue="0" />
+            <input type="hidden" name="user_id" velue="'.get_current_user_id().'" />
+            <input type="hidden" name="produkt_id" velue="'.$last_id.'" />';
+
+        if($novy_produkt_viditelnost == "true")
+            $form .= '<input type="submit" name="zverejnit_produkt" value="Zveřejnit produkt" />';
+        else
+            $form .= '<input type="submit" name="ulozit_produkt" value="Dokončit nastavení" />';
+
+        $form .= '</form>';
+
+        $script_down = '<script>
+        jQuery(\'#vyber_nahled img\').click( function () {
+            jQuery(\'#vyber_nahled img\').removeClass(\'zvoleny_nahled\');
+            jQuery(\'input[name=nahled_id]\').val(jQuery(this).attr(\'alt\'));
+            jQuery(this).addClass(\'zvoleny_nahled\');
         });
-        
-        jQuery("#add").click(function() {
-            var branches = jQuery("<li><span class=\'folder\'>New Sublist</span><ul>" + 
-                "<li><span class=\'file\'>Item1</span></li>" + 
-                "<li><span class=\'file\'>Item2</span></li></ul></li>").appendTo("#browser");
+        </script>';
+    }
+    elseif(isset($_POST['zverejnit_produkt']))
+    {
+        $my_post = array(
+              'ID'           => $_POST['product_id'],
+              'post_status' => 'publish'
+          );
+
+        wp_update_post( $my_post );
+        $form = 'Produkt byl úspěšně zařazen do nabídky.';
+    }
+    elseif(isset($_POST['ulozit_produkt']))
+    {
+
+
+        $form = 'Produkt byl úspěšně vytvořen a je připravený pro zveřejnění v nabídce.';
+    }
+    else
+    {
+        $upload = '
+            <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
+
+            <div id="dropbox">
+                <span class="message">Přetáhnutím obrázku na tuto plochu bude nahrán na server. <br /><i>(podporované formáty: PNG, JPG, GIF)</i></span>
+            </div>
+                              
+                              <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
+          <script>
+          jQuery(".uploaded").live("click", function(){
+            
+                  var adr = jQuery(this).parent().attr("title");
+                  
+                  jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { time: jQuery(\'#edit_timestamp\').val(), img: adr, klic: "f9dks"} ,
+                  function(data){
+                    //alert("Data Loaded: " + data);
+                  });
+              
+                jQuery(this).parent().parent().fadeOut( function() {
+                    jQuery(this).parent().toggle("slow");
+                });
+            }); 
+          </script>
+                  
+            <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js"></script>
+
+            <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>';
+
+        $links = '
+        <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
+        <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js"></script>
+        <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
+        <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
+        <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>';
+
+        $script = '<script type="text/javascript">
+        jQuery(document).ready(function(){
             jQuery("#browser").treeview({
-                add: branches
+                toggle: function() {
+                    console.log("%s was toggled.", jQuery(this).find(">span").text());
+                }
+            });
+            
+            jQuery("#add").click(function() {
+                var branches = jQuery("<li><span class=\'folder\'>New Sublist</span><ul>" + 
+                    "<li><span class=\'file\'>Item1</span></li>" + 
+                    "<li><span class=\'file\'>Item2</span></li></ul></li>").appendTo("#browser");
+                jQuery("#browser").treeview({
+                    add: branches
+                });
             });
         });
-    });
-    </script>';
+        </script>';
 
 
-    $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat'");
-    $tree = category_tree($zaznamy);
-    $array = json_decode(json_encode($tree), true);
-    ob_start();
-    echo '<ul id="browser" class="filetree treeview-famfamfam">';
-    seznam($array);
-    echo "</ul>";
-    $tree = ob_get_clean();
+        $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat'");
+        $tree = category_tree($zaznamy);
+        $array = json_decode(json_encode($tree), true);
+        ob_start();
+        echo '<ul id="browser" class="filetree treeview-famfamfam">';
+        seznam($array);
+        echo "</ul>";
+        $tree = ob_get_clean();
 
-    $form = '
-    <form method="post">
-        <table>
-            <tr>
-                <td>Název:</td>
-                <td>
-                    <input type="text" value="'.$_POST['novy_produkt_nazev'].'" name="novy_produkt_nazev" />
-                </td>
-            </tr>
-            <tr>
-                <td>Popis:</td>
-                <td>
-                    <textarea rows="5" cols="30" name="novy_produkt_popis"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>Kategorie:</td>
-                <td>
-                    '.$tree.'
-                </td>
-            </tr>
-            <tr>
-                <td>Cena:</td>
-                <td>
-                    <input type="text" value="" name="novy_produkt_cena" size="5" /> Kč
-                </td>
-            </tr>
-            <tr>
-                <td>Kusů:</td>
-                <td>
-                    <div class="numbers-row">
-                        <input type="text" name="novy_produkt_ks" value="1" size="2" /> Ks
-                    </div>
-                </td>
-            </tr>
-            <tr>
-                <td>Veřejný:</td>
-                <td>
-                    <input type="checkbox" value="" name="novy_produkt_viditelnost" checked="checked" /> Produkt mohou vidět všichni uživatelé 
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    '.$upload.'
-                </td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    <input type="submit" value="Přidat" name="pridat_novy_produkt" />
-                </td>
-            </tr>
-        </table>
-    </form>';    
+        $form = '
+        <form method="post">
+            <table>
+                <tr>
+                    <td>Název:</td>
+                    <td>
+                        <input type="text" value="'.$_POST['novy_produkt_nazev'].'" name="novy_produkt_nazev" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Popis:</td>
+                    <td>
+                        <textarea rows="5" cols="30" name="novy_produkt_popis"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Kategorie:</td>
+                    <td>
+                        '.$tree.'
+                    </td>
+                </tr>
+                <tr>
+                    <td>Cena:</td>
+                    <td>
+                        <input type="text" value="" name="novy_produkt_cena" size="5" /> Kč
+                    </td>
+                </tr>
+                <tr>
+                    <td>Kusů:</td>
+                    <td>
+                        <div class="numbers-row">
+                            <input type="text" name="novy_produkt_ks" value="1" size="2" /> Ks
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Veřejný:</td>
+                    <td>
+                        <input type="checkbox" value="true" name="novy_produkt_viditelnost" checked="checked" /> Produkt mohou vidět všichni uživatelé 
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        '.$upload.'
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <input type="submit" value="Vytvořit produkt" name="pridat_novy_produkt" />
+                    </td>
+                </tr>
+            </table>
+        </form>';
+    }    
 
-    return $links.$script.$form;
+    return $links.$script.$form.$script_down;
 }
 add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
 
