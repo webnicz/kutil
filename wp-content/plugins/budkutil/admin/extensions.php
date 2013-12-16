@@ -569,6 +569,14 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
     echo '</'.$list_tag.'></li>';
 }
 
+function set_tmbn($post, $file) {
+    global $wpdb;
+
+    $obrazek_id = $wpdb->get_var("SELECT post_id FROM wp_postmeta WHERE meta_value REGEXP '".$file."' ORDER BY meta_id DESC");
+    //set_post_thumbnail($_POST['produkt_id'], $obrazek_id);echo $_POST['produkt_id']."$$".$obrazek_id;
+    add_post_meta($post, '_thumbnail_id', $obrazek_id);
+}
+
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
 
@@ -664,9 +672,9 @@ function pridat_produkt_uzivatel( $atts ) {
         $form .= '</div>';
 
         $form .= '<form method="post">
-            <input type="text" name="nahled_id" velue="0" />
-            <input type="hidden" name="user_id" velue="'.get_current_user_id().'" />
-            <input type="hidden" name="produkt_id" velue="'.$last_id.'" />';
+            <input type="hidden" name="nahled" value="0" />
+            <input type="hidden" name="user_id" value="'.get_current_user_id().'" />
+            <input type="hidden" name="produkt_id" value="'.$last_id.'" />';
 
         if($novy_produkt_viditelnost == "true")
             $form .= '<input type="submit" name="zverejnit_produkt" value="Zveřejnit produkt" />';
@@ -685,18 +693,18 @@ function pridat_produkt_uzivatel( $atts ) {
     }
     elseif(isset($_POST['zverejnit_produkt']))
     {
+        set_tmbn($_POST['produkt_id'], $_POST['nahled']);   
         $my_post = array(
-              'ID'           => $_POST['product_id'],
+              'ID'           => $_POST['produkt_id'],
               'post_status' => 'publish'
           );
-
+ 
         wp_update_post( $my_post );
-        $form = 'Produkt byl úspěšně zařazen do nabídky.';
+        $form .= 'Produkt byl úspěšně zařazen do nabídky.';
     }
     elseif(isset($_POST['ulozit_produkt']))
     {
-
-
+        set_tmbn($_POST['produkt_id'], $_POST['nahled']);   
         $form = 'Produkt byl úspěšně vytvořen a je připravený pro zveřejnění v nabídce.';
     }
     else
