@@ -244,7 +244,7 @@ function extra_profile_fields_groups($groups, $user) {
 
         $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='0' AND group_id='".$group->id."'");
 
-        echo "<tr><td colspan=\"2\"><br /><b>$group->name</b></td><tr>";
+        $html .= "<tr><td colspan=\"2\"><br /><b>$group->name</b></td><tr>";
 
         foreach ($extra_fields as $field) {
             $extra_field_id = $field->id;
@@ -357,7 +357,7 @@ function extra_profile_fields_groups($groups, $user) {
                     break;
             }
                 
-            echo '<tr>
+            $html .= '<tr>
                 <th><label for="bp_meta_'.$extra_field_id.'">'.$field->name.'</label></th>
 
                 <td>
@@ -368,6 +368,8 @@ function extra_profile_fields_groups($groups, $user) {
 
         }
     }
+
+    return $html;
 }
 
 add_action( 'show_user_profile', 'budkutil_show_extra_profile_fields' );
@@ -399,7 +401,7 @@ function my_save_extra_profile_fields( $user_id ) {
 
     if ( !current_user_can( 'edit_user', $user_id ) )
         return false;
-echo "<pre>";
+
     $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields");
 
     foreach ($extra_fields as $field) {
@@ -844,22 +846,34 @@ add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
 
 function nastaveni_uzivatel() {
     global $wpdb;
+    $user = get_userdata(get_current_user_id());
+    
+    if($_POST['ulozit_nastaveni_uzivtel'])
+        my_save_extra_profile_fields($user->ID); 
 
     $form = '
     <form method="post">
         <h2>Nastavení</h2>
-
+        
+        <table>
+            '.extra_profile_fields_groups(
+                $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups WHERE id='2'")
+                , $user).'
+        </table>
+    
         <table>
             '.extra_profile_fields_groups(
                 $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups WHERE id='4'")
-                , get_userdata(get_current_user())).'
+                , $user).'
         </table>
 
         <table>
             '.extra_profile_fields_groups(
                 $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups WHERE id='5'")
-                , get_userdata(get_current_user())).'
+                , $user).'
         </table>
+
+        <input type="submit" name="ulozit_nastaveni_uzivtel" value="Uložit nastavení" />
     </form>
     ';
 
