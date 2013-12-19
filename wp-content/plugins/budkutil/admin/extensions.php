@@ -235,20 +235,10 @@ function budkutil_sady_panel($post) {
     <?
 }
 
-add_action( 'show_user_profile', 'budkutil_show_extra_profile_fields' );
-add_action( 'edit_user_profile', 'budkutil_show_extra_profile_fields' );
 
-function budkutil_show_extra_profile_fields( $user ) { 
+
+function extra_profile_fields_groups($groups, $user) {
     global $wpdb;
-
-    ?>
-
-    <h3>BuddyPress - profilové informace</h3>
-
-    <table class="form-table">
-
-    <?
-    $groups = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups");
 
     foreach ($groups as $group) {
 
@@ -378,6 +368,23 @@ function budkutil_show_extra_profile_fields( $user ) {
 
         }
     }
+}
+
+add_action( 'show_user_profile', 'budkutil_show_extra_profile_fields' );
+add_action( 'edit_user_profile', 'budkutil_show_extra_profile_fields' );
+
+function budkutil_show_extra_profile_fields( $user ) { 
+    global $wpdb;
+
+    ?>
+
+    <h3>BuddyPress - profilové informace</h3>
+
+    <table class="form-table">
+
+    <?
+    $groups = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups");
+    extra_profile_fields_groups($groups, $user);
     ?>
     </table>
 
@@ -832,5 +839,32 @@ function pridat_produkt_uzivatel( $atts ) {
     return $links.$script.$form.$script_down;
 }
 add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
+
+
+
+function nastaveni_uzivatel() {
+    global $wpdb;
+
+    $form = '
+    <form method="post">
+        <h2>Nastavení</h2>
+
+        <table>
+            '.extra_profile_fields_groups(
+                $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups WHERE id='4'")
+                , get_userdata(get_current_user())).'
+        </table>
+
+        <table>
+            '.extra_profile_fields_groups(
+                $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups WHERE id='5'")
+                , get_userdata(get_current_user())).'
+        </table>
+    </form>
+    ';
+
+    return $form;
+}
+add_shortcode( 'nastaveni_uzivatel', 'nastaveni_uzivatel' );
 
 ?>
