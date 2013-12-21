@@ -829,14 +829,55 @@ function pridat_produkt_uzivatel( $atts ) {
                     </td>
                 </tr>
                 <tr>
+                    <td colspan="2">
+                        <div class="attr_row">
+                            <select name="sada[]" class="attribute_taxonomy">
+                                <option value="">Vyberte parametr</option>';
+                                
+                                $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+                                foreach ($sady as $sada)
+                                    $form .= '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
+                                
+                                $form .=  '
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <td></td>
                     <td>
                         <input type="submit" value="Vytvořit produkt" name="pridat_novy_produkt" />
                     </td>
                 </tr>
             </table>
-        </form>';
-    }    
+        </form>'; 
+
+    $script_down = "<script>
+        jQuery('.attribute_taxonomy').change( function () {
+
+            var select_element  = jQuery(this);
+            var label_text      = select_element.find('option:selected').html()
+            var sada            = select_element.val();
+            
+            var aktivni = new Array();
+               for(i=0; i <= jQuery('.nazev_sady').length; i++)
+                    if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
+                        aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
+
+            jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada, get_aktivni: aktivni }, function(data) { 
+                var vyber_hodnoty = data;
+
+                jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_aktivni: aktivni }, function(data) { 
+                    var vnuk = data;
+
+                    select_element.append(vyber_hodnoty);  
+                    select_element.parent().append(vnuk);
+                    select_element.replaceWith(label_text);
+                });  
+            });
+        });        
+        </script>";
+    }
 
     return $links.$script.$form.$script_down;
 }
@@ -851,10 +892,18 @@ function nastaveni_uzivatel() {
     if($_POST['ulozit_nastaveni_uzivtel'])
         my_save_extra_profile_fields($user->ID); 
 
+    bp_activity_add(array(
+    'action' => 'sdasd',
+    'component' => 'blog_post',
+    'type' => 'activity_update',
+    'primary_link' => get_permalink($post_id),
+    'user_id' => 29
+     ));
+
+   
+
     $form = '
     <form method="post">
-        <h2>Nastavení</h2>
-        
         <table>
             '.extra_profile_fields_groups(
                 $wpdb->get_results("SELECT * FROM wp_bp_xprofile_groups WHERE id='2'")
@@ -880,5 +929,6 @@ function nastaveni_uzivatel() {
     return $form;
 }
 add_shortcode( 'nastaveni_uzivatel', 'nastaveni_uzivatel' );
+
 
 ?>

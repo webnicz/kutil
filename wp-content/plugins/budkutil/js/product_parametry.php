@@ -24,5 +24,19 @@ if(is_user_logged_in())
 
 		echo "</div>";
 	}
+	else
+	{
+		echo '<div class="attr_row">
+            <select name="sada[]" class="attribute_taxonomy">
+                <option value="">Vyberte parametr</option>';
+                
+                $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+                foreach ($sady as $sada)
+                    echo '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
+                
+                echo '
+            </select>
+        </div>';
+	}
 }
 ?>
