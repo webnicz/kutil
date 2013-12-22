@@ -6,8 +6,9 @@ require_once( $umisteni[0] . 'wp-load.php' );
 
 if(is_user_logged_in())
 {
-	$sada_id = $_GET['get_sada'];
-	$aktivni = $_GET['get_aktivni'];
+	$sada_id 	= $_GET['get_sada'];
+	$aktivni 	= $_GET['get_aktivni'];
+	$key 		= $_GET['key'];
 
 	if(!empty($sada_id))
 	{

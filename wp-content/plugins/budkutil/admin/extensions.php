@@ -751,7 +751,9 @@ function pridat_produkt_uzivatel( $atts ) {
         <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js"></script>
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
         <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
-        <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>';
+        <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>
+        <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
+        <script src="/wp-content/plugins/budkutil/js/select/select2.js"></script>';
 
         $script = '<script type="text/javascript">
         jQuery(document).ready(function(){
@@ -853,29 +855,50 @@ function pridat_produkt_uzivatel( $atts ) {
         </form>'; 
 
     $script_down = "<script>
-        jQuery('.attribute_taxonomy').change( function () {
+        function format(state) {
+            var originalOption = state.element;
+            //if (!state.id) return state.text; // optgroup
+            return '<img class=\"nahled_hodnota\" src=\"/wp-content/plugins/budkutil/up_img/' + jQuery(originalOption).attr('alt') + '\"/>' + state.text;
+        }
+
+        jQuery('.attribute_taxonomy').live('change', function () {
 
             var select_element  = jQuery(this);
-            var label_text      = select_element.find('option:selected').html()
-            var sada            = select_element.val();
-            
-            var aktivni = new Array();
-               for(i=0; i <= jQuery('.nazev_sady').length; i++)
-                    if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
-                        aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
 
-            jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada, get_aktivni: aktivni }, function(data) { 
-                var vyber_hodnoty = data;
+            if(select_element.val() != \"\")
+            {
+                var label_text      = select_element.find('option:selected').html()
+                var sada            = select_element.val();
+                
+                var aktivni = new Array();
+                   for(i=0; i <= jQuery('.nazev_sady').length; i++)
+                        if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
+                            aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
 
-                jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_aktivni: aktivni }, function(data) { 
-                    var vnuk = data;
+                jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada, key: 'fU7i2m', get_aktivni: aktivni }, function(data) { 
+                    var vyber_hodnoty = data;
 
-                    select_element.append(vyber_hodnoty);  
-                    select_element.parent().append(vnuk);
-                    select_element.replaceWith(label_text);
-                });  
-            });
-        });        
+                    jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_aktivni: aktivni }, function(data) { 
+                        var vnuk = data;
+
+                        select_element.after(vyber_hodnoty);  
+                        select_element.parent().after(vnuk);
+
+                        select_element.parent().find('.vyber_hodnoty').select2({
+                            formatResult: format,
+                            formatSelection: format,
+                            escapeMarkup: function(m) { return m; }
+                        });
+
+                        select_element.replaceWith(label_text);
+                    });  
+                });
+            }
+        });     
+
+        jQuery('.delete_sada a').live('click', function () {  
+            jQuery(this).parent().parent().parent().remove();
+        }); 
         </script>";
     }
 
