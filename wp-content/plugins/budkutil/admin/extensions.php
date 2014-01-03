@@ -1,4 +1,26 @@
 <?
+function budkutil_edit_order_columns($columns){
+    global $woocommerce;
+
+    $columns = array();
+
+    $columns["cb"]                  = "<input type=\"checkbox\" />";
+    $columns["order_status"]        = __( 'Status', 'woocommerce' );
+    $columns["order_title"]         = __( 'Order', 'woocommerce' );
+    $columns["order_prodejce"]      = 'Prodejce';
+    $columns["billing_address"]     = __( 'Billing', 'woocommerce' );
+    $columns["shipping_address"]    = __( 'Shipping', 'woocommerce' );
+    $columns["total_cost"]          = __( 'Order Total', 'woocommerce' );
+    $columns["order_comments"]      = '<img alt="' . esc_attr__( 'Order Notes', 'woocommerce' ) . '" src="' . $woocommerce->plugin_url() . '/assets/images/order-notes_head.png" class="tips" data-tip="' . __( 'Order Notes', 'woocommerce' ) . '" width="12" height="12" />';
+    $columns["note"]                = '<img src="' . $woocommerce->plugin_url() . '/assets/images/note_head.png" alt="' . __( 'Customer Notes', 'woocommerce' ) . '" class="tips" data-tip="' . __( 'Customer Notes', 'woocommerce' ) . '" width="12" height="12" />';
+    $columns["order_date"]          = __( 'Date', 'woocommerce' );
+    $columns["order_actions"]       = __( 'Actions', 'woocommerce' );
+
+    return $columns;
+}
+
+add_filter('manage_edit-shop_order_columns', 'budkutil_edit_order_columns'); 
+
 function pridat_pole_kategorie($taxonomy) {
   $pole = '
     <div class="form-field">
@@ -722,10 +744,13 @@ function pridat_produkt_uzivatel( $atts ) {
             <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
 
             <div id="dropbox">
-                <span class="message">Přetáhnutím obrázku na tuto plochu bude nahrán na server. <br /><i>(podporované formáty: PNG, JPG, GIF)</i></span>
+                <span class="message"><noscript>Pro nahrávání obrázků je vyžadován povolený JavaScript.</noscript></span>
+
+                <div id="btn_vybrat_soubor">Vybrat soubor</div>
             </div>
                               
-                              <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
+            <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
+
           <script>
           jQuery(".uploaded").live("click", function(){
             
@@ -740,20 +765,82 @@ function pridat_produkt_uzivatel( $atts ) {
                     jQuery(this).parent().toggle("slow");
                 });
             }); 
+
+var isFileAPIEnabled = function() {
+  return !!window.FileReader;
+};
+
+if(isFileAPIEnabled())
+    var msg = "Obrázky vyberte kliknutím na tlačítko níže nebo přetáhnutím obrázku z disku na tuto plochu. <br /><i>(podporované formáty: PNG, JPG, GIF)</i>";
+else
+    var msg = "Obrázky vyberte kliknutím na tlačítko níže. <br /><i>(podporované formáty: PNG, JPG, GIF)</i>";
+
+jQuery("#dropbox > .message").html(msg);
+
+jQuery("#btn_vybrat_soubor").click( function() {
+    jQuery("#one-specific-file").click();
+});
           </script>
                   
             <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js"></script>
 
-            <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>';
+            <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>
+
+            <script src="/wp-content/plugins/budkutil/js/img-up/jquery.ajaxfileupload.js"></script>
+
+            <script>
+            
+    
+  
+
+
+            jQuery("#one-specific-file").ajaxfileupload({
+              "action": "/wp-content/plugins/budkutil/js/nahraj_obrazek.php?way=input&time="+jQuery("#edit_timestamp").val()
+            });
+            </script>';
 
         $links = '
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
-        <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js"></script>
+        <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
+        
+        <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js" type="text/javascript"></script>
         <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
         <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>
-        <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
-        <script src="/wp-content/plugins/budkutil/js/select/select2.js"></script>';
+        <script src="/wp-content/plugins/budkutil/js/select/select2.js" type="text/javascript"></script>
+        <script src="/wp-content/plugins/budkutil/js/validate/jquery.validate.js" type="text/javascript"></script>
+        <script src="/wp-content/plugins/budkutil/js/validate/messages_cs.js" type="text/javascript"></script>
+
+       <style>
+#novy_produkt_form .error {
+    min-width: 30px;
+    padding-left: 40px;
+    position: absolute;
+    width: auto !important;
+}
+
+#novy_produkt_form label {
+    text-align: left;
+    width: 250px;
+}
+label.error {
+    background: url("/wp-content/plugins/budkutil/js/validate/error.png") no-repeat scroll left center rgba(0, 0, 0, 0);
+    color: #FF0000;
+    display: inline-block;
+    font-weight: bold;
+    height: 50px;
+    min-width: 24px;
+    text-indent: 0;
+}
+label.valid {
+    background: url("/wp-content/plugins/budkutil/js/validate/valid.png") no-repeat scroll left center rgba(0, 0, 0, 0) !important;
+    display: inline-block;
+    height: 50px;
+    text-indent: -9999px !important;
+    width: 24px;
+    height: 24px !important;
+}
+       </style> ';
 
         $script = '<script type="text/javascript">
         jQuery(document).ready(function(){
@@ -785,7 +872,10 @@ function pridat_produkt_uzivatel( $atts ) {
         $tree = ob_get_clean();
 
         $form = '
-        <form method="post">
+        <form enctype="multipart/form-data">
+            <input type="file" name="pic" id="one-specific-file" style="display: none"/>
+        </form>
+        <form method="post" id="novy_produkt_form">
             <table>
                 <tr>
                     <td>Název:</td>
@@ -899,10 +989,49 @@ function pridat_produkt_uzivatel( $atts ) {
         jQuery('.delete_sada a').live('click', function () {  
             jQuery(this).parent().parent().parent().remove();
         }); 
+
+jQuery('#novy_produkt_form').validate({
+        rules: {
+          novy_produkt_nazev: {
+            minlength: 2
+          },
+          novy_produkt_popis: {
+            minlength: 20,
+            maxlength: 500
+          },
+          novy_produkt_cena: {
+            digits: true,
+            minlength: 1
+          },
+          novy_produkt_ks: {
+            number: true,
+            minlength: 1
+          }
+        },
+            highlight: function(element) {
+                jQuery(element).closest('.control-group').removeClass('success').addClass('error');
+            },
+            success: function(element) {
+                element.addClass('valid').closest('.control-group').removeClass('error').addClass('success');
+            }
+      });
+
+function preload(arrayOfImages) {
+    jQuery(arrayOfImages).each(function(){
+        jQuery('<img/>')[0].src = this;
+    });
+}
+
+preload([
+    '/wp-content/plugins/budkutil/js/validate/valid.png',
+]);
         </script>";
     }
 
-    return $links.$script.$form.$script_down;
+    if(is_user_logged_in())
+        return $links.$script.$form.$script_down;
+    else
+        return "Must log in";
 }
 add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
 
@@ -952,6 +1081,4 @@ function nastaveni_uzivatel() {
     return $form;
 }
 add_shortcode( 'nastaveni_uzivatel', 'nastaveni_uzivatel' );
-
-
 ?>

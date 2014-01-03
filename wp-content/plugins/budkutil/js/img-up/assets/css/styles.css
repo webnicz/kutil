@@ -1,34 +1,3 @@
-/*-------------------------
-	Simple reset
---------------------------*/
-
-
-
-
-
-/*-------------------------
-	General Styles
---------------------------*/
-
-
-
-
-
-/*-------------------------
-	Header Styles
---------------------------*/
-
-
-
-
-
-
-/*-------------------------
-	Dropbox Element
---------------------------*/
-
-
-
 #dropbox{
 	background:url('../img/background_tile_3.jpg');
 	border-radius:3px;
@@ -57,14 +26,6 @@
 #dropbox:before{
 	border-radius:3px 3px 0 0;
 }
-
-
-
-/*-------------------------
-	Image Previews
---------------------------*/
-
-
 
 #dropbox .preview{
 	width:245px;
@@ -143,6 +104,6 @@
 	transition:0.25s;
 }
 
-#dropbox .preview.done .progress{
+/*#dropbox .preview.done .progress{
 	width:100% !important;
-}
+}*/

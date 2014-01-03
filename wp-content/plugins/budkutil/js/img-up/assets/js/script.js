@@ -8,7 +8,7 @@
 		// The name of the jQuery_FILES entry:
 		paramname:'pic',
 		
-		maxfiles: 100,
+		maxfiles: 20,
     	maxfilesize: 2,
 		url: '/wp-content/plugins/budkutil/js/nahraj_obrazek.php?time='+timestamp,
 		edit_timestamp: timestamp, 
@@ -24,10 +24,10 @@
     	error: function(err, file) {
 			switch(err) {
 				case 'BrowserNotSupported':
-					showMessage('Tato verze prohlížeče ještě nepodporuje nahrávání souborů pomocí HTML5!');
+					showMessage('Používáte starou verzi prohlížeče, která nepodporuje nahrávání souborů pomocí HTML5.');
 					break;
 				case 'TooManyFiles':
-					alert('Vybráno příliš mnoho souborů. Maximálně lze vybrat 100 souborů najednou.');
+					alert('Vybráno příliš mnoho souborů. Maximálně lze vybrat 20 souborů najednou.');
 					break;
 				case 'FileTooLarge':
 					alert(file.name+'  příliš velký! Maximální povolená velikost souboru jsou 2MB.');

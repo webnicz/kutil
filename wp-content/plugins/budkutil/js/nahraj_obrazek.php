@@ -33,10 +33,15 @@ if(array_key_exists('pic',$_FILES) && $_FILES['pic']['error'] == 0 ){
 	
 	$cesta = $pic['name'];
 	$datum = time();
+	$konecna_cesta = $upload_dir.$_GET['time'].'_'.$cesta;
 	//preg_replace('/(.+\/)([a-z]+\.[a-zA-Z]{2,4})$/i', '${1}'.time().'_${2}', subject)
 
-	if(move_uploaded_file($pic['tmp_name'], $upload_dir.$_GET['time'].'_'.$cesta)){
-		exit_status('File was uploaded successfuly!');
+	if(move_uploaded_file($pic['tmp_name'], $konecna_cesta)){
+
+		if($_GET['way'] == "input")
+			exit_status($konecna_cesta, 'url');
+		else
+			exit_status('File was uploaded successfuly!');
 		
 		//$q = "INSERT INTO galerie (id,session,id_video,cesta,datum,popis)
 		//	 VALUES ('','".$_SESSION['session']."','','".str_replace("../","",$cesta)."','$datum','')";
@@ -49,8 +54,8 @@ exit_status('Something went wrong with your upload!');
 
 // Helper functions
 
-function exit_status($str){
-	echo json_encode(array('status'=>$str));
+function exit_status($str, $type = "status"){
+	echo json_encode(array($type=>$str));
 	exit;
 }
 
