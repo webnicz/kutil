@@ -48,9 +48,40 @@
 		<nav id="site-navigation" class="main-navigation" role="navigation">
 			<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_class' => 'nav-menu' ) ); ?>
 		</nav><!-- #site-navigation -->
-
-		<div class="userAcc">
 		
+		
+		<div class="loginRegister">
+			<a href="#" class="login btn"><i class="icon-lock"></i> Přihlásit se</a>
+			<a href="/registrace/" class="register btn btn-success"><i class="icon-group"></i> Registrace</a>
+		</div>
+		
+		<div class="signIn">
+			<div class="btn btn-link login">Přihlásit se
+				<div class="loginForm">				
+					 <?php $args = array(
+					        'echo' => true,
+					        'redirect' => site_url( $_SERVER['REQUEST_URI'] ), 
+					        'form_id' => 'loginform',
+					        'label_username' => __( 'Username' ),
+					        'label_password' => __( 'Password' ),
+					        'label_remember' => __( 'Remember Me' ),
+					        'label_log_in' => __( 'Log In' ),
+					        'id_username' => 'user_login',
+					        'id_password' => 'user_pass',
+					        'id_remember' => 'rememberme',
+					        'id_submit' => 'wp-submit',
+					        'remember' => true,
+					        'value_username' => NULL,
+					        'value_remember' => false ); ?>        
+					<?php wp_login_form( $args ); ?> 					        
+				</div>
+			</div>
+		</div>
+
+	</header><!-- #masthead -->
+
+	<div class="userAcc">
+	
 		<?php if ( is_user_logged_in() ) { ?> 
 			<div class="user">
 				<a href="<?php echo bp_loggedin_user_domain(); ?>" class="userAcclink"><?php bp_loggedin_user_avatar(); ?><strong><? echo bp_loggedin_user_fullname(); ?></strong>
@@ -63,39 +94,9 @@
 				</ul>
 				
 			</div>
-		<?php }else{ ?>
-			<div class="signIn">
-				<div class="btn btn-link login">Přihlásit se
-				
-					<div class="loginForm">				
-						 <?php $args = array(
-						        'echo' => true,
-						        'redirect' => site_url( $_SERVER['REQUEST_URI'] ), 
-						        'form_id' => 'loginform',
-						        'label_username' => __( 'Username' ),
-						        'label_password' => __( 'Password' ),
-						        'label_remember' => __( 'Remember Me' ),
-						        'label_log_in' => __( 'Log In' ),
-						        'id_username' => 'user_login',
-						        'id_password' => 'user_pass',
-						        'id_remember' => 'rememberme',
-						        'id_submit' => 'wp-submit',
-						        'remember' => true,
-						        'value_username' => NULL,
-						        'value_remember' => false ); ?>  
-						        
-						<?php wp_login_form( $args ); ?> 					        
-					</div>
-				
-				</div>
-				<a href="/registrace/" class="btn btn-success">Registrace</a>
-			</div>
-		<?php } ?>
-			
-		</div>
+		<?php }?>
+		
+	</div>
 
-	</header><!-- #masthead -->
-
-	<? wp_breadcrumbs(); ?>
 
 	<div id="main" class="wrapper">

@@ -28,6 +28,7 @@ body {
 	background: #33363C;
 	border-radius: 0 0 12px 12px;
 	height: 50px;
+	margin-bottom: 20px;
 }
 
 #masthead h1 {
@@ -72,13 +73,6 @@ body {
 #masthead ul, #masthead ol {
 	margin: 9px;
 }
-#masthead .userAcc {
-	float: right;
-	padding-right: 2px;
-}
-#masthead .userAcc .signIn {
-	padding: 10px;
-}
 #masthead .btn-link {
 	color: #fff;
 	text-shadow: none;
@@ -88,79 +82,19 @@ body {
 	text-decoration: none;
 }
 
-#masthead .login {
-	position: relative;
-}
-#masthead .login .loginForm {
-	display: none;
-}
-#masthead .login:hover .loginForm, #masthead .userAcc .user ul{
-	position: absolute;
-	right: 0px;
-	top: 100%;
-	display: block;
-	text-align: left;
-	background: #33363C;
-	border-radius: 0 0 12px 12px;
-	padding: 15px;
-	z-index: 99;
-}
-#masthead .login .loginForm form, #masthead .login .loginForm p {
-	margin: 0px;
-}
-#masthead .login .loginForm p.login-submit {
-	margin-top: 15px;
-}
 #masthead input[type="radio"], #masthead input[type="checkbox"] {
 	margin: 0;
 }
 #masthead input {
 	border: 0;
 }
-
-#masthead .userAcc .user {
-	position: relative;
-}
-#masthead .userAcc .user ul {
+#masthead .signIn {
 	display: none;
 }
-#masthead .userAcc .user:hover ul{
-	display: block;
-	position: absolute;
-	top: 100%;
-	margin-top: 0;
-}
-#masthead .userAcc .user ul li {
-	padding: 2px;
-}
-#masthead .userAcc .user ul li i {
-	color: #fff;
-	float: none;
-	margin: 0 2px 0 0;
-	display: inline-block;
-}
-#masthead .userAcc .user ul li, #masthead .userAcc .user ul li a {
-	white-space: nowrap;
-	display: inline-block;
-	float: none;
-}
-#masthead .userAcc .user ul li {
-	float: none;
-	display: block;
-}
-#masthead .userAcc .user ul li a {
-	margin-right: 5px;
-}
-#masthead .userAcc .user img {
-	height: 32px;
-	width: 32px;
-	border-radius: 8px;
-	margin: 9px;
-}
 
-#masthead .userAcc .user strong {
-	display: inline-block;
-	padding-right: 15px;
+.loginRegister {
+	float: right;	
+	padding: 7px 10px;
 }
 
 .activityCount {
@@ -450,8 +384,12 @@ groups-order-select
 	padding-left: 50px;
 }
 
+#secondary .widget_product_categories {
+	padding-bottom: 15px;
+}
+
 .widget_product_categories ul.product-categories {
-	padding: 0 15px;	
+	padding: 0 20px;	
 }
 
 .widget_product_categories ul.product-categories li a {
@@ -461,6 +399,8 @@ groups-order-select
 	padding: 3px 5px;
 	border-radius: 3px;
 	margin-bottom: 3px;
+	font-size: 13px;
+	outline: none;
 }
 .widget_product_categories ul.product-categories li ul.children {
 	margin-top: 5px;
@@ -468,4 +408,15 @@ groups-order-select
 .widget_product_categories ul.product-categories li ul.children a {
 	background: #fff;
 	padding: 1px 5px 1px 15px;
+}
+
+.widget_product_categories ul li.current-cat a {
+	color: #e47070;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+.widget_product_categories ul li.current-cat ul.children a {
+	color: #268aad;
+	font-weight: normal;
 }
