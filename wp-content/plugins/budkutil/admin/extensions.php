@@ -262,6 +262,7 @@ function budkutil_sady_panel($post) {
 function extra_profile_fields_groups($groups, $user) {
     global $wpdb;
 
+    $html = "";
     foreach ($groups as $group) {
 
         $extra_fields = $wpdb->get_results("SELECT * FROM wp_bp_xprofile_fields WHERE parent_id='0' AND group_id='".$group->id."'");
@@ -339,19 +340,19 @@ function extra_profile_fields_groups($groups, $user) {
 
                 case 'datebox':
                     
-                    $datum = get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID );
+                    $datum = strtotime(get_the_author_meta( 'bp_meta_'.$extra_field_id, $user->ID ));
 
                     $option_dny = '<option value="">---</option>';
                     for ($i=0; $i <= 31; $i++) { 
                         $selected = '';
-                        if(date('j',$datum) == $i)
+                        if(date('j',$datum) == $i AND $datum != "")
                             $selected = 'selected="selected"';
 
                         $option_dny .= '<option value="'.$i.'" '.$selected.'>'.$i.'</option>';
                     }
 
                     $option_roky = '<option value="">-------</option>';
-                    for ($i=1930; $i <= date(Y)-10; $i++) { 
+                    for ($i=1930; $i <= date('Y')-10; $i++) { 
                         $selected = '';
                         if(date('Y',$datum) == $i)
                             $selected = 'selected="selected"';
@@ -391,7 +392,7 @@ function extra_profile_fields_groups($groups, $user) {
         }
     }
 
-    return $html;
+    echo $html;//return
 }
 
 add_action( 'show_user_profile', 'budkutil_show_extra_profile_fields' );
@@ -432,7 +433,7 @@ function my_save_extra_profile_fields( $user_id ) {
 
         if($field->type == "datebox")
         {
-            $post_field = strtotime($_POST[$extra_field_id.'_day'].". ".$_POST[$extra_field_id.'_month']." ".$_POST[$extra_field_id.'_year']);
+            $post_field = $_POST[$extra_field_id.'_day']." ".$_POST[$extra_field_id.'_month']." ".$_POST[$extra_field_id.'_year'];
         }
 
         if(is_array($post_field))
