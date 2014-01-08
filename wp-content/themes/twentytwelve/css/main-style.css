@@ -33,7 +33,7 @@ body {
 #masthead h1 {
 	font-size: 160%;
 	margin: 0;
-	padding: 5px 15px;
+	padding: 10px 15px;
 }
 #masthead hgroup {
 	float: left;
@@ -448,4 +448,24 @@ groups-order-select
 
 .profile-fields td.data {
 	padding-left: 50px;
+}
+
+.widget_product_categories ul.product-categories {
+	padding: 0 15px;	
+}
+
+.widget_product_categories ul.product-categories li a {
+	background: #e4ecf1;
+	color: #268aad;
+	display: block;
+	padding: 3px 5px;
+	border-radius: 3px;
+	margin-bottom: 3px;
+}
+.widget_product_categories ul.product-categories li ul.children {
+	margin-top: 5px;
+}
+.widget_product_categories ul.product-categories li ul.children a {
+	background: #fff;
+	padding: 1px 5px 1px 15px;
 }
