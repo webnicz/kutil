@@ -572,7 +572,7 @@ function wp_get_attachment_image($attachment_id, $size = 'thumbnail', $icon = fa
 		}
 		$html .= ' />';
 	}
-
+	
 	return $html;
 }
 

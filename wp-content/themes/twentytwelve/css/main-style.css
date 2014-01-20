@@ -1,4 +1,4 @@
-#masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+#content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -10,11 +10,14 @@
 .clear {
 	clear: both;
 }
-
+h1, h2, h3, h4 {
+	font-family: Georgia, Serif;
+	font-weight: 100;
+}
 body {
 	background: #F0F0ED;
-	font-family: Helvetica, Arial;
-	font-weight: normal;
+	font-family: "Helvetica Neue", Helvetica, Arial;
+	font-weight: 300;
 	font-size: 12px;
 	color: #999;
 }
@@ -31,7 +34,6 @@ body input[type="text"], body input[type="password"] {
 
 #masthead {
 	background: #33363C;
-/*	border-radius: 0 0 12px 12px;*/
 	height: 50px;
 	position: relative;
 }
@@ -43,6 +45,8 @@ body input[type="text"], body input[type="password"] {
 	font-size: 160%;
 	margin: 0;
 	padding: 10px 15px;
+	font-family: "Helvetica Neue", Helvetica, Arial;
+	font-weight: 600;
 }
 #masthead hgroup {
 	float: left;
@@ -185,7 +189,7 @@ body input[type="text"], body input[type="password"] {
 #secondary aside, #primary.site-content, #content {
 	background: #fff;
 	border-radius: 3px;
-	margin: 0px 0px 20px;
+	margin: 0px 0px 2px;
 }
 #secondary aside {
 	margin: 0px 20px 20px 0;
@@ -203,22 +207,26 @@ body input[type="text"], body input[type="password"] {
 	width: 20%;
 }
 #secondary aside {
-	padding-bottom: 20px;
+	padding-bottom: 2px;
 }
 #secondary aside h3 {
-	margin: 0px;
-	font-size: 100%;
+	color: #DD6464;
+	font-size: 25px;
+	font-weight: 100;
+	height: 42px;
+	letter-spacing: 0;
 	line-height: 100%;
-	padding: 20px;
-	border-bottom: 1px solid #F0F0ED;
-	color: #33363C;
-	margin-bottom: 20px;
+	margin: 0 0 10px;
+	overflow: hidden;
+	padding: 10px;
+}
+#primary #content h1 {
+	font-size: 45px;	
+	color: #000;
+	line-height: 100%;
+	padding: 10px 10px 10px 0;
 }
 #primary.site-content {
-	position: relative;
-}
-.entry-content {
-	padding: 20px;
 	position: relative;
 }
 #main.wrapper .entry-title {
@@ -424,25 +432,21 @@ groups-order-select
 	padding-left: 50px;
 }
 
-#secondary .widget_product_categories {
-	padding-bottom: 15px;
-}
-
 .widget_product_categories ul.product-categories {
-	padding: 0 20px;	
+	padding: 0 10px;	
 }
 
 .widget_product_categories ul.product-categories li a {
 	background: #e4ecf1;
 	color: #268aad;
 	display: block;
-	padding: 3px 5px;
-	border-radius: 3px;
+	padding: 5px 8px;
+	border-radius: 2px;
 	margin-bottom: 3px;
 	font-size: 13px;
 	outline: none;
 }
-.widget_product_categories ul.product-categories li ul.children {
+.widget_product_categories ul.product-categories li.current-cat-parent ul.children, .widget_product_categories ul.product-categories li.current-cat ul.children {
 	margin-top: 5px;
 }
 .widget_product_categories ul.product-categories li ul.children a {
@@ -458,7 +462,10 @@ groups-order-select
 
 .widget_product_categories ul li.current-cat ul.children a {
 	color: #268aad;
-	font-weight: normal;
+	font-weight: 300;
+}
+.widget_product_categories ul li.current-cat ul.children a:hover {
+	color: #DD6464;
 }
 
 /* user acc panel */
@@ -495,9 +502,9 @@ groups-order-select
 .userAcc ul li a {
 	float: left;
 	display: block;
-	padding: 5px;
-	width: 100px;
-	background: #fcf1f1;
+	padding: 5px 15px;
+/*	width: 100px;
+	background: #fcf1f1;*/
 	border-radius: 3px;
 	margin: 5px;
 	text-align: center;
@@ -507,6 +514,7 @@ groups-order-select
 
 .userAcc ul li a.newProduct {
 	width: 180px;
+	background: #fcf1f1;
 }
 
 .userAcc .user ul li a span {
@@ -527,4 +535,55 @@ groups-order-select
 }
 .userAcc .user ul li a:hover span {
 	text-decoration: none;
+}
+
+ /* primary content = hlavni cast */
+ 
+#primary #content {
+ 	padding: 10px;
+}
+#content .term-description {
+	position: relative;
+}
+#content .term-description p{
+ 	font-style: italic;
+ 	margin-bottom: 15px;
+ 	text-align: justify;
+}
+#content .woocommerce-result-count {
+	float: left;
+}
+#content .woocommerce-ordering {
+	float: right;
+}
+#content .woocommerce-ordering select {
+	background: #fff;
+	opacity: .4;
+	padding: 5px;
+	border: 0px;
+	border: 1px solid #ddd;
+	border-radius: 2px;
+}
+#content .woocommerce-ordering select:hover {
+	opacity: 1;
+}
+
+/* vypis podkategorii */
+/*#content ul.products .product-category {
+	float: left;
+}*/
+
+
+#content .products .product {
+	float: left;
+	margin: 0;
+	width: 25%;
+}
+#content .products .product a {
+	display: block;
+	padding: 10px;
+}
+#content .products .product a img {
+	border-radius: 3px;
+	width: 100%;
 }
