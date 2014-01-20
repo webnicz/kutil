@@ -35,7 +35,7 @@
 
 <div id="page" class="hfeed site">
 
-	<header id="masthead" class="site-header" role="banner">
+	<header id="masthead" class="site-header <?php if ( !is_user_logged_in() ) { echo('roundedHeader'); }?>" role="banner">
 
 	
 		<hgroup>
@@ -50,53 +50,64 @@
 		</nav><!-- #site-navigation -->
 		
 		
+
+		<?php if ( is_user_logged_in() ) { ?> 
+		
+		<a href="<?php echo bp_loggedin_user_domain(); ?>" class="userAcclink"><?php bp_loggedin_user_avatar(); ?><strong><? echo bp_loggedin_user_fullname(); ?></strong>
+			<? if(bp_core_get_notifications_for_user(bp_loggedin_user_id())){ ?>
+				<span class="activityCount"><? echo count(bp_core_get_notifications_for_user(bp_loggedin_user_id())); ?></span>
+			<? } ?>
+		</a>
+
+		<? }else{ ?>
+		
 		<div class="loginRegister">
-			<a href="#" class="login btn"><i class="icon-lock"></i> Přihlásit se</a>
+			<a href="#" class="login btn"><i class="icon-lock"></i> Přihlásit se
+				<div class="signIn">
+					<div class="loginForm">				
+						 <?php $args = array(
+						        'echo' => true,
+						        'redirect' => site_url( $_SERVER['REQUEST_URI'] ), 
+						        'form_id' => 'loginform',
+						        'label_username' => __( 'Username' ),
+						        'label_password' => __( 'Password' ),
+						        'label_remember' => __( 'Remember Me' ),
+						        'label_log_in' => __( 'Log In' ),
+						        'id_username' => 'user_login',
+						        'id_password' => 'user_pass',
+						        'id_remember' => 'rememberme',
+						        'id_submit' => 'wp-submit',
+						        'remember' => true,
+						        'value_username' => NULL,
+						        'value_remember' => false ); ?>        
+						<?php wp_login_form( $args ); ?> 					        
+					</div>
+				</div>
+			</a>
 			<a href="/registrace/" class="register btn btn-success"><i class="icon-group"></i> Registrace</a>
 		</div>
 		
-		<div class="signIn">
-			<div class="btn btn-link login">Přihlásit se
-				<div class="loginForm">				
-					 <?php $args = array(
-					        'echo' => true,
-					        'redirect' => site_url( $_SERVER['REQUEST_URI'] ), 
-					        'form_id' => 'loginform',
-					        'label_username' => __( 'Username' ),
-					        'label_password' => __( 'Password' ),
-					        'label_remember' => __( 'Remember Me' ),
-					        'label_log_in' => __( 'Log In' ),
-					        'id_username' => 'user_login',
-					        'id_password' => 'user_pass',
-					        'id_remember' => 'rememberme',
-					        'id_submit' => 'wp-submit',
-					        'remember' => true,
-					        'value_username' => NULL,
-					        'value_remember' => false ); ?>        
-					<?php wp_login_form( $args ); ?> 					        
-				</div>
-			</div>
-		</div>
-
+		<? } ?>	
+		
 	</header><!-- #masthead -->
 
-	<div class="userAcc">
 	
+	<div class="userAcc">
 		<?php if ( is_user_logged_in() ) { ?> 
+			<div class="userAccIn">
+		
 			<div class="user">
-				<a href="<?php echo bp_loggedin_user_domain(); ?>" class="userAcclink"><?php bp_loggedin_user_avatar(); ?><strong><? echo bp_loggedin_user_fullname(); ?></strong>
-					<? if(bp_core_get_notifications_for_user(bp_loggedin_user_id())){ ?>
-						<span class="activityCount"><? echo count(bp_core_get_notifications_for_user(bp_loggedin_user_id())); ?></span>
-					<? } ?>
-				</a>		
+	
 				<ul>
+					<li><a href="/zalozit-novy-vyrobek/" title="Založit nový výrobek" class="newProduct"><i class="icon-plus-sign"></i> Založit nový výrobek</a></li>
 					<?php bp_get_loggedin_user_nav(); ?>
 				</ul>
 				
 			</div>
+		</div>
 		<?php }?>
-		
 	</div>
+
 
 
 	<div id="main" class="wrapper">
