@@ -761,9 +761,18 @@ function pridat_produkt_uzivatel( $atts ) {
             <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
 
           <script>
-          jQuery(".uploaded").live("click", function(){
+            jQuery(".uploaded").live("click", function(){
+                var theone = jQuery(this).hasClass("main");
+
+                jQuery("#dropbox").find(".uploaded").removeClass("main");
+                
+                if(theone == false)
+                    jQuery(this).addClass("main");
+            });
+
+          jQuery(".dad_close").live("click", function(){
             
-                  var adr = jQuery(this).parent().attr("title");
+                  var adr = jQuery(this).parent().find(".upedimg").attr("title");
                   
                   jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { time: jQuery(\'#edit_timestamp\').val(), img: adr, klic: "f9dks"} ,
                   function(data){

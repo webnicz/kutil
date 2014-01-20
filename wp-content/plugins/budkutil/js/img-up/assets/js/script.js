@@ -58,10 +58,10 @@
     	 
 	});
 	
-	var template = '<div class="preview">'+
+	var template = '<div class="preview"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
 						'<span class="imageHolder">'+
-							'<img />'+
-							'<span class="uploaded"></span>'+
+							'<img class="dad_nahled" />'+
+							'<span class="uploaded"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'+
 						'</span>'+
 						'<div class="progressHolder">'+
 							'<div class="progress"></div>'+
@@ -72,7 +72,7 @@
 	function createImage(file){
 
 		var preview = jQuery(template), 
-			image = jQuery('img', preview);
+			image = jQuery('.dad_nahled', preview);
 			
 		var reader = new FileReader();
 		
@@ -114,6 +114,8 @@
 		// with the file, using jQuery's jQuery.data():
 		
 		jQuery.data(file,preview);
+
+		jQuery('.dad_status:last').fadeIn().delay(500).fadeOut();
 	}
 
 	function showMessage(msg){
