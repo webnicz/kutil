@@ -3,6 +3,7 @@
 	var dropbox 	= jQuery('#dropbox'),
 		timestamp 	= jQuery('#edit_timestamp').val(),
 		message 	= jQuery('.message', dropbox);
+		list1		= jQuery('#list1')
 	
 	dropbox.filedrop({
 		// The name of the jQuery_FILES entry:
@@ -58,7 +59,7 @@
     	 
 	});
 	
-	var template = '<div class="preview"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
+	var template = '<li><div class="preview"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
 						'<span class="imageHolder">'+
 							'<img class="dad_nahled" />'+
 							'<span class="uploaded"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'+
@@ -66,7 +67,7 @@
 						'<div class="progressHolder">'+
 							'<div class="progress"></div>'+
 						'</div>'+
-					'</div>'; 
+					'</div></li>'; 
 	
 	
 	function createImage(file){
@@ -92,7 +93,7 @@
 		reader.readAsDataURL(file);
 		
 		message.hide();
-		preview.appendTo(dropbox);
+		preview.appendTo(list1);
 		
 		
 		if(jQuery('.preview').size() > 50)

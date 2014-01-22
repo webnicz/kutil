@@ -15,7 +15,7 @@ if($key != "fU7i2m")
 if(!empty($parametry_options))
 {
 	echo '<div>
-		<select name="parametry" class="vyber_hodnoty">
+		<select name="parametry[]" class="vyber_hodnoty">
 			<option> Vyberte hodnotu parametru </option>
 			'.$parametry_options.'
 		</select>

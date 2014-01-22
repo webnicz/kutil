@@ -10,8 +10,9 @@ if(is_user_logged_in())
 	$index = 0;
 	parse_str($pole, $pole_parsed);
 
-	foreach ($pole_parsed as $parametr) {
-		$sada = $sady[$index];
+	foreach ($pole_parsed[parametry] as $parametr) {
+		//$sada = $sady[$index];
+		$sada = $wpdb->get_var("SELECT parametr_id FROM bk_hodnoty WHERE hodnota_id='".$parametr."'");
 
 		if($wpdb->get_var("SELECT * FROM bk_produkty_sady WHERE produkt_id='".$produkt."' AND sada_id='".$sada."'"))
 		{

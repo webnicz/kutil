@@ -192,7 +192,7 @@ function budkutil_sady_panel($post) {
     <div id="budkutil_sady" class="panel wc-metaboxes-wrapper">
 
             <p class="toolbar">
-                
+                <div class="infobox_attr"></div>
             </p>
 
             <div class="woocommerce_attributes_sady wc-metaboxes">
@@ -219,7 +219,7 @@ function budkutil_sady_panel($post) {
                     ?>
                 </select>
 
-                <button type="button" class="button save_attributes" id="save_sada">Uložit</button>
+                <button type="button" class="button" id="save_sada">Uložit</button>
             </p>
         </div>
         <script>
@@ -243,6 +243,7 @@ function budkutil_sady_panel($post) {
         jQuery('#save_sada').click( function () {
             var aktivni = new Array();
             var pole    = jQuery('.woocommerce_attributes_sady select').serialize();
+            jQuery('.infobox_attr').html("Ukládám...").show();
 
             var aktivni = new Array();
                for(i=0; i <= jQuery('.nazev_sady').length; i++)
@@ -250,7 +251,8 @@ function budkutil_sady_panel($post) {
                         aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
 
             jQuery.get('../wp-content/plugins/budkutil/js/product_parametry_save.php', { get_pid: <? echo $_GET['post'];?>, get_pole: pole, get_aktivni: aktivni }, function(data) { 
-                jQuery('.woocommerce_attributes_sady').append(data);
+                jQuery('.infobox_attr').html("Uloženo");
+                jQuery('.infobox_attr').delay(1000).fadeOut();
             });
         });
 
@@ -628,12 +630,17 @@ function pridat_produkt_uzivatel( $atts ) {
         $novy_produkt_ks            = filter_var($_POST['novy_produkt_ks'], FILTER_SANITIZE_NUMBER_INT);
         $novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
         $novy_produkt_kategorie     = $_POST['novy_produkt_nazev'];
+        $poradi_attachs             = explode('|', $_POST['poradi_attachs']);
+        $main_attach                = $_POST['main_attach'];
+        $produkt_cat                = $_POST['produkt_cat'];
+        $sada                       = $_POST['sada'];
+        
 
         $post = array(
           'post_author'    => wp_get_current_user(), 
           'post_content'   => $novy_produkt_popis, 
           'post_date'      => date('Y-m-d H:i:s'),
-          'post_status'    => 'draft', //publish
+          'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
           'post_title'     => $novy_produkt_nazev, 
           'post_type'      => 'product'
         );  
@@ -663,11 +670,14 @@ function pridat_produkt_uzivatel( $atts ) {
                              'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
                              'post_mime_type' => $wp_filetype['type'],
                              'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
-                             'post_content' => '',
+                             'post_content' => array_search($file, $poradi_attachs),
                              'post_status' => 'inherit'
                             );
 
                             $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $last_id );
+
+                            if($main_attach == $file)
+                                set_tmbn($last_id, $file);
 
                             $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
                             wp_update_attachment_metadata( $attach_id, $attach_data );
@@ -678,6 +688,22 @@ function pridat_produkt_uzivatel( $atts ) {
                 }
                 closedir($dh);
             }
+        }   
+
+        wp_set_object_terms( $last_id, $product_cat, 'product_cat' );
+
+        foreach ($sada as $parametr) {
+            
+            $sada = $wpdb->get_var("SELECT parametr_id FROM bk_hodnoty WHERE hodnota_id='".$parametr."'");
+            
+            $wpdb->insert('bk_produkty_sady', 
+                array( 
+                    'produkt_id' => $last_id, 
+                    'sada_id' => $sada, 
+                    'parametr_id' => $parametr, 
+                    'time' => time()
+                )
+            );
         }
 
         add_post_meta($last_id, '_product_image_gallery', implode(',', $attachments));
@@ -693,81 +719,53 @@ function pridat_produkt_uzivatel( $atts ) {
         //add error report ##
     }
 
-    if($pridan)
+    
+    if($pridan == true)
     {
-        $form = '<div class="report positive">Produkt úspěšně vytvořen.</div>';
-
-        $form .= '<h4>Vyberte náhledový obrázek Vašeho produktu:</h4>';
-
-        $form .= '<div id="vyber_nahled">';
-        //$obrazky = $wpdb->get_results("SELECT * FROM wp_postmeta WHERE post_id='".$last_id."' AND meta_key='_wp_attached_file'");
-        $obrazky = $wpdb->get_var("SELECT meta_value FROM wp_postmeta WHERE post_id='".$last_id."' AND meta_key='_product_image_gallery'");
-        $obrazky = explode(',', $obrazky);
-        foreach($obrazky as $obrazek) {
-
-            $file = $wpdb->get_var("SELECT meta_value FROM wp_postmeta WHERE post_id='".$obrazek."'");
-            $form .= wp_get_attachment_image( $obrazek, array(150,150) );
-            //$form .= '<img src="'.$wp_upload_dir['url']."/".$file.'"  alt="'.$obrazek.'" />';
-        }
-        $form .= '</div>';
-
-        $form .= '<form method="post">
-            <input type="hidden" name="nahled" value="0" />
-            <input type="hidden" name="user_id" value="'.get_current_user_id().'" />
-            <input type="hidden" name="produkt_id" value="'.$last_id.'" />';
-
-        if($novy_produkt_viditelnost == "true")
-            $form .= '<input type="submit" name="zverejnit_produkt" value="Zveřejnit produkt" />';
-        else
-            $form .= '<input type="submit" name="ulozit_produkt" value="Dokončit nastavení" />';
-
-        $form .= '</form>';
-
-        $script_down = '<script>
-        jQuery(\'#vyber_nahled img\').click( function () {
-            jQuery(\'#vyber_nahled img\').removeClass(\'zvoleny_nahled\');
-            jQuery(\'input[name=nahled_id]\').val(jQuery(this).attr(\'alt\'));
-            jQuery(this).addClass(\'zvoleny_nahled\');
-        });
-        </script>';
-    }
-    elseif(isset($_POST['zverejnit_produkt']))
-    {
-        set_tmbn($_POST['produkt_id'], $_POST['nahled']);   
-        $my_post = array(
-              'ID'           => $_POST['produkt_id'],
-              'post_status' => 'publish'
-          );
- 
-        wp_update_post( $my_post );
-        $form .= 'Produkt byl úspěšně zařazen do nabídky.';
-    }
-    elseif(isset($_POST['ulozit_produkt']))
-    {
-        set_tmbn($_POST['produkt_id'], $_POST['nahled']);   
-        $form = 'Produkt byl úspěšně vytvořen a je připravený pro zveřejnění v nabídce.';
+        $form = "Produkt přidán";
     }
     else
     {
         $upload = '
             <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
+            <script type="text/javascript" src="/wp-content/plugins/budkutil/js/dragsort/jquery.dragsort-0.5.1.min.js"></script>
+
+            <style type="text/css">               
+                #list1 {list-style-type:none; margin:0px; }
+                #list1 li { float:left; padding:5px; width:300px; height:300px; }
+                .placeHolder { width: 300px; height: 300px; opacity: 0.5; border: dashed 3px gray !important; -webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+position: relative;
+top: 50px;}
+.uploaded {display: block !important}
+            </style>
 
             <div id="dropbox">
                 <span class="message"><noscript>Pro nahrávání obrázků je vyžadován povolený JavaScript.</noscript></span>
+            
+                <ul id="list1"></ul>   
 
                 <div id="btn_vybrat_soubor">Vybrat soubor</div>
             </div>
+
+            <input name="poradi_attachs" type="hidden" />
+            <input name="main_attach" type="hidden" />
                               
             <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
 
           <script>
             jQuery(".uploaded").live("click", function(){
                 var theone = jQuery(this).hasClass("main");
+                var file = jQuery(this).parent().attr("title");
 
                 jQuery("#dropbox").find(".uploaded").removeClass("main");
                 
                 if(theone == false)
+                {
                     jQuery(this).addClass("main");
+                    jQuery("input[name=main_attach]").val(file);
+                }
             });
 
           jQuery(".dad_close").live("click", function(){
@@ -798,6 +796,13 @@ jQuery("#dropbox > .message").html(msg);
 jQuery("#btn_vybrat_soubor").click( function() {
     jQuery("#one-specific-file").click();
 });
+
+jQuery("#list1").dragsort({ dragSelector: "li", dragBetween: true, dragEnd: saveOrder, placeHolderTemplate: "<li class=\'placeHolder\'></li>" });
+
+function saveOrder() {
+            var data = jQuery("#list1 li").map(function() { return jQuery(this).find(".upedimg").attr("title"); }).get();
+            jQuery("input[name=poradi_attachs]").val(data.join("|"));
+        };
           </script>
                   
             <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js"></script>
@@ -821,6 +826,7 @@ jQuery("#btn_vybrat_soubor").click( function() {
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
         <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
         <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
+        
         
         <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js" type="text/javascript"></script>
         <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>

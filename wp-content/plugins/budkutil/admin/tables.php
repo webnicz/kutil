@@ -474,7 +474,7 @@ class Hodnoty_List_Table extends WP_List_Table {
 
                 $nahled = "";
                 if($rec->hodnota_img)                
-                    $nahled = '<img src="'.ABSPATH.'wp-content/plugins/budkutil/up_img/'.$rec->hodnota_img.'" alt="" />';
+                    $nahled = '<img src="/wp-content/plugins/budkutil/up_img/'.$rec->hodnota_img.'" alt="" />';
 
                 $sada = $wpdb->get_row("SELECT * FROM bk_parametry WHERE parametr_id='".$rec->parametr_id."'");
 
