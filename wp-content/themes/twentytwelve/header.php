@@ -97,9 +97,10 @@
 			<div class="userAccIn">
 		
 			<div class="user">
-	
-				<ul>
-					<li><a href="/zalozit-novy-vyrobek/" title="Založit nový výrobek" class="newProduct"><i class="icon-plus-sign"></i> Založit nový výrobek</a></li>
+			
+				<a href="/zalozit-novy-vyrobek/" title="Založit nový výrobek" class="newProduct"><strong>+</strong> <em>Založit nový výrobek</em></a>
+				
+				<ul>	
 					<?php bp_get_loggedin_user_nav(); ?>
 				</ul>
 				

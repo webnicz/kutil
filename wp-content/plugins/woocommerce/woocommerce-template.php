@@ -1228,7 +1228,7 @@ if ( ! function_exists( 'woocommerce_subcategory_thumbnail' ) ) {
 		}
 
 		if ( $image )
-			echo '<img src="' . $image . '" alt="' . $category->name . ' />';
+			echo '<img src="' . $image . '" alt="' . $category->name . '" width="' . $dimensions['width'] . '" height="' . $dimensions['height'] . '" />';
 	}
 }
 

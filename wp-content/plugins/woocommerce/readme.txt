@@ -3,8 +3,8 @@ Contributors: woothemes, mikejolley, jameskoster, CoenJacobs
 Tags: ecommerce, e-commerce, commerce, woothemes, wordpress ecommerce, affiliate, store, sales, sell, shop, shopping, cart, checkout, configurable, variable, widgets, reports, download, downloadable, digital, inventory, stock, reports, shipping, tax
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=paypal@woothemes.com&item_name=Donation+for+WooCommerce
 Requires at least: 3.5
-Tested up to: 3.6
-Stable tag: 2.0.18
+Tested up to: 3.7
+Stable tag: 2.0.20
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -164,6 +164,21 @@ Yes you can! Join in on our [GitHub repository](http://github.com/woothemes/wooc
 6. A product archive (grid).
 
 == Changelog ==
+
+= 2.0.20 - 21/11/2013 =
+* Tweaked paypal request
+* Check for WP Error when getting terms in breadcrumb file
+* Sanitize when searching in admin
+* Fix yard to cm conversion
+
+= 2.0.19 - 04/11/2013 =
+* Fix - get_item_subtotal() logic
+* Fix - Pass number of products variable to get_related for more then 5 related products
+* Fix - Email fatal error for orders with missing products
+* Fix - Local pickup base tax option on first calculation
+* Tweak - For paying customer column, use a dash #3971
+* Tweak - Added wordwrap to order notes
+* Localisation - Updated Portuguese, Slovak, French, Lithuanian, Finnish
 
 = 2.0.18 - 21/10/2013 =
 * Fix - Escaped the "hide-wc-extensions-message" link in admin.

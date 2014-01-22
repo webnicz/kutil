@@ -1,4 +1,4 @@
-#content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+.userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -191,6 +191,9 @@ body input[type="text"], body input[type="password"] {
 	border-radius: 3px;
 	margin: 0px 0px 2px;
 }
+#secondary aside.widget_product_categories h3 {
+	display: none;
+}
 #secondary aside {
 	margin: 0px 20px 20px 0;
 }
@@ -228,14 +231,6 @@ body input[type="text"], body input[type="password"] {
 }
 #primary.site-content {
 	position: relative;
-}
-#main.wrapper .entry-title {
-	margin: 0px;
-	padding: 25px 20px 20px;
-	background: #FEFEFB;
-	border-radius: 12px 12px 0 0;
-	border-bottom: 1px dashed #ddd;
-	color: #33363C;
 }
 .register-section {
 	float: left;
@@ -431,41 +426,52 @@ groups-order-select
 .profile-fields td.data {
 	padding-left: 50px;
 }
-
+.widget_product_categories {
+	border-top: 4px solid #FBCB43;
+}
 .widget_product_categories ul.product-categories {
-	padding: 0 10px;	
+	padding: 10px 10px 0px;	
 }
 
 .widget_product_categories ul.product-categories li a {
-	background: #e4ecf1;
-	color: #268aad;
+	color: #000;
 	display: block;
-	padding: 5px 8px;
-	border-radius: 2px;
-	margin-bottom: 3px;
-	font-size: 13px;
+	padding: 6px 8px;
+	font-size: 14px;
 	outline: none;
+	font-weight: 400;
+	border-radius: 2px;
+	text-shadow: 0px 1px 0px #fff;
+}
+.widget_product_categories ul.product-categories li a:hover {
+	text-decoration: none;
+	background: #F8F8F8;
 }
 .widget_product_categories ul.product-categories li.current-cat-parent ul.children, .widget_product_categories ul.product-categories li.current-cat ul.children {
 	margin-top: 5px;
+	margin-bottom: 15px;
 }
 .widget_product_categories ul.product-categories li ul.children a {
 	background: #fff;
 	padding: 1px 5px 1px 15px;
 }
 
-.widget_product_categories ul li.current-cat a {
+.widget_product_categories ul li.current-cat a, .widget_product_categories ul li.current-cat-parent a {
 	color: #e47070;
 	text-decoration: none;
 	font-weight: bold;
+	padding-bottom: 0;
 }
 
-.widget_product_categories ul li.current-cat ul.children a {
+.widget_product_categories ul li ul.children a, .widget_product_categories ul li.current-cat ul.children a {
 	color: #268aad;
 	font-weight: 300;
 }
-.widget_product_categories ul li.current-cat ul.children a:hover {
+.widget_product_categories ul li ul li.current-cat a, .widget_product_categories ul li ul.children a:hover, .widget_product_categories ul li.current-cat ul.children a:hover {
 	color: #DD6464;
+}
+.widget_product_categories ul li ul li.current-cat a {
+	font-weight: 400;
 }
 
 /* user acc panel */
@@ -476,10 +482,10 @@ groups-order-select
 	border-radius: 0px 0px 3px 3px;
 }
 .userAcc .userAccIn {
-	padding: 5px;
+	padding: 15px;
 }
 .userAcc, .userAcc a {
-	color: #da6464;
+	color: #000;
 }
 .userAcc .userAcclink {
 	float: left;
@@ -500,38 +506,83 @@ groups-order-select
 	float: left;
 }
 .userAcc ul li a {
-	float: left;
-	display: block;
-	padding: 5px 15px;
-/*	width: 100px;
-	background: #fcf1f1;*/
 	border-radius: 3px;
+	color: #888888;
+	display: block;
+	float: left;
+	font-weight: 400;
 	margin: 5px;
-	text-align: center;
-	font-weight: bold;
+	padding: 5px 10px;
 	position: relative;
+	text-align: center;
 }
 
-.userAcc ul li a.newProduct {
-	width: 180px;
-	background: #fcf1f1;
+.userAcc a.newProduct {
+	display: block;
+	padding: 0;
+	color: #8CC474;
+	position: relative;
+	float: left;
+	outline: none;
+}
+.userAcc a.newProduct strong {
+	font-weight: 100;
+	font-size: 30px;
+	text-align: center;
+	display: table-cell;
+	width: 40px;
+	height: 40px;
+	background: #E8F4E3;
+	color: #8CC474;
+	border-radius: 50%;
+	float: left;
+	line-height: 34px;
+	left: 0px;
+	top: 0px;
+	position: absolute;
+	vertical-align: middle;
+	transition: all 200ms ease-in-out 0s;
+}
+.userAcc a.newProduct:hover strong {
+	height: 50px;
+	width: 50px;
+	left: -5px;
+	top: -5px;
+	line-height: 44px;
+}
+.userAcc a.newProduct em {
+	display: block;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: 300;
+	margin: 10px 10px 0 55px;
+	white-space: nowrap;
+	float: left;
+	width: 142px;
+}
+.userAcc a.newProduct:hover em {
+	text-decoration: underline;
+}
+.userAcc a.newProduct:hover {
+	text-decoration: none;
 }
 
 .userAcc .user ul li a span {
-	background: none repeat scroll 0 0 #34B1D3;
-	border-radius: 20px 20px 20px 20px;
+	background: none repeat scroll 0 0 #F4B60C;
+	border-radius: 20px;
 	color: #FFFFFF;
 	display: block;
 	font-size: 80%;
+	font-weight: 400;
 	height: 16px;
 	line-height: 16px;
 	overflow: hidden;
 	padding: 0;
-	text-align: center;
-	width: 16px;
 	position: absolute;
+	right: -6px;
+	text-align: center;
 	top: -2px;
-	right: -1px;
+	width: 16px;
 }
 .userAcc .user ul li a:hover span {
 	text-decoration: none;
