@@ -4,6 +4,7 @@ jQuery(".dad_star").live("click", function(){
 
     jQuery("#dropbox").find(".uploaded").removeClass("main");
     jQuery("#dropbox").find(".dad_star").attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png");
+    jQuery("input[name=main_attach]").val('');
 
     if(theone == false)
     {
@@ -153,3 +154,16 @@ function preload(arrayOfImages) {
 preload([
     '/wp-content/plugins/budkutil/js/validate/valid.png',
 ]);
+
+jQuery( ".produkt_cat" ).click(function( event ) {
+  var pocet = jQuery(".produkt_cat:checkbox:checked").length;
+
+  if(pocet > 3)
+    event.preventDefault();
+  else
+    jQuery('#pocet_vybranych > span').html(pocet);
+});
+
+jQuery('#list1').bind("DOMSubtreeModified",function(){
+  saveOrder();
+});

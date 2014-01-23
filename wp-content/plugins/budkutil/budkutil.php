@@ -16,6 +16,8 @@ include ABSPATH.'wp-content/plugins/budkutil/admin/check_db.php';
 
 include ABSPATH.'wp-content/plugins/budkutil/admin/extensions.php';
 
+include ABSPATH.'wp-content/plugins/budkutil/frontend/extensions.php';
+
 include ABSPATH.'wp-content/plugins/budkutil/admin/tables.php';
 
 include ABSPATH.'wp-content/plugins/budkutil/admin/general_functions.php';
@@ -155,7 +157,7 @@ function parametry_page() {
 
 
         if(!empty($parametr->hodnota_img))
-            $nahled = '<img src="'.ABSPATH.'wp-content/plugins/budkutil/up_img/'.$parametr->hodnota_img.'" alt="" />';
+            $nahled = '<img src="/wp-content/plugins/budkutil/up_img/'.$parametr->hodnota_img.'" alt="" />';
         else
             $nahled = '<i>Náhled není nastaven</i>';
 
@@ -209,7 +211,38 @@ function parametry_page() {
                             </tr>
                         </tbody>
                     </table>
-                </form>';        
+                </form>';
+
+                
+add_action('wp_enqueue_script','image_sort');       
+function image_sort(){  
+    wp_enqueue_script( 'jquery-ui-sortable' );  
+    }
+
+echo '
+<script type="text/javascript">
+jQuery(document).ready( function($) {
+   $(\'table#image_sort tbody\').sortable();
+});
+
+</script>
+
+<table class="widefat fixed" cellspacing="0" id="image_sort">
+    <thead>
+        <tr>
+            <th scope="col" class="column-slug">Image</th>
+            <th scope="col">Image Links To</th>
+            <th scope="col" class="column-slug">Actions</th>
+        </tr>
+    </thead>
+         <tbody>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+             </tr>
+    </tbody>
+</table>';        
     }
     else
     {

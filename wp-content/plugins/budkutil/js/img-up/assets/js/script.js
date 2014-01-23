@@ -122,6 +122,7 @@
 		jQuery.data(file,preview);
 
 		jQuery('.dad_status:last').fadeIn().delay(500).fadeOut();
+		
 	}
 
 	function showMessage(msg){

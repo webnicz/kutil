@@ -42,7 +42,7 @@
           '</div>';
 
           $('.preview:last').find('.imageHolder').append('<img src="'+cesta+'" /><a class="upedimg" title="'+nazev+'"><span class="uploaded">'+lista+'<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span></a>')
-
+          
           $('.preview:last > .progress').promise().done(function() {
             $('.preview:last').find('.progress').finish().stop(true, true).width('75%').animate({width: '100%'}, 500, function() {
               $(this).parent().fadeOut();
