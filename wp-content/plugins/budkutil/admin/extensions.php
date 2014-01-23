@@ -755,15 +755,17 @@ top: 50px;}
             <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
 
           <script>
-            jQuery(".uploaded").live("click", function(){
-                var theone = jQuery(this).hasClass("main");
-                var file = jQuery(this).parent().attr("title");
+            jQuery(".dad_star").live("click", function(){
+                var theone = jQuery(this).parent().parent().hasClass("main");
+                var file = jQuery(this).parent().parent().parent().attr("title");
 
                 jQuery("#dropbox").find(".uploaded").removeClass("main");
-                
+                jQuery("#dropbox").find(".dad_star").attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png");
+
                 if(theone == false)
                 {
-                    jQuery(this).addClass("main");
+                    jQuery(this).parent().parent().addClass("main");
+                    jQuery(this).attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star.png");
                     jQuery("input[name=main_attach]").val(file);
                 }
             });
@@ -777,8 +779,8 @@ top: 50px;}
                     //alert("Data Loaded: " + data);
                   });
               
-                jQuery(this).parent().parent().fadeOut( function() {
-                    jQuery(this).parent().toggle("slow");
+                jQuery(this).parent().parent().parent().fadeOut( function() {
+                    jQuery(this).parent().parent().parent().toggle("slow");
                 });
             }); 
 

@@ -58,11 +58,16 @@
 		}
     	 
 	});
+
+	var lista = '<div class="toolbar">'+
+            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
+            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png" class="dad_star" alt="" />'+
+          '</div>';
 	
-	var template = '<li><div class="preview"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
+	var template = '<li><div class="preview">'+
 						'<span class="imageHolder">'+
 							'<img class="dad_nahled" />'+
-							'<span class="uploaded"><img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'+
+							'<span class="uploaded">'+lista+'<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'+
 						'</span>'+
 						'<div class="progressHolder">'+
 							'<div class="progress"></div>'+

@@ -6,7 +6,6 @@
 	overflow: hidden;
 	padding-bottom: 40px;
     width: 990px;
-	
 	box-shadow:0 0 4px rgba(0,0,0,0.3) inset,0 -3px 2px rgba(0,0,0,0.1);
 }
 
@@ -61,11 +60,11 @@
 }
 
 #dropbox .uploaded:hover{
-	background: url('../img/star-dark.png') no-repeat center center rgba(255,255,255,0.5);
+	/*background: url('../img/star-dark.png') no-repeat center center rgba(255,255,255,0.5);*/
 }
 
 #dropbox .main{
-	background: url('../img/star.png') no-repeat center center rgba(255,255,255,0.5) !important;
+	/*background: url('../img/star.png') no-repeat center center rgba(255,255,255,0.5) !important;*/
 }
 
 #dropbox .preview.done .uploaded{
