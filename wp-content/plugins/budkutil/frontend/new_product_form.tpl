@@ -72,7 +72,7 @@
         </tr>
     </table>
 
-    <input name="poradi_attachs" type="text" />
-    <input name="main_attach" type="text" />                  
-    <input id="edit_timestamp" type="text" name="edit_timestamp" value="{time}" />
+    <input name="poradi_attachs" type="hidden" />
+    <input name="main_attach" type="hidden" />                  
+    <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="{time}" />
 </form>

@@ -211,38 +211,7 @@ function parametry_page() {
                             </tr>
                         </tbody>
                     </table>
-                </form>';
-
-                
-add_action('wp_enqueue_script','image_sort');       
-function image_sort(){  
-    wp_enqueue_script( 'jquery-ui-sortable' );  
-    }
-
-echo '
-<script type="text/javascript">
-jQuery(document).ready( function($) {
-   $(\'table#image_sort tbody\').sortable();
-});
-
-</script>
-
-<table class="widefat fixed" cellspacing="0" id="image_sort">
-    <thead>
-        <tr>
-            <th scope="col" class="column-slug">Image</th>
-            <th scope="col">Image Links To</th>
-            <th scope="col" class="column-slug">Actions</th>
-        </tr>
-    </thead>
-         <tbody>
-            <tr>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-             </tr>
-    </tbody>
-</table>';        
+                </form>';        
     }
     else
     {
