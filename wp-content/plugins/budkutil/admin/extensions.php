@@ -647,8 +647,8 @@ function budkutil_adding_scripts() {
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_scripts' );
 
 function budkutil_adding_styles() {
-    wp_register_script('select2', ABSPATH."wp-content/plugins/budkutil/js/select/select2.css");
-    wp_register_script('new_product', "/wp-content/plugins/budkutil/css/new_product.css");///wp-content/themes/twentytwelve
+    wp_enqueue_style('select2', ABSPATH."wp-content/plugins/budkutil/js/select/select2.css");
+    wp_enqueue_style('new_product', "/wp-content/plugins/budkutil/css/new_product.css");///wp-content/themes/twentytwelve
 
     wp_enqueue_script('select2');
     wp_enqueue_script('new_product');

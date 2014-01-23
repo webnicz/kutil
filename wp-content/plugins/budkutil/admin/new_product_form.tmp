@@ -7,7 +7,7 @@
         <tr>
             <td>Název:</td>
             <td>
-                <input type="text" value="'.$_POST['novy_produkt_nazev'].'" name="novy_produkt_nazev" />
+                <input type="text" value="" name="novy_produkt_nazev" />
             </td>
         </tr>
         <tr>
