@@ -1,0 +1,263 @@
+/* image upload */
+
+#dropbox {
+    background: black;
+    border-radius:3px;
+    position: relative;
+    min-height: 290px;
+    overflow: hidden;
+    padding-bottom: 40px;
+    width: 990px;
+    box-shadow:0 0 4px rgba(0,0,0,0.3) inset,0 -3px 2px rgba(0,0,0,0.1);
+}
+
+#dropbox .message{
+    font-size: 20px;
+    text-align: center;
+    padding-top:160px;
+    display: block;
+}
+
+#dropbox .message i{
+    color:#ccc;
+    font-size:10px;
+}
+
+#dropbox:before{
+    border-radius:3px 3px 0 0;
+}
+
+#dropbox .preview{
+    width:245px;
+    height: 215px;
+    float:left;
+    margin: 55px 0 0 60px;
+    position: relative;
+    text-align: center;
+}
+
+#dropbox .preview img{
+    max-width: 240px;
+    max-height:180px;
+    border:3px solid #fff;
+    display: block;
+    
+    box-shadow:0 0 2px #000;
+}
+
+#dropbox .imageHolder{
+    display: inline-block;
+    position:relative;
+}
+
+#dropbox .uploaded{
+    position: absolute;
+    top:0;
+    left:0;
+    height:100%;
+    width:100%;
+    /*background: url('../img/done.png') no-repeat center center rgba(255,255,255,0.5);*/
+    display: none;
+}
+
+#dropbox .uploaded:hover{
+    /*background: url('../img/star-dark.png') no-repeat center center rgba(255,255,255,0.5);*/
+}
+
+#dropbox .main{
+    /*background: url('../img/star.png') no-repeat center center rgba(255,255,255,0.5) !important;*/
+}
+
+#dropbox .preview.done .uploaded{
+    display: block;
+}
+
+.upedimg {
+    cursor: pointer;
+}
+
+#dropbox .progressHolder{
+    position: absolute;
+    background-color:#252f38;
+    height:12px;
+    width:100%;
+    left:0;
+    bottom: 0;
+    
+    box-shadow:0 0 2px #000;
+}
+
+#dropbox .progress{
+    background-color:#2586d0;
+    position: absolute;
+    height:100%;
+    left:0;
+    width:0;
+    
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    
+    -moz-transition:0.25s;
+    -webkit-transition:0.25s;
+    -o-transition:0.25s;
+    transition:0.25s;
+}
+
+/*#dropbox .preview.done .progress{
+    width:100% !important;
+}*/
+
+#list1 {
+    list-style-type:none; margin:0px; 
+}
+
+#list1 li { 
+    float:left; 
+    padding:5px; 
+    width:300px; 
+    height:300px; 
+}
+
+.placeHolder { 
+    width: 300px; 
+    height: 300px; 
+    opacity: 0.5; 
+    border: dashed 3px gray !important; 
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
+    position: relative;
+    top: 50px;
+}
+
+.uploaded {
+    display: block !important
+}
+
+/* pocet kusu */
+
+.button {
+  margin: 0 0 0 5px;
+  text-indent: -9999px;
+  cursor: pointer;
+  width: 29px;
+  height: 29px;
+  float: left;
+  text-align: center;
+  background: url(/wp-content/plugins/budkutil/js/numput/images/buttons.png) no-repeat;
+  background-color: transparent !important;
+}
+.dec {
+  background-position: 0 -29px;
+}
+
+.buttons {
+  padding: 20px 0 0 140px;
+}
+
+/* validizace */
+
+#novy_produkt_form .error {
+    min-width: 30px;
+    padding-left: 40px;
+    position: absolute;
+    width: auto !important;
+}
+
+#novy_produkt_form label {
+    text-align: left;
+    width: 250px;
+}
+label.error {
+    background: url("/wp-content/plugins/budkutil/js/validate/error.png") no-repeat scroll left center rgba(0, 0, 0, 0);
+    color: #FF0000;
+    display: inline-block;
+    font-weight: bold;
+    height: 50px;
+    min-width: 24px;
+    text-indent: 0;
+}
+label.valid {
+    background: url("/wp-content/plugins/budkutil/js/validate/valid.png") no-repeat scroll left center rgba(0, 0, 0, 0) !important;
+    display: inline-block;
+    height: 50px;
+    text-indent: -9999px !important;
+    width: 24px;
+    height: 24px !important;
+}
+
+/* strom kategorií */
+
+.treeview, .treeview ul { 
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.treeview ul {
+    background-color: white;
+    margin-top: 4px;
+}
+
+.treeview .hitarea {
+    background: url(images/treeview-default.gif) -64px -25px no-repeat;
+    height: 16px;
+    width: 16px;
+    margin-left: -16px;
+    float: left;
+    cursor: pointer;
+}
+/* fix for IE6 */
+* html .hitarea {
+    display: inline;
+    float:none;
+}
+
+.treeview li { 
+    margin: 0;
+    padding: 3px 0pt 3px 16px;
+}
+
+.treeview a.selected {
+    background-color: #eee;
+}
+
+#treecontrol { margin: 1em 0; display: none; }
+
+.treeview .hover { color: red; cursor: pointer; }
+
+.treeview li { background: url(images/treeview-default-line.gif) 0 0 no-repeat; }
+.treeview li.collapsable, .treeview li.expandable { background-position: 0 -176px; }
+
+.treeview .expandable-hitarea { background-position: -80px -3px; }
+
+.treeview li.last { background-position: 0 -1766px }
+.treeview li.lastCollapsable, .treeview li.lastExpandable { background-image: url(images/treeview-default.gif); }  
+.treeview li.lastCollapsable { background-position: 0 -111px }
+.treeview li.lastExpandable { background-position: -32px -67px }
+
+.treeview div.lastCollapsable-hitarea, .treeview div.lastExpandable-hitarea { background-position: 0; }
+
+.treeview-red li { background-image: url(images/treeview-red-line.gif); }
+.treeview-red .hitarea, .treeview-red li.lastCollapsable, .treeview-red li.lastExpandable { background-image: url(images/treeview-red.gif); } 
+
+.treeview-black li { background-image: url(images/treeview-black-line.gif); }
+.treeview-black .hitarea, .treeview-black li.lastCollapsable, .treeview-black li.lastExpandable { background-image: url(images/treeview-black.gif); }  
+
+.treeview-gray li { background-image: url(images/treeview-gray-line.gif); }
+.treeview-gray .hitarea, .treeview-gray li.lastCollapsable, .treeview-gray li.lastExpandable { background-image: url(images/treeview-gray.gif); } 
+
+.treeview-famfamfam li { background-image: url(images/treeview-famfamfam-line.gif); }
+.treeview-famfamfam .hitarea, .treeview-famfamfam li.lastCollapsable, .treeview-famfamfam li.lastExpandable { background-image: url(images/treeview-famfamfam.gif); } 
+
+.treeview .placeholder {
+    background: url(images/ajax-loader.gif) 0 0 no-repeat;
+    height: 16px;
+    width: 16px;
+    display: block;
+}
+
+.filetree li { padding: 3px 0 2px 16px; }
+.filetree span.folder, .filetree span.file { padding: 1px 0 1px 16px; display: block; }
+.filetree span.folder { background: url(images/folder.gif) 0 0 no-repeat; }
+.filetree li.expandable span.folder { background: url(images/folder-closed.gif) 0 0 no-repeat; }
+.filetree span.file { background: url(images/file.gif) 0 0 no-repeat; }

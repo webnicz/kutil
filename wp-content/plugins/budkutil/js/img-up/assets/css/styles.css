@@ -110,3 +110,12 @@
 /*#dropbox .preview.done .progress{
 	width:100% !important;
 }*/
+
+#list1 {list-style-type:none; margin:0px; }
+#list1 li { float:left; padding:5px; width:300px; height:300px; }
+.placeHolder { width: 300px; height: 300px; opacity: 0.5; border: dashed 3px gray !important; -webkit-border-radius: 15px;
+-moz-border-radius: 15px;
+border-radius: 15px;
+position: relative;
+top: 50px;}
+.uploaded {display: block !important}

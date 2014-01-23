@@ -619,6 +619,43 @@ function set_tmbn($post, $file) {
     add_post_meta($post, '_thumbnail_id', $obrazek_id);
 }
 
+function budkutil_adding_scripts() {
+    wp_register_script('dragsort', "/wp-content/plugins/budkutil/js/dragsort/jquery.dragsort-0.5.1.min.js", array('jquery'),'1.1', true);
+    wp_register_script('img-up-drag', "/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js", array('jquery'),'1.1', true);
+    wp_register_script('img-up', "/wp-content/plugins/budkutil/js/img-up/assets/js/script.js", array('jquery'),'1.1', true);
+    wp_register_script('img-up-button', "/wp-content/plugins/budkutil/js/img-up/jquery.ajaxfileupload.js", array('jquery'),'1.1', true);
+    wp_register_script('numput', "/wp-content/plugins/budkutil/js/numput/js/incrementing.js", array('jquery'),'1.1', true);
+    wp_register_script('tree-cookires', "/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js", array('jquery'),'1.1', true);
+    wp_register_script('tree', "/wp-content/plugins/budkutil/js/tree/jquery.treeview.js", array('jquery'),'1.1', true);
+    wp_register_script('select2', "/wp-content/plugins/budkutil/js/select/select2.js", array('jquery'),'1.1', true);
+    wp_register_script('validate-msgs', "/wp-content/plugins/budkutil/js/validate/messages_cs.js", array('jquery'));
+    wp_register_script('validate', "/wp-content/plugins/budkutil/js/validate/jquery.validate.js", array('jquery'));
+    wp_register_script('main-new-product', "/wp-content/plugins/budkutil/js/new_product.js", array('jquery'),'1.1', true);
+    
+    wp_enqueue_script('dragsort');
+    wp_enqueue_script('img-up-drag');
+    wp_enqueue_script('img-up');
+    wp_enqueue_script('img-up-button');
+    wp_enqueue_script('tree-cookires');
+    wp_enqueue_script('tree');
+    wp_enqueue_script('select2');
+    wp_enqueue_script('validate');
+    wp_enqueue_script('validate-msgs');
+    wp_enqueue_script('main-new-product');
+}
+
+add_action( 'wp_enqueue_scripts', 'budkutil_adding_scripts' );
+
+function budkutil_adding_styles() {
+    wp_register_script('select2', ABSPATH."wp-content/plugins/budkutil/js/select/select2.css");
+    wp_register_script('new_product', "/wp-content/plugins/budkutil/css/new_product.css");///wp-content/themes/twentytwelve
+
+    wp_enqueue_script('select2');
+    wp_enqueue_script('new_product');
+}
+
+add_action( 'wp_enqueue_scripts', 'budkutil_adding_styles' );
+
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
 
@@ -726,168 +763,8 @@ function pridat_produkt_uzivatel( $atts ) {
     }
     else
     {
-        $upload = '
-            <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/img-up/assets/css/styles.css" />
-            <script type="text/javascript" src="/wp-content/plugins/budkutil/js/dragsort/jquery.dragsort-0.5.1.min.js"></script>
-
-            <style type="text/css">               
-                #list1 {list-style-type:none; margin:0px; }
-                #list1 li { float:left; padding:5px; width:300px; height:300px; }
-                .placeHolder { width: 300px; height: 300px; opacity: 0.5; border: dashed 3px gray !important; -webkit-border-radius: 15px;
--moz-border-radius: 15px;
-border-radius: 15px;
-position: relative;
-top: 50px;}
-.uploaded {display: block !important}
-            </style>
-
-            <div id="dropbox">
-                <span class="message"><noscript>Pro nahrávání obrázků je vyžadován povolený JavaScript.</noscript></span>
-            
-                <ul id="list1"></ul>   
-
-                <div id="btn_vybrat_soubor">Vybrat soubor</div>
-            </div>
-
-            <input name="poradi_attachs" type="hidden" />
-            <input name="main_attach" type="hidden" />
-                              
-            <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="'.time().'" />
-
-          <script>
-            jQuery(".dad_star").live("click", function(){
-                var theone = jQuery(this).parent().parent().hasClass("main");
-                var file = jQuery(this).parent().parent().parent().attr("title");
-
-                jQuery("#dropbox").find(".uploaded").removeClass("main");
-                jQuery("#dropbox").find(".dad_star").attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png");
-
-                if(theone == false)
-                {
-                    jQuery(this).parent().parent().addClass("main");
-                    jQuery(this).attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star.png");
-                    jQuery("input[name=main_attach]").val(file);
-                }
-            });
-
-          jQuery(".dad_close").live("click", function(){
-            
-                  var adr = jQuery(this).parent().find(".upedimg").attr("title");
-                  
-                  jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { time: jQuery(\'#edit_timestamp\').val(), img: adr, klic: "f9dks"} ,
-                  function(data){
-                    //alert("Data Loaded: " + data);
-                  });
-              
-                jQuery(this).parent().parent().parent().fadeOut( function() {
-                    jQuery(this).parent().parent().parent().toggle("slow");
-                });
-            }); 
-
-var isFileAPIEnabled = function() {
-  return !!window.FileReader;
-};
-
-if(isFileAPIEnabled())
-    var msg = "Obrázky vyberte kliknutím na tlačítko níže nebo přetáhnutím obrázku z disku na tuto plochu. <br /><i>(podporované formáty: PNG, JPG, GIF)</i>";
-else
-    var msg = "Obrázky vyberte kliknutím na tlačítko níže. <br /><i>(podporované formáty: PNG, JPG, GIF)</i>";
-
-jQuery("#dropbox > .message").html(msg);
-
-jQuery("#btn_vybrat_soubor").click( function() {
-    jQuery("#one-specific-file").click();
-});
-
-jQuery("#list1").dragsort({ dragSelector: "li", dragBetween: true, dragEnd: saveOrder, placeHolderTemplate: "<li class=\'placeHolder\'></li>" });
-
-function saveOrder() {
-            var data = jQuery("#list1 li").map(function() { return jQuery(this).find(".upedimg").attr("title"); }).get();
-            jQuery("input[name=poradi_attachs]").val(data.join("|"));
-        };
-          </script>
-                  
-            <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js"></script>
-
-            <script src="/wp-content/plugins/budkutil/js/img-up/assets/js/script.js"></script>
-
-            <script src="/wp-content/plugins/budkutil/js/img-up/jquery.ajaxfileupload.js"></script>
-
-            <script>
-            
-    
-  
-
-
-            jQuery("#one-specific-file").ajaxfileupload({
-              "action": "/wp-content/plugins/budkutil/js/nahraj_obrazek.php?way=input&time="+jQuery("#edit_timestamp").val()
-            });
-            </script>';
-
-        $links = '
-        <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/tree/jquery.treeview.css" />
-        <link href="/wp-content/plugins/budkutil/js/select/select2.css" rel="stylesheet"/>
-        <link rel="stylesheet" href="/wp-content/plugins/budkutil/js/numput/css/style.css">
-        
-        
-        <script src="/wp-content/plugins/budkutil/js/numput/js/incrementing.js" type="text/javascript"></script>
-        <script src="/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js" type="text/javascript"></script>
-        <script src="/wp-content/plugins/budkutil/js/tree/jquery.treeview.js" type="text/javascript"></script>
-        <script src="/wp-content/plugins/budkutil/js/select/select2.js" type="text/javascript"></script>
-        <script src="/wp-content/plugins/budkutil/js/validate/jquery.validate.js" type="text/javascript"></script>
-        <script src="/wp-content/plugins/budkutil/js/validate/messages_cs.js" type="text/javascript"></script>
-
-       <style>
-#novy_produkt_form .error {
-    min-width: 30px;
-    padding-left: 40px;
-    position: absolute;
-    width: auto !important;
-}
-
-#novy_produkt_form label {
-    text-align: left;
-    width: 250px;
-}
-label.error {
-    background: url("/wp-content/plugins/budkutil/js/validate/error.png") no-repeat scroll left center rgba(0, 0, 0, 0);
-    color: #FF0000;
-    display: inline-block;
-    font-weight: bold;
-    height: 50px;
-    min-width: 24px;
-    text-indent: 0;
-}
-label.valid {
-    background: url("/wp-content/plugins/budkutil/js/validate/valid.png") no-repeat scroll left center rgba(0, 0, 0, 0) !important;
-    display: inline-block;
-    height: 50px;
-    text-indent: -9999px !important;
-    width: 24px;
-    height: 24px !important;
-}
-       </style> ';
-
-        $script = '<script type="text/javascript">
-        jQuery(document).ready(function(){
-            jQuery("#browser").treeview({
-                toggle: function() {
-                    console.log("%s was toggled.", jQuery(this).find(">span").text());
-                }
-            });
-            
-            jQuery("#add").click(function() {
-                var branches = jQuery("<li><span class=\'folder\'>New Sublist</span><ul>" + 
-                    "<li><span class=\'file\'>Item1</span></li>" + 
-                    "<li><span class=\'file\'>Item2</span></li></ul></li>").appendTo("#browser");
-                jQuery("#browser").treeview({
-                    add: branches
-                });
-            });
-        });
-        </script>';
-
-
+        $template = file_get_contents(ABSPATH."wp-content/plugins/budkutil/admin/new_product_form.tmp");
+       
         $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat'");
         $tree = category_tree($zaznamy);
         $array = json_decode(json_encode($tree), true);
@@ -897,165 +774,16 @@ label.valid {
         echo "</ul>";
         $tree = ob_get_clean();
 
-        $form = '
-        <form enctype="multipart/form-data">
-            <input type="file" name="pic" id="one-specific-file" style="display: none"/>
-        </form>
-        <form method="post" id="novy_produkt_form">
-            <table>
-                <tr>
-                    <td>Název:</td>
-                    <td>
-                        <input type="text" value="'.$_POST['novy_produkt_nazev'].'" name="novy_produkt_nazev" />
-                    </td>
-                </tr>
-                <tr>
-                    <td>Popis:</td>
-                    <td>
-                        <textarea rows="5" cols="30" name="novy_produkt_popis"></textarea>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Kategorie:</td>
-                    <td>
-                        '.$tree.'
-                    </td>
-                </tr>
-                <tr>
-                    <td>Cena:</td>
-                    <td>
-                        <input type="text" value="" name="novy_produkt_cena" size="5" /> Kč
-                    </td>
-                </tr>
-                <tr>
-                    <td>Kusů:</td>
-                    <td>
-                        <div class="numbers-row">
-                            <input type="text" name="novy_produkt_ks" value="1" size="2" /> Ks
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Veřejný:</td>
-                    <td>
-                        <input type="checkbox" value="true" name="novy_produkt_viditelnost" checked="checked" /> Produkt mohou vidět všichni uživatelé 
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        '.$upload.'
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2">
-                        <div class="attr_row">
-                            <select name="sada[]" class="attribute_taxonomy">
-                                <option value="">Vyberte parametr</option>';
-                                
-                                $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
-                                foreach ($sady as $sada)
-                                    $form .= '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
-                                
-                                $form .=  '
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>
-                        <input type="submit" value="Vytvořit produkt" name="pridat_novy_produkt" />
-                    </td>
-                </tr>
-            </table>
-        </form>'; 
+        $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+        foreach ($sady as $sada)
+            $sady_options .= '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
 
-    $script_down = "<script>
-        function format(state) {
-            var originalOption = state.element;
-            //if (!state.id) return state.text; // optgroup
-            return '<img class=\"nahled_hodnota\" src=\"/wp-content/plugins/budkutil/up_img/' + jQuery(originalOption).attr('alt') + '\"/>' + state.text;
-        }
-
-        jQuery('.attribute_taxonomy').live('change', function () {
-
-            var select_element  = jQuery(this);
-
-            if(select_element.val() != \"\")
-            {
-                var label_text      = select_element.find('option:selected').html()
-                var sada            = select_element.val();
-                
-                var aktivni = new Array();
-                   for(i=0; i <= jQuery('.nazev_sady').length; i++)
-                        if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
-                            aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
-
-                jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_sada: sada, key: 'fU7i2m', get_aktivni: aktivni }, function(data) { 
-                    var vyber_hodnoty = data;
-
-                    jQuery.get('/wp-content/plugins/budkutil/js/product_parametry.php', { get_aktivni: aktivni }, function(data) { 
-                        var vnuk = data;
-
-                        select_element.after(vyber_hodnoty);  
-                        select_element.parent().after(vnuk);
-
-                        select_element.parent().find('.vyber_hodnoty').select2({
-                            formatResult: format,
-                            formatSelection: format,
-                            escapeMarkup: function(m) { return m; }
-                        });
-
-                        select_element.replaceWith(label_text);
-                    });  
-                });
-            }
-        });     
-
-        jQuery('.delete_sada a').live('click', function () {  
-            jQuery(this).parent().parent().parent().remove();
-        }); 
-
-jQuery('#novy_produkt_form').validate({
-        rules: {
-          novy_produkt_nazev: {
-            minlength: 2
-          },
-          novy_produkt_popis: {
-            minlength: 20,
-            maxlength: 500
-          },
-          novy_produkt_cena: {
-            digits: true,
-            minlength: 1
-          },
-          novy_produkt_ks: {
-            number: true,
-            minlength: 1
-          }
-        },
-            highlight: function(element) {
-                jQuery(element).closest('.control-group').removeClass('success').addClass('error');
-            },
-            success: function(element) {
-                element.addClass('valid').closest('.control-group').removeClass('error').addClass('success');
-            }
-      });
-
-function preload(arrayOfImages) {
-    jQuery(arrayOfImages).each(function(){
-        jQuery('<img/>')[0].src = this;
-    });
-}
-
-preload([
-    '/wp-content/plugins/budkutil/js/validate/valid.png',
-]);
-        </script>";
+        $template = str_replace('{strom}', $tree, $template);
+        $template = str_replace('{sady_parametru}', $sady_options, $template);      
     }
 
     if(is_user_logged_in())
-        return $links.$script.$form.$script_down;
+        return $template;
     else
         return "Must log in";
 }
