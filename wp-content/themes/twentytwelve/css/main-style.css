@@ -11,12 +11,14 @@
 	clear: both;
 }
 h1, h2, h3, h4 {
-	font-family: Georgia, Serif;
+	font-family: "Roboto", "Helvetica Neue", Helvetica, Serif, Arial;
 	font-weight: 100;
+	margin: 0;
+	color: #000;
 }
 body {
 	background: #F0F0ED;
-	font-family: "Helvetica Neue", Helvetica, Arial;
+	font-family: "Roboto", "Helvetica Neue", Helvetica, Serif, Arial;
 	font-weight: 300;
 	font-size: 12px;
 	color: #999;
@@ -45,8 +47,8 @@ body input[type="text"], body input[type="password"] {
 	font-size: 160%;
 	margin: 0;
 	padding: 10px 15px;
-	font-family: "Helvetica Neue", Helvetica, Arial;
-	font-weight: 600;
+	font-family: "Roboto", "Helvetica Neue", Helvetica, Arial;
+	font-weight: 300;
 }
 #masthead hgroup {
 	float: left;
@@ -78,7 +80,7 @@ body input[type="text"], body input[type="password"] {
 	margin-right: 5px;
 }
 #masthead nav a:hover {
-	background: #26282D;	
+	background: #4C515E;	
 	text-decoration: none;
 	border-radius: 8px;
 }
@@ -163,13 +165,21 @@ body input[type="text"], body input[type="password"] {
 #masthead .userAcclink {
 	 display: block;
 	 float: right;
-	 padding: 10px 15px;
+	 padding: 12px 15px 0;
+}
+#masthead .userAcclink strong {
+	display: block;
+	float: left;
+	font-size: 14px;
+	font-weight: 400;
+	padding: 5px 0 0;
 }
 #masthead .userAcclink img {
-	width: 27px;
+	border-radius: 3px;
+	float: left;
 	height: 27px;
 	margin-right: 10px;
-	border-radius: 3px;
+	width: 27px;
 }
 
 .wp-breadcrumbs {
@@ -189,7 +199,6 @@ body input[type="text"], body input[type="password"] {
 #secondary aside, #primary.site-content, #content {
 	background: #fff;
 	border-radius: 3px;
-	margin: 0px 0px 2px;
 }
 #secondary aside.widget_product_categories h3 {
 	display: none;
@@ -457,10 +466,12 @@ groups-order-select
 }
 
 .widget_product_categories ul li.current-cat a, .widget_product_categories ul li.current-cat-parent a {
-	color: #e47070;
+	color: #F2BD41;
 	text-decoration: none;
-	font-weight: bold;
-	padding-bottom: 0;
+	font-weight: 500;
+}
+.widget_product_categories ul li.current-cat a:hover, .widget_product_categories ul li.current-cat-parent a:hover {
+	background: transparent;
 }
 
 .widget_product_categories ul li ul.children a, .widget_product_categories ul li.current-cat ul.children a {
@@ -536,7 +547,7 @@ groups-order-select
 	color: #8CC474;
 	border-radius: 50%;
 	float: left;
-	line-height: 34px;
+	line-height: 38px;
 	left: 0px;
 	top: 0px;
 	position: absolute;
@@ -544,17 +555,17 @@ groups-order-select
 	transition: all 200ms ease-in-out 0s;
 }
 .userAcc a.newProduct:hover strong {
-	height: 50px;
-	width: 50px;
-	left: -5px;
-	top: -5px;
+	height: 46px;
+	width: 46px;
+	left: -3px;
+	top: -3px;
 	line-height: 44px;
 }
 .userAcc a.newProduct em {
 	display: block;
 	font-size: 14px;
 	font-style: normal;
-	font-weight: 300;
+	font-weight: 400;
 	margin: 10px 10px 0 55px;
 	white-space: nowrap;
 	float: left;
@@ -588,11 +599,8 @@ groups-order-select
 	text-decoration: none;
 }
 
- /* primary content = hlavni cast */
- 
-#primary #content {
- 	padding: 10px;
-}
+/* primary content = hlavni cast */
+
 #content .term-description {
 	position: relative;
 }
@@ -637,4 +645,36 @@ groups-order-select
 #content .products .product a img {
 	border-radius: 3px;
 	width: 100%;
+}
+
+
+ /* Add of new product / pridani noveho vyrobku */
+ 
+#content.newProduct {
+	border-top: 4px solid #8CC474;
+}
+#content.newProduct article header {
+	background: #8CC474;
+}
+#content.newProduct article header h2 {
+	color: #FFFFFF;
+	line-height: 40px;
+	padding: 8px 8px 13px 15px;
+}
+#content.newProduct article header h2 strong {
+	border: 1px solid #FFFFFF;
+	border-radius: 50%;
+	display: block;
+	float: left;
+	font-family: "Helvetica Neue",Helvetica;
+	font-weight: 100;
+	height: 40px;
+	margin-right: 10px;
+	text-align: center;
+	width: 40px;
+	line-height: 32px;
+}
+
+#content.newProduct article .entry-content {
+	padding: 15px;
 }
