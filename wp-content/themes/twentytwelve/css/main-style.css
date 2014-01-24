@@ -678,7 +678,7 @@ groups-order-select
 #content.newProduct article .entry-content {
 /*	padding: 15px;*/
 }
-#content.newProduct td {
+#content.newProduct > table > td {
 	border-bottom: 1px solid #EEEEEE;
 	color: #000;
 	font-size: 14px;
