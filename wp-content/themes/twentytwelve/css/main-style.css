@@ -674,13 +674,18 @@ groups-order-select
 /*	padding: 15px;*/
 }
 #content.newProduct #novy_produkt_form > table > tbody > tr > td {
-	border-bottom: 1px solid #EEEEEE;
 	color: #000;
 	font-size: 14px;
 	font-weight: 400;
 	padding: 30px;
 	text-align: left;
 }
+
+#content.newProduct #novy_produkt_form > table > tbody > tr.highlight > td {
+	background: #FFFCF5;
+	border-bottom: 1px solid #FBCB43;
+}
+
 #content.newProduct .napoveda {
 	font-weight: 300;
 	font-size: 12px;
