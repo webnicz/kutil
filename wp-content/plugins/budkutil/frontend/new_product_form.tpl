@@ -26,8 +26,9 @@
         <tr>
             <td>Kategorie:</td>
             <td>
-                <div id="pocet_vybranych">Počet vygraných kategorií: <span>0</span></div>
-                {strom}
+                <div class="miller-container" data-source="html">               
+                    {strom}
+                </div>
             </td>
         </tr>
         <tr>
@@ -91,6 +92,7 @@
         </tr>
     </table>
 
+    {apendix}
     <input name="poradi_attachs" type="hidden" />
     <input name="main_attach" type="hidden" />
     <input name="koeficient" value="{provize}" type="hidden" />                    

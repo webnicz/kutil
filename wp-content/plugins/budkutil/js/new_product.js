@@ -55,7 +55,11 @@ jQuery("#one-specific-file").ajaxfileupload({
 });
 
 jQuery(document).ready(function(){
-    jQuery("#browser").treeview({
+    jQuery('.miller-container').taxonomyBrowser({
+      columns: 3
+    });
+
+    /*jQuery("#browser").treeview({
         toggle: function() {
             console.log("%s was toggled.", jQuery(this).find(">span").text());
         }
@@ -68,7 +72,7 @@ jQuery(document).ready(function(){
         jQuery("#browser").treeview({
             add: branches
         });
-    });
+    });*/
 });
 
 
@@ -210,7 +214,6 @@ function number_format (number, decimals, dec_point, thousands_sep) {
   return s.join(dec);
 }
 
-
 jQuery("input[name=novy_produkt_cena]").keyup( function () {
     var cena = jQuery(this).val().replace(",", ".");
     var koeficient = jQuery("input[name=koeficient]").val().replace(",", ".")/100;
@@ -220,4 +223,4 @@ jQuery("input[name=novy_produkt_cena]").keyup( function () {
 
     jQuery('#vypocet_provize').html(provize);
     jQuery('#vypocet_koncove_ceny').html(koncova);
-})
+});

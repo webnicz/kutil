@@ -48,7 +48,8 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
     else
         $kat_nazev = '<input type="checkbox" class="produkt_cat" name="produkt_cat[]" value="'.$data_array[0][parent].'" /> '.$kat_nazev;
 
-    echo '<li><span class="folder">'.$kat_nazev.'</span><'.$list_tag.'>';
+    if($data_array[0][parent] != 0)
+        echo '<li><a href="#">'.$kat_nazev.'</a><'.$list_tag.'>';
     
     foreach ($data_array as $element) {
         $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$element[term_id]."'");
@@ -56,7 +57,7 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
         $nadrazeno = $wpdb->get_var("SELECT SUM(1) FROM wp_term_taxonomy WHERE parent='".$element[term_id]."'");
 
         if($nadrazeno == 0)
-            echo '<li><span class="file"><input type="checkbox" class="produkt_cat" name="produkt_cat[]" value="'.$element[term_id].'" /> '.$kat_nazev.'</span></li>';
+            echo '<li><a href="#"><input type="checkbox" class="produkt_cat" name="produkt_cat[]" value="'.$element[term_id].'" /> '.$kat_nazev.'</a></li>';
 
         if (is_array($element[children])) {
             seznam($element[children], ++$i);
@@ -85,6 +86,10 @@ function budkutil_adding_scripts() {
     wp_register_script('validate-msgs', "/wp-content/plugins/budkutil/js/validate/messages_cs.js", array('jquery'));
     wp_register_script('validate', "/wp-content/plugins/budkutil/js/validate/jquery.validate.js", array('jquery'));
     wp_register_script('main-new-product', "/wp-content/plugins/budkutil/js/new_product.js", array('jquery'),'1.1', true);
+
+    wp_register_script('kategorie1', "/wp-content/plugins/budkutil/js/kategorie/scripts/handlebars.js", array('jquery'),'1.1', true);
+    wp_register_script('kategorie2', "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.js", array('jquery'),'1.1', true);
+    wp_register_script('kategorie3', "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.keys.js", array('jquery'),'1.1', true);
     
     wp_enqueue_script('dragsort');
     wp_enqueue_script('img-up-drag');
@@ -96,16 +101,21 @@ function budkutil_adding_scripts() {
     wp_enqueue_script('validate');
     wp_enqueue_script('validate-msgs');
     wp_enqueue_script('main-new-product');
+    wp_enqueue_script('kategorie1');
+    wp_enqueue_script('kategorie2');
+    wp_enqueue_script('kategorie3');
 }
 
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_scripts' );
 
 function budkutil_adding_styles() {
     wp_enqueue_style('select2', "/wp-content/plugins/budkutil/js/select/select2.css");
-    wp_enqueue_style('new_product', "/wp-content/plugins/budkutil/css/new_product.css");///wp-content/themes/twentytwelve
+    wp_enqueue_style('new_product', "/wp-content/plugins/budkutil/css/new_product.css");
+    wp_enqueue_style('kategorie', "/wp-content/plugins/budkutil/css/kategorie.css");///wp-content/themes/twentytwelve
 
     wp_enqueue_script('select2');
     wp_enqueue_script('new_product');
+    wp_enqueue_script('kategorie');
 }
 
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_styles' );
@@ -256,11 +266,38 @@ function pridat_produkt_uzivatel( $atts ) {
         foreach ($sady as $sada)
             $sady_options .= '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
 
+        $apendix = '<script type="text/x-handlebars-template" id="taxonomy_terms">
+        
+            <div class="miller--terms--container">
+                
+                {{#if parent}}
+                    <div class="miller--terms--selection">                  
+                        {{#each parent}} {{#if @index}} &raquo; {{/if}} <a href="#" class="crumb" data-depth="{{depth}}">{{name}}</a>{{/each}}
+                    </div>
+                {{/if}}
+
+            <ul class="terms">
+                {{#each taxonomies}}
+                    <li class="term {{#if childrenCount}}has-children{{/if}}" data-id="{{id}}">
+                        <a href="{{url}}">
+                          <span class="title">{{label}}</span> 
+                          <em class="icon icon-arrow"></em> <em class="icon icon-search" title="Search for {{label}}"></em>             
+                        {{#if description}}<span class="description">{{description}}</span>{{/if}}
+                        </a>
+                    </li>
+                {{/each}}
+            </ul>
+            
+            </div>  
+            
+        </script>';
+
         $template = str_replace('{strom}', $tree, $template);
         $template = str_replace('{sady_parametru}', $sady_options, $template);      
         $template = str_replace('{time}', time(), $template);      
         $template = str_replace('{editor}', $editor, $template);       
         $template = str_replace('{provize}', $provize, $template);  
+        $template = str_replace('{apendix}', $apendix, $template);  
     }
 
     if(is_user_logged_in())
