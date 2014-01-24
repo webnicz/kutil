@@ -52,7 +52,7 @@ function check_db() {
     }
 
     if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_parametry")))
-    {//echo $wpdb->get_var("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='bk_provize' AND TABLE_SCHEMA = '".DB_NAME."'");
+    {
         $sql =   "CREATE TABLE bk_parametry (parametr_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(parametr_id),
                   parametr_nazev VARCHAR(250),
                   neaktivni_v VARCHAR(250),
@@ -65,13 +65,13 @@ function check_db() {
     }
 
     if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_hodnoty")))
-    {//echo $wpdb->get_var("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name='bk_provize' AND TABLE_SCHEMA = '".DB_NAME."'");
+    {
         $sql =   "CREATE TABLE bk_hodnoty (hodnota_id INT NOT NULL AUTO_INCREMENT, PRIMARY KEY(hodnota_id),
                   parametr_id INT,
                   hodnota_nazev VARCHAR(250),
-                  parametr_img VARCHAR(100),
-                  parametr_ip VARCHAR(20),
-                  parametr_time VARCHAR(20))";
+                  hodnota_img VARCHAR(100),
+                  hodnota_ip VARCHAR(20),
+                  hodnota_time VARCHAR(20))";
 
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);

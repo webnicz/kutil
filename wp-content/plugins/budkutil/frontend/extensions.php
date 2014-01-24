@@ -101,7 +101,7 @@ function budkutil_adding_scripts() {
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_scripts' );
 
 function budkutil_adding_styles() {
-    wp_enqueue_style('select2', ABSPATH."wp-content/plugins/budkutil/js/select/select2.css");
+    wp_enqueue_style('select2', "/wp-content/plugins/budkutil/js/select/select2.css");
     wp_enqueue_style('new_product', "/wp-content/plugins/budkutil/css/new_product.css");///wp-content/themes/twentytwelve
 
     wp_enqueue_script('select2');
@@ -116,7 +116,7 @@ function pridat_produkt_uzivatel( $atts ) {
     if(isset($_POST['pridat_novy_produkt']))
     {
         $novy_produkt_nazev         = sanitize_text_field($_POST['novy_produkt_nazev']);
-        $novy_produkt_popis         = sanitize_text_field($_POST['novy_produkt_popis']);
+        $novy_produkt_popis         = $_POST['novy_produkt_popis'];
         $novy_produkt_cena          = filter_var($_POST['novy_produkt_cena'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $novy_produkt_ks            = filter_var($_POST['novy_produkt_ks'], FILTER_SANITIZE_NUMBER_INT);
         $novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
@@ -125,6 +125,7 @@ function pridat_produkt_uzivatel( $atts ) {
         $main_attach                = $_POST['main_attach'];
         $produkt_cat                = $_POST['produkt_cat'];
         $sada                       = $_POST['sada'];
+        $tagy                       = $_POST['tagy'];
         
 
         $post = array(
@@ -202,6 +203,7 @@ function pridat_produkt_uzivatel( $atts ) {
         add_post_meta($last_id, '_product_image_gallery', implode(',', $attachments));
         add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
         add_post_meta($last_id, '_stock', $novy_produkt_ks);
+        wp_set_post_tags($last_id, $tagy, false);
         add_post_meta($last_id, '_manage_stock', 'yes');
         if($novy_produkt_ks > 0)
             add_post_meta($last_id, '_stock_status', 'instock');
@@ -220,15 +222,35 @@ function pridat_produkt_uzivatel( $atts ) {
     else
     {
         $template = file_get_contents(ABSPATH."wp-content/plugins/budkutil/frontend/new_product_form.tpl");
+
+        ob_start();
+            $nastaveni = array(
+                'textarea_name' => 'novy_produkt_popis',
+                'media_buttons' => false,
+            );
+              /*  'tinymce' => array(
+                'theme_advanced_buttons1' => 'formatselect,|,bold,italic,underline,|,' .
+                    'bullist,blockquote,|,justifyleft,justifycenter' .
+                    ',justifyright,justifyfull,|,link,unlink,|' .
+                    ',spellchecker,wp_fullscreen,wp_adv'
+            )*/
+
+            wp_editor('',"novy_produkt_popis", $nastaveni);
+        $editor = ob_get_clean();
        
         $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat'");
         $tree = category_tree($zaznamy);
         $array = json_decode(json_encode($tree), true);
         ob_start();
-        echo '<ul id="browser" class="filetree treeview-famfamfam">';
-        seznam($array);
-        echo "</ul>";
+            echo '<ul id="browser" class="filetree treeview-famfamfam">';
+            seznam($array);
+            echo "</ul>";
         $tree = ob_get_clean();
+
+        $user_id = get_current_user_id();
+        $provize = $wpdb->get_var("SELECT provize_vyse FROM bk_provize WHERE user_id='$user_id'");
+        if($provize == 0)
+            $provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
 
         $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
         foreach ($sady as $sada)
@@ -237,6 +259,8 @@ function pridat_produkt_uzivatel( $atts ) {
         $template = str_replace('{strom}', $tree, $template);
         $template = str_replace('{sady_parametru}', $sady_options, $template);      
         $template = str_replace('{time}', time(), $template);      
+        $template = str_replace('{editor}', $editor, $template);       
+        $template = str_replace('{provize}', $provize, $template);  
     }
 
     if(is_user_logged_in())

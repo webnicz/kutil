@@ -13,7 +13,14 @@
         <tr>
             <td>Popis:</td>
             <td>
-                <textarea rows="5" cols="30" name="novy_produkt_popis"></textarea>
+                {editor}
+            </td>
+        </tr>
+        <tr>
+            <td>Klíčové slova:</td>
+            <td>
+                <input id="tagy" name="tagy" style="width:300px" />
+                <div class="napoveda">Napište klíčové slovo a potvrďte klávesou enter.</div>
             </td>
         </tr>
         <tr>
@@ -30,6 +37,18 @@
             </td>
         </tr>
         <tr>
+            <td>Provize:</td>
+            <td>
+                <span id="vypocet_provize">0</span> Kč
+            </td>
+        </tr>
+        <tr>
+            <td>Výsledná cena:</td>
+            <td>
+                <span id="vypocet_koncove_ceny">0</span> Kč
+            </td>
+        </tr>
+        <tr>
             <td>Kusů:</td>
             <td>
                 <div class="numbers-row">
@@ -40,7 +59,7 @@
         <tr>
             <td>Veřejný:</td>
             <td>
-                <input type="checkbox" value="true" name="novy_produkt_viditelnost" checked="checked" /> Produkt mohou vidět všichni uživatelé 
+                <input type="checkbox" value="true" name="novy_produkt_viditelnost" checked="checked" /> Zboží okamžitě vystavit
             </td>
         </tr>
         <tr>
@@ -73,6 +92,7 @@
     </table>
 
     <input name="poradi_attachs" type="hidden" />
-    <input name="main_attach" type="hidden" />                  
+    <input name="main_attach" type="hidden" />
+    <input name="koeficient" value="{provize}" type="hidden" />                    
     <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="{time}" />
 </form>
