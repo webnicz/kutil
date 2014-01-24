@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="styles/main.css">
+	<title>Facets Browse Interface</title>
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+</head>
+<body>
+	
+
+	<h3>Miller Columns</h3>
+	
+	<h4>Taxonomy Data from JSON File</h4>
+	
+	<!-- Miller container -->
+	<div class="miller-container" data-source="json">				
+		
+	</div>
+	<!-- / Miller container -->
+
+	<h4>Taxonomy Data from the html</h4>
+
+	
+	<!-- Miller container -->
+	<div class="miller-container" data-source="html">				
+		
+		<ul>
+			<li>
+				<a href="http://url.to/taxonomy/item">Parent 1</a>				
+				<ul>
+					<li><a href="#">Children - 1</a></li>
+					<li><a href="#">Children - 2</a></li>
+					<li><a href="#">Children - 3</a></li>
+					<li><a href="#">Children - 4</a></li>
+					<li>
+						<a href="#">Children 5</a>
+						<ul>
+							<li><a href="#">Children 51</a></li>
+							<li><a href="#">Children 52</a></li>
+							<li><a href="#">Children 53</a></li>
+							<li><a href="#">Children 54</a></li>
+							<li><a href="#">Children 55</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+			<li>
+				<a href="http://url.to/taxonomy/item">Parent 2</a>				
+				<ul>
+					<li><a href="#">Children - 12</a></li>
+					<li><a href="#">Children - 22</a></li>
+					<li><a href="#">Children - 32</a></li>
+					<li><a href="#">Children - 42</a></li>
+					<li>
+						<a href="#">Children 520</a>
+						<ul>
+							<li><a href="#">Children 521</a></li>
+							<li><a href="#">Children 522</a></li>
+							<li><a href="#">Children 523</a></li>
+							<li><a href="#">Children 524</a></li>
+							<li><a href="#">Children 525</a></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+
+
+	</div>
+	<!-- / Miller container -->
+
+
+
+
+	<script type="text/x-handlebars-template" id="taxonomy_terms">
+		
+		<div class="miller--terms--container">
+			
+			{{#if parent}}
+				<div class="miller--terms--selection">					
+					{{#each parent}} {{#if @index}} &raquo; {{/if}} <a href="#" class="crumb" data-depth="{{depth}}">{{name}}</a>{{/each}}
+				</div>
+			{{/if}}
+
+  		<ul class="terms">
+  			{{#each taxonomies}}
+  				<li class="term {{#if childrenCount}}has-children{{/if}}" data-id="{{id}}">
+  					<a href="{{url}}">
+  					  <span class="title">{{label}}</span> 
+  					  <em class="icon icon-arrow"></em> <em class="icon icon-search" title="Search for {{label}}"></em> 			
+  					{{#if description}}<span class="description">{{description}}</span>{{/if}}
+  					</a>
+  				</li>
+  			{{/each}}
+  		</ul>
+  		
+		</div>	
+		
+	</script>	
+	
+	
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="scripts/handlebars.js"></script>
+	<script src="scripts/jquery.taxonomyBrowser.js"></script>
+	<script src="scripts/jquery.taxonomyBrowser.keys.js"></script>
+	<script>
+		$(function(){
+			
+			$('.miller-container').taxonomyBrowser({
+			  columns: 4
+			});
+			
+		});
+	</script>
+	
+</body>
+</html>
