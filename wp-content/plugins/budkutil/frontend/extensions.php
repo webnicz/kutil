@@ -90,6 +90,7 @@ function budkutil_adding_scripts() {
     wp_register_script('kategorie1', "/wp-content/plugins/budkutil/js/kategorie/scripts/handlebars.js", array('jquery'),'1.1', true);
     wp_register_script('kategorie2', "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.js", array('jquery'),'1.1', true);
     wp_register_script('kategorie3', "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.keys.js", array('jquery'),'1.1', true);
+    wp_register_script('scrollto', "/wp-content/plugins/budkutil/js/jquery.scrollTo-1.4.3.1.js", array('jquery'),'1.1', true);
     
     wp_enqueue_script('dragsort');
     wp_enqueue_script('img-up-drag');
@@ -104,6 +105,7 @@ function budkutil_adding_scripts() {
     wp_enqueue_script('kategorie1');
     wp_enqueue_script('kategorie2');
     wp_enqueue_script('kategorie3');
+    wp_enqueue_script('scrollto');
 }
 
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_scripts' );
@@ -248,7 +250,7 @@ function pridat_produkt_uzivatel( $atts ) {
             wp_editor('',"novy_produkt_popis", $nastaveni);
         $editor = ob_get_clean();
        
-        $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy WHERE taxonomy='product_cat'");
+        $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy, wp_terms WHERE wp_term_taxonomy.taxonomy='product_cat'  AND wp_term_taxonomy.term_id=wp_terms.term_id ORDER BY wp_terms.name");
         $tree = category_tree($zaznamy);
         $array = json_decode(json_encode($tree), true);
         ob_start();
@@ -272,14 +274,14 @@ function pridat_produkt_uzivatel( $atts ) {
                 
                 {{#if parent}}
                     <div class="miller--terms--selection">                  
-                        {{#each parent}} {{#if @index}} &raquo; {{/if}} <a href="#" class="crumb" data-depth="{{depth}}">{{name}}</a>{{/each}}
+                        {{#each parent}} {{#if @index}} &raquo; {{/if}} <span class="crumb" data-depth="{{depth}}">{{name}}</span>{{/each}}
                     </div>
                 {{/if}}
 
             <ul class="terms">
                 {{#each taxonomies}}
                     <li class="term {{#if childrenCount}}has-children{{/if}}" data-id="{{id}}">
-                        <a href="{{url}}">
+                        <a id="{{idecko}}">
                           <span class="title">{{label}}</span> 
                           <em class="icon icon-arrow"></em> <em class="icon icon-search" title="Search for {{label}}"></em>             
                         {{#if description}}<span class="description">{{description}}</span>{{/if}}
@@ -303,7 +305,7 @@ function pridat_produkt_uzivatel( $atts ) {
     if(is_user_logged_in())
         return $template;
     else
-        return "Must log in";
+        return file_get_contents(ABSPATH."wp-content/plugins/budkutil/frontend/must_log_in.tpl");
 }
 add_shortcode( 'pridat_produkt', 'pridat_produkt_uzivatel' );
 

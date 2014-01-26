@@ -22,6 +22,59 @@ include ABSPATH.'wp-content/plugins/budkutil/admin/tables.php';
 
 include ABSPATH.'wp-content/plugins/budkutil/admin/general_functions.php';
 
+function category_tree_admin(array $zaznamy, $parentId = 0) {
+    global $wpdb;
+    
+    $vetev = array();
+
+    foreach ($zaznamy as $zaznam) {
+        if ($zaznam->parent == $parentId) {
+            $children = category_tree_admin($zaznamy, $zaznam->term_id);
+            if ($children) {
+                $zaznam->children = $children;
+            }
+            $vetev[] = $zaznam;
+        }
+    }
+
+    return $vetev;
+}
+
+function seznam_admin($data_array, $i = 0, $list_tag = 'ul') {
+    global $wpdb;
+
+    if ($list_tag != 'ul' && $list_tag != 'ol')
+        $list_tag = 'ul';
+
+    if (!is_array($data_array) || empty($data_array))
+        return;
+
+    $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$data_array[0][parent]."'");
+    $kat_id = $wpdb->get_var("SELECT term_id FROM $wpdb->terms WHERE term_id='".$data_array[0][parent]."'");
+
+    if($data_array[0][parent] != 0)
+    {
+        echo '<li class="ui-state-default" title="'.$kat_id.'">'.$kat_nazev.'</li>';
+
+        $add = "-";
+        if($list_tag == "-")
+            $add = "--";
+    }
+
+    foreach ($data_array as $element) {
+        $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$element[term_id]."'");
+
+        $nadrazeno = $wpdb->get_var("SELECT SUM(1) FROM wp_term_taxonomy WHERE parent='".$element[term_id]."'");
+
+        if($nadrazeno == 0)
+            echo '<li class="ui-state-default" title="'.$element[term_id].'">'.$add.$kat_nazev.'</li>';
+
+        if (is_array($element[children])) {
+            seznam_admin($element[children], ++$i, $add);
+        }
+    }
+    //echo '</'.$list_tag.'></li>';
+}
 
 
 /* ROZHRANí */
@@ -419,7 +472,12 @@ function sady_page() {
                                         array_push($vyrazeno, $elementy[0]);
                                     }
                                 
-                                    $kategorie = $wpdb->get_results("SELECT *
+                                    $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy, wp_terms WHERE wp_term_taxonomy.taxonomy='product_cat'  AND wp_term_taxonomy.term_id=wp_terms.term_id ORDER BY wp_terms.name");
+                                    $tree = category_tree_admin($zaznamy);
+                                    $array = json_decode(json_encode($tree), true);
+                                    seznam_admin($array);
+
+                                    /*$kategorie = $wpdb->get_results("SELECT *
                                     FROM wp_terms, wp_term_taxonomy
                                     WHERE wp_terms.term_id = wp_term_taxonomy.term_id AND wp_term_taxonomy.taxonomy='product_cat'
                                     GROUP BY wp_terms.name ORDER BY wp_terms.name");
@@ -427,7 +485,7 @@ function sady_page() {
                                     {
                                         if(!in_array($zaznam->term_id, $vyrazeno))
                                             echo '<li class="ui-state-default" title="'.$zaznam->term_id.'">'.$zaznam->name.'</li>';
-                                    }
+                                    }*/
                                 
                                 echo '
                                 </ul>

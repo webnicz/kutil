@@ -145,11 +145,13 @@
                     $child = $this.children('a'),
                     label = $child.text(),
                     id = $child.sanitize(),
+                    idecko = $child.find('input').val();
                     parent = $this.closest('ul').prev('a').sanitize() || null;
 
                 taxArray.push({
                   label: label,
                   id: id,
+                  idecko: idecko,
                   slug: id,
                   parent: parent,
                   url: $child.attr('href') || '#'
@@ -454,7 +456,7 @@
                 children = base.getChildren(parent),
                 depth = Number($this.closest(base.options.columnclass).data('depth')) + 1,
                 klass = $this.hasClass('active'),
-                url = $this.find('a').attr("href");
+                url = $this.find('a').attr("id");
             
 
             if(children && children.length && !klass) {
@@ -472,7 +474,7 @@
               
             }else{
               
-              window.location = url;  
+              jQuery('input[name=vybrana_kategorie]').val(url);  
               
             }
 

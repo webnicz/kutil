@@ -157,6 +157,8 @@
     </table>
 
     {apendix}
+    
+    <input name="vybrana_kategorie" type="hidden" />
     <input name="poradi_attachs" type="hidden" />
     <input name="main_attach" type="hidden" />
     <input name="koeficient" value="{provize}" type="hidden" />                    

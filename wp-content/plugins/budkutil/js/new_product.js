@@ -1,3 +1,5 @@
+jQuery(window)._scrollable();
+
 jQuery(".dad_star").live("click", function(){
     var theone = jQuery(this).parent().parent().hasClass("main");
     var file = jQuery(this).parent().parent().parent().attr("title");
@@ -123,17 +125,94 @@ function format(state) {
             jQuery(this).parent().parent().parent().remove();
         }); 
 
-jQuery('#novy_produkt_form').validate({
+function error_msg(msg, obj) {
+  var id       = (obj.attr('name') == "") ? obj.attr('id') : obj.attr('name');
+  var template = '<div class="error_msg error_'+id+'">'+msg+'</div>';
+
+  jQuery(template).insertBefore(obj);
+}
+
+function scrollup(obj) {
+  jQuery.scrollTo(obj, 1000, {offset: {top:-100} });
+}
+
+jQuery('#novy_produkt_form').submit( function () {
+  var pole_nazev      = jQuery('input[name=novy_produkt_nazev]'); 
+  var pole_popis      = jQuery('#novy_produkt_popis_ifr'); 
+  var pole_kateogire  = jQuery('input[name=vybrana_kategorie]'); 
+  var pole_cena       = jQuery('input[name=novy_produkt_cena]'); 
+  var pole_ks         = jQuery('input[name=novy_produkt_ks]'); 
+  var dropbox         = jQuery('#dropbox'); 
+
+  var nazev       = pole_nazev.val();
+  var popis       = pole_popis.contents().find('#tinymce').html().length;
+  var kategorie   = pole_kateogire.val();
+  var cena        = pole_cena.val();
+  var kusy        = pole_ks.val();
+  var obrazek     = dropbox.find('.uploaded').length;
+
+  if(nazev.length < 3) {
+    scrollup(pole_nazev);
+    error_msg('Zadejte prosím název Vašeho zboží', pole_nazev);
+    return false;
+  }
+  else if(popis.length < 3) {
+    scrollup(pole_popis);
+    error_msg('Zadejte prosím popis zboží', pole_popis);
+    return false;
+  }
+  else if(kategorie.length == 0) {
+    scrollup(pole_kateogire);
+    error_msg('Vyberte kategorii zboží', pole_kateogire);
+    return false;
+  }
+  else if(cena.length == 0) {
+    scrollup(pole_cena);
+    error_msg('Zadejte prosím cenu Vašeho zboží', pole_cena);
+    return false;
+  }
+  else if(kusy.length == 0) {
+    scrollup(pole_ks);
+    error_msg('Zadejte prosím kolik kusů naízíte', pole_ks);
+    return false;
+  }
+  else if(obrazek == 0) {
+    scrollup(dropbox);
+    error_msg('Nahrajte prosím alespoň jeden orbázek Vašeho zboží', dropbox);
+    return false;
+  }
+  
+  return true;
+});
+
+ jQuery("input[name=novy_produkt_cena]").keydown(function(event) {
+
+    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13,190]) !== -1 ||
+
+         // Allow: home, end, left, right
+        (event.keyCode >= 35 && event.keyCode <= 39)) {
+             // let it happen, don't do anything
+             return true;
+    }
+    else {
+        // Ensure that it is a number and stop the keypress
+        if (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) || event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
+            event.preventDefault(); 
+        }   
+    }
+});
+
+/*jQuery('#novy_produkt_form').validate({
         rules: {
           novy_produkt_nazev: {
             minlength: 2
           },
           novy_produkt_popis: {
-            minlength: 20,
-            maxlength: 500
+            minlength: 5,
+            maxlength: 5000
           },
           novy_produkt_cena: {
-            digits: true,
+            number: true,
             minlength: 1
           },
           novy_produkt_ks: {
@@ -147,7 +226,7 @@ jQuery('#novy_produkt_form').validate({
             success: function(element) {
                 element.addClass('valid').closest('.control-group').removeClass('error').addClass('success');
             }
-      });
+      });*/
 
 function preload(arrayOfImages) {
     jQuery(arrayOfImages).each(function(){
