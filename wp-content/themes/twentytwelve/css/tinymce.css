@@ -51,10 +51,27 @@
     padding-right: 0px;
 }
 
-.wp_themeSkin .mceColorSplitMenu td {
+body .wp_themeSkin .mceColorSplitMenu td {
 	padding: 2px;
+	background: #FFFCF5;
 }
-.wp_themeSkin .mceColorSplitMenu a {
+body .wp_themeSkin .mce_forecolor .mceColorSplitMenu tr td a {
 	height: 15px;
 	width: 15px;
+	border: 1px solid #FFFCF5;
+}
+body .wp_themeSkin .mce_forecolor .mceColorSplitMenu tr td a:hover {
+	border: 1px solid #000;
+}
+body .wp_themeSkin .mce_forecolor .mceColorSplitMenu tr td a.mceMoreColors {
+	width: 100%;
+	height: auto;
+	padding: 5px 0px;
+}
+body .wp_themeSkin .mceMenu a {
+	background: #FFFCF5;
+}
+body .mceListBoxMenu {
+	overflow: -moz-scrollbars-vertical; 
+	overflow-y: scroll;	
 }
