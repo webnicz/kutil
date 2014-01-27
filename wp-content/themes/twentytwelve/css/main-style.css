@@ -703,6 +703,7 @@ groups-order-select
 	width: 40%;
 	font-weight: 400;
 	border-radius: 3px;
+	-moz-box-sizing: border-box;
 }
 .select2-container-multi .select2-choices {
 	padding: 0;
