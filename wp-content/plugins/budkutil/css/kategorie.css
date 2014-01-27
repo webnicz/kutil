@@ -64,7 +64,8 @@
 	position: relative; }
 	
   .terms .active, .terms .active:hover {
-	background: #FFF0C9; }
+	background: #FFF0C9;
+	}
 	
 	.terms .selected {
 	background: #37BFEF;	
@@ -89,19 +90,6 @@
   .terms .icon-arrow {
 	background: url(/wp-content/plugins/budkutil/js/kategorie/images/icons.png) 0 -20px no-repeat;
 	display: none; }
-  .terms .icon-search {
-	background: url(/wp-content/plugins/budkutil/js/kategorie/images/icons.png) -20px 0 no-repeat;
-	opacity: 0;
-	display: none\9;
-	/* IE 8 Hack */ }
-  .terms .active .icon-arrow {
-	opacity: 0;
-	display: none\9;
-	/* IE 8 Hack */ }
-  .terms .active .icon-search {
-	opacity: 1;
-	display: block\9;
-	/* IE 8 Hack */ }
 
 
 .miller-container {
