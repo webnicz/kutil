@@ -1,4 +1,4 @@
-.userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+#dropbox #list1:after, .userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -129,7 +129,7 @@ body {
 #masthead a .signIn .loginForm p label input {
 	margin: 2px 0 0 24px;
 }
-#masthead a .signIn .loginForm .login-submit input[type="submit"] {
+#dropbox #btn_vybrat_soubor, #masthead a .signIn .loginForm .login-submit input[type="submit"] {
 	background-color: #5CB85C;
 	border-color: #4CAE4C;
 	-moz-user-select: none;
@@ -147,10 +147,13 @@ body {
 	white-space: nowrap;
 	color: #fff;
 }
-#masthead a .signIn .loginForm .login-submit input[type="submit"]:hover {
+#dropbox:hover #btn_vybrat_soubor, #masthead a .signIn .loginForm .login-submit input[type="submit"]:hover {
 	color: #ffffff;
 	background-color: #47a447;
 	border-color: #398439;
+}
+#dropbox #btn_vybrat_soubor {
+	padding: 3px 10px 6px;
 }
 
 .loginRegister {

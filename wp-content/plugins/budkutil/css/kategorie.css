@@ -64,7 +64,12 @@
 	position: relative; }
 	
   .terms .active, .terms .active:hover {
-	background: #37BFEF; }
+	background: #FFF0C9; }
+	
+	.terms .selected {
+	background: #37BFEF;	
+	}
+		
 	.terms .active .description, .terms .active:hover .description {
 	  color: #fff; }
   .terms .title {

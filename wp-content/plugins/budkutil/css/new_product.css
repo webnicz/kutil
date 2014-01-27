@@ -1,26 +1,32 @@
 ﻿/* image upload */
 
 #dropbox {
-    background: black;
     border-radius:3px;
     position: relative;
     min-height: 290px;
-    overflow: hidden;
+/*    overflow: hidden;*/
     padding-bottom: 40px;
-    width: 990px;
-    box-shadow:0 0 4px rgba(0,0,0,0.3) inset,0 -3px 2px rgba(0,0,0,0.1);
+    width: 100%;
+    background: #F4F9F2;
 }
 
 #dropbox .message{
-    font-size: 20px;
+    font-size: 18px;
     text-align: center;
-    padding-top:160px;
     display: block;
+    font-weight: 100;
+    padding-top: 120px;
 }
-
+#dropbox #btn_vybrat_soubor {
+	padding: 3px 10px 6px;
+	position: absolute;
+	right: 0;
+	top: -40px;
+}
 #dropbox .message i{
-    color:#ccc;
-    font-size:10px;
+	font-weight: 300;
+	font-size: 12px;
+	opacity: .6;
 }
 
 #dropbox:before{
@@ -31,7 +37,7 @@
     width:245px;
     height: 215px;
     float:left;
-    margin: 55px 0 0 60px;
+    margin: 10px 0 0 20px;
     position: relative;
     text-align: center;
 }
@@ -78,23 +84,23 @@
 
 #dropbox .progressHolder{
     position: absolute;
-    background-color:#252f38;
+    background-color: #CDEDC0;
     height:12px;
     width:100%;
     left:0;
     bottom: 0;
-    
-    box-shadow:0 0 2px #000;
+   	border: 1px solid #47A447;
+   	border-radius: 3px;
 }
 
 #dropbox .progress{
-    background-color:#2586d0;
+    background-color: #47A447;
     position: absolute;
     height:100%;
     left:0;
     width:0;
+	border-radius: 1px;
     
-    box-shadow: 0 0 1px rgba(255, 255, 255, 0.4) inset;
     
     -moz-transition:0.25s;
     -webkit-transition:0.25s;
@@ -114,7 +120,7 @@
     float:left; 
     padding:5px; 
     width:300px; 
-    height:300px; 
+    height: 207px; 
 }
 
 .placeHolder { 

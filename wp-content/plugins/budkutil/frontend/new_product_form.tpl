@@ -7,7 +7,7 @@
         <tr>
             <td colspan="2" class="name">
             	<span>Název</span>
-                <input type="text" value="Jak se tvůj výrobek bude jmenovat?" name="novy_produkt_nazev" />
+                <input type="text" value="" name="novy_produkt_nazev" />
             </td>
         </tr>
 
@@ -138,6 +138,7 @@
         </tr>
         <tr>
             <td colspan="2">
+            	<span>Obrázky</span>
                 <div id="dropbox">
                     <span class="message"><noscript>Pro nahrávání obrázků je vyžadován povolený JavaScript.</noscript></span>
 
