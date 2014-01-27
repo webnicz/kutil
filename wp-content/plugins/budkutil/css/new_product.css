@@ -84,7 +84,7 @@
     height:12px;
     width:100%;
     left:0;
-    bottom: 0;
+    bottom: 112px;
    	border: 1px solid #47A447;
    	border-radius: 3px;
 }
@@ -269,14 +269,17 @@ label.valid {
 	color: #000;
 	font-size: 26px;
 	padding: 0px 5px;
+	cursor: default;
 }
 
 #dropbox .toolbar .dad_close:hover {
 	color: red;
+	cursor: pointer;
 }
 
 #dropbox .main .toolbar .dad_star, #dropbox .toolbar .dad_star:hover {
 	color: #FBCB43;
+	cursor: pointer;
 }
 #dropbox .main {
 	border: 3px solid #FBCB43;

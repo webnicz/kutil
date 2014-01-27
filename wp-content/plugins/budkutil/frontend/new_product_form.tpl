@@ -7,7 +7,7 @@
         <tr>
             <td colspan="2" class="name">
             	<span>Název</span>
-                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" />
+                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" onclick="if(this.value == 'Jak se bude tvůj produkt jmenovat?') { this.value = ''; }"/>
             </td>
         </tr>
 
