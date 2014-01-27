@@ -188,7 +188,9 @@ jQuery('#novy_produkt_form').submit( function () {
 
  jQuery("input[name=novy_produkt_cena]").keydown(function(event) {
 
-    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13,190]) !== -1 ||
+  console.log(event.keyCode);
+
+    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1 ||
 
          // Allow: home, end, left, right
         (event.keyCode >= 35 && event.keyCode <= 39)) {
@@ -197,7 +199,7 @@ jQuery('#novy_produkt_form').submit( function () {
     }
     else {
         // Ensure that it is a number and stop the keypress
-        if (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) || event.shiftKey || (event.keyCode < 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
+        if (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) || event.shiftKey || (event.keyCode <= 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
             event.preventDefault(); 
         }   
     }
@@ -298,9 +300,9 @@ jQuery("input[name=novy_produkt_cena]").keyup( function () {
     var cena = jQuery(this).val().replace(",", ".");
     var koeficient = jQuery("input[name=koeficient]").val().replace(",", ".")/100;
 
-    var provize = number_format(cena*koeficient);
-    var koncova = number_format(cena*1+provize*1);
+    var provize = cena*koeficient;
+    var koncova = (cena*1+provize*1);
 
-    jQuery('#vypocet_provize').html(provize);
-    jQuery('#vypocet_koncove_ceny').html(koncova);
+    jQuery('#vypocet_provize').html(number_format(provize));
+    jQuery('#vypocet_koncove_ceny').html(number_format(koncova));
 });
