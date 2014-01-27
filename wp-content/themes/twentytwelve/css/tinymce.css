@@ -1,0 +1,60 @@
+#primary .wp-editor-container {
+	border: 1px solid #FBCB43;	
+}
+
+#primary .quicktags-toolbar, #primary .wp_themeSkin tr.mceFirst td.mceToolbar {
+	background: #FFFCF5;
+	border-bottom: 1px solid #FBCB43;
+}
+#primary .wp_themeSkin table.mceToolbar {
+	margin: 0;
+}
+
+#content.newProduct table#novy_produkt_popis_toolbar1 {
+	width: auto;
+}
+
+#primary .mceSplitButton a, #primary .wp_themeSkin .mceButton {
+	margin: 0;
+	padding: 0px;
+	padding: 5px;
+	text-align: center;
+	display: block;
+	border: 0px;
+}
+
+#primary .mceSplitButtonSelected .mceSplitButton a,  #primary .mceSplitButton:hover a, #primary .wp_themeSkin .mceButtonActive, #primary .wp_themeSkin .mceButton:hover {
+	background: #FBCB43;
+}
+
+#primary .tmce-active .switch-tmce, #primary .html-active .switch-html {
+	background: #FFFCF5;
+	border-color: #FBCB43;	
+}
+#primary .wp-switch-editor {
+	border-bottom-color: #FBCB43;
+}
+#primary .mceSplitButton a.mceOpen {
+	border-left: 1px solid #FFFCF5;	
+    padding-right: 0px;
+}
+#primary .mceSplitButtonSelected .mceSplitButton a.mceOpen, #primary .mceSplitButton:hover a.mceOpen {
+	background-image: url("/wp-includes/images/down_arrow.gif");
+    background-position: 3px 5px;
+    background-repeat: no-repeat;
+    border-left: 1px solid #FFFCF5;	
+    padding-right: 0px;
+}
+
+.wp_themeSkin .mceSplitButtonEnabled a.mceOpen, .wp_themeSkin .mceSplitButtonSelected a.mceOpen, .wp_themeSkin .mceSplitButtonActive a.mceOpen, .wp_themeSkin .mceSplitButtonEnabled:hover a.mceOpen {
+    background-position: 3px 5px !important;	
+    padding-right: 0px;
+}
+
+.wp_themeSkin .mceColorSplitMenu td {
+	padding: 2px;
+}
+.wp_themeSkin .mceColorSplitMenu a {
+	height: 15px;
+	width: 15px;
+}
