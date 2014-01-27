@@ -237,6 +237,11 @@ function pridat_produkt_uzivatel( $atts ) {
 
         ob_start();
             $nastaveni = array(
+                'tinymce' => array(
+                    'theme_advanced_buttons1' => 'bold,italic,underline,bulllist,numlist,outdent,indent,fontsizeselect,undo,redo,forecolor,link,unlink',
+                    'theme_advanced_buttons2' => '',
+                    'theme_advanced_buttons3' => ''
+                ),
                 'textarea_name' => 'novy_produkt_popis',
                 'media_buttons' => false,
             );
