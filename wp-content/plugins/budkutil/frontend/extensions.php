@@ -283,7 +283,7 @@ function pridat_produkt_uzivatel( $atts ) {
                     <li class="term {{#if childrenCount}}has-children{{/if}}" data-id="{{id}}">
                         <a id="{{idecko}}">
                           <span class="title">{{label}}</span> 
-                          <em class="icon icon-arrow"></em> <em class="icon icon-search" title="Search for {{label}}"></em>             
+                          <em class="icon icon-arrow"></em>
                         {{#if description}}<span class="description">{{description}}</span>{{/if}}
                         </a>
                     </li>

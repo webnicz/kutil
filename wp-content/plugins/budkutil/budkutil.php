@@ -407,12 +407,17 @@ function sady_page() {
                                     <input type="hidden" id="poradi2" name="poradi2" />
                                     <ul id="sortable1" class="droptrue">';
                                     
-                                        $kategorie = $wpdb->get_results("SELECT *
+                                        $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy, wp_terms WHERE wp_term_taxonomy.taxonomy='product_cat'  AND wp_term_taxonomy.term_id=wp_terms.term_id ORDER BY wp_terms.name");
+                                        $tree = category_tree_admin($zaznamy);
+                                        $array = json_decode(json_encode($tree), true);
+                                        seznam_admin($array);
+
+                                        /*$kategorie = $wpdb->get_results("SELECT *
                                         FROM wp_terms, wp_term_taxonomy
                                         WHERE wp_terms.term_id = wp_term_taxonomy.term_id AND wp_term_taxonomy.taxonomy='product_cat'
                                         GROUP BY wp_terms.name ORDER BY wp_terms.name");
                                         foreach ($kategorie as $zaznam) 
-                                            echo '<li class="ui-state-default" title="'.$zaznam->term_id.'">'.$zaznam->name.'</li>';
+                                            echo '<li class="ui-state-default" title="'.$zaznam->term_id.'">'.$zaznam->name.'</li>';*/
                                     
                                     echo '
                                     </ul>

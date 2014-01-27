@@ -62,9 +62,7 @@
          * Add a min-height to container
          */
         
-        base.$el.css({
-          minHeight: base.options.columnheight
-        });
+       
 
 
         /**
@@ -457,11 +455,8 @@
                 depth = Number($this.closest(base.options.columnclass).data('depth')) + 1,
                 klass = $this.hasClass('active'),
                 url = $this.find('a').attr("id");
-            
-
-            if(children && children.length && !klass) {
-              
-              $this
+          
+            $this
                 .addClass('active')
                 .siblings()
                 .removeClass('active');                
@@ -471,12 +466,6 @@
                 depth: depth, 
                 parent: parent
               }); 
-              
-            }else{
-              
-              jQuery('input[name=vybrana_kategorie]').val(url);  
-              
-            }
 
 
             e.preventDefault();
@@ -498,7 +487,7 @@
             
             /*
               Remove Current Column
-             */
+             */alert('bb');
             
             $currentColumn.remove();
 
@@ -516,7 +505,7 @@
            */
           
           base.$el.on('click', '.crumb', function(e){
-
+alert('xx');
             base.$el
               .find(base.options.columnclass)
               .find('li')

@@ -60,8 +60,8 @@
 	});
 
 	var lista = '<div class="toolbar">'+
-            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
-            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png" class="dad_star" alt="" />'+
+            '<i class="icon-trash dad_close"></i>'+
+            '<i class="icon-star dad_star"></i>'+
           '</div>';
 	
 	var template = '<li><div class="preview">'+

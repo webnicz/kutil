@@ -5,13 +5,13 @@ jQuery(".dad_star").live("click", function(){
     var file = jQuery(this).parent().parent().parent().attr("title");
 
     jQuery("#dropbox").find(".uploaded").removeClass("main");
-    jQuery("#dropbox").find(".dad_star").attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png");
+    jQuery("#dropbox").find(".dad_star").removeClass("active");
     jQuery("input[name=main_attach]").val('');
 
     if(theone == false)
     {
         jQuery(this).parent().parent().addClass("main");
-        jQuery(this).attr("src", "/wp-content/plugins/budkutil/js/img-up/assets/img/star.png");
+        jQuery("#dropbox").find(".dad_star").addClass("active");
         jQuery("input[name=main_attach]").val(file);
     }
 });
@@ -127,7 +127,7 @@ function format(state) {
 
 function error_msg(msg, obj) {
   var id       = (obj.attr('name') == "") ? obj.attr('id') : obj.attr('name');
-  var template = '<div class="error_msg error_'+id+'">'+msg+'</div>';
+  var template = '<div class="error_msg error_'+id+'"><i class="icon-remove-sign"></i> '+msg+'</div>'; //<i class="icon-ok-sign"></i>
 
   jQuery(template).insertBefore(obj);
 }

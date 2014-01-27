@@ -37,8 +37,8 @@
           var nazev = $('#one-specific-file').val();
           var cesta = response.url.replace(".", "/wp-content/plugins/budkutil/js/");
           var lista = '<div class="toolbar">'+
-            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/close.png" class="dad_close" alt="" />'+
-            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/star-dark.png" class="dad_star" alt="" />'+
+            '<i class="icon-trash dad_close"></i>'+
+            '<i class="icon-star dad_star"></i>'+
           '</div>';
 
           $('.preview:last').find('.imageHolder').append('<img src="'+cesta+'" /><a class="upedimg" title="'+nazev+'"><span class="uploaded">'+lista+'<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span></a>')
