@@ -129,7 +129,8 @@ function error_msg(msg, obj) {
   var id       = (obj.attr('name') == "") ? obj.attr('id') : obj.attr('name');
   var template = '<div class="error_msg error_'+id+'"><i class="icon-remove-sign"></i> '+msg+'</div>'; //<i class="icon-ok-sign"></i>
 
-  jQuery(template).insertBefore(obj);
+  if(jQuery('.error_'+id).length == 0)
+    jQuery(template).insertBefore(obj);
 }
 
 function scrollup(obj) {

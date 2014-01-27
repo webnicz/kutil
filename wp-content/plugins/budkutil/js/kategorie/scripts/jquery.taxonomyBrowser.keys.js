@@ -69,8 +69,7 @@
             
             $($.fn.taxonomyBrowser.elementCache[0])
               .find(base.options.columnclass)
-              .eq(0)
-              .focus();
+              .eq(0);
 
            
             /**
@@ -243,7 +242,7 @@
                 Add Focus to the Link: So the container scrolls
               */
 
-              this.$currentActive.find('a').focus();
+              this.$currentActive.find('a');
 
             }
 
