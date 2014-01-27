@@ -648,18 +648,22 @@ groups-order-select
 
  /* Add of new product / pridani noveho vyrobku */
  
-#content.newProduct {
+ 
+
+#primary.newProduct {
 	border-top: 4px solid #8CC474;
+	float: none;
+	width: 100%;
 }
-#content.newProduct article header {
+#primary.newProduct article header {
 	background: #8CC474;
 }
-#content.newProduct article header h2 {
+#primary.newProduct article header h2 {
 	color: #FFFFFF;
 	line-height: 40px;
 	padding: 8px 8px 13px 15px;
 }
-#content.newProduct article header h2 strong {
+#primary.newProduct article header h2 strong {
 	border: 1px solid #FFFFFF;
 	border-radius: 50%;
 	display: block;
@@ -673,10 +677,10 @@ groups-order-select
 	line-height: 32px;
 }
 
-#content.newProduct article .entry-content {
+#primary.newProduct article .entry-content {
 /*	padding: 15px;*/
 }
-#content.newProduct #novy_produkt_form > table > tbody > tr > td {
+#primary.newProduct #novy_produkt_form > table > tbody > tr > td {
 	color: #000;
 	font-size: 14px;
 	font-weight: 400;
@@ -684,26 +688,24 @@ groups-order-select
 	text-align: left;
 }
 
-#content.newProduct #novy_produkt_form > table > tbody > tr.highlight > td {
+#primary.newProduct #novy_produkt_form > table > tbody > tr.highlight > td {
 	background: #FFFCF5;
 	border-bottom: 1px solid #FBCB43;
 }
 
-#content.newProduct .napoveda {
+#primary.newProduct .napoveda {
 	font-weight: 300;
 	font-size: 12px;
 }
 .select2-container, .select2-container-multi {
 	width: 100%;
 }
-.select2-container-multi .select2-choices, #content.newProduct td input[type="text"] {
+.select2-container-multi .select2-choices, #primary.newProduct td input[type="text"] {
 	border: 0px;
-/*	box-shadow: 0px 3px 0px rgba(251, 203, 67, .3);*/
 	padding: 5px 10px;
 	background:  rgba(251, 203, 67, .05);
 	border: 1px solid  rgba(251, 203, 67, 1);
 	color: #000;
-	width: 40%;
 	font-weight: 400;
 	border-radius: 3px;
 	-moz-box-sizing: border-box;
@@ -711,19 +713,19 @@ groups-order-select
 .select2-container-multi .select2-choices {
 	padding: 0;
 }
-#content.newProduct td .select2-container-multi .select2-choices input[type="text"] {
+#primary.newProduct td .select2-container-multi .select2-choices input[type="text"] {
 	border: 0;
 	background: transparent;
 	box-shadow: none;
 }
-#content.newProduct td label.valid {
+#primary.newProduct td label.valid {
 	
 }
 span.underline {
 	border-bottom: 1px dashed #000;
 }
 
-#content.newProduct table {
+#primary.newProduct table {
 	width: 100%;
 }
 
@@ -740,24 +742,47 @@ span.underline {
 	left: 8px;
 	top: 6px;
 }
-#content.newProduct .wp-editor-wrap {
+#primary.newProduct .wp-editor-wrap {
 	width: 100%;
 }
-#content.newProduct td.parametr li {
+#primary.newProduct td.parametr li {
 	float: left;
 }
-#content.newProduct td.parametr li img {
+#primary.newProduct td.parametr li img {
 	float: left;
 	border-radius: 3px;
 	width: 20px;
 	height: 20px;
 	margin-right: 5px;
 }
-#content.newProduct td.parametr li label {
+#primary.newProduct td.parametr li label {
 	font-weight: 300;
 }
 
-#content.newProduct tr > td:first-child > span {
+#primary.newProduct tr > td:first-child > span {
 	display: block;
 	margin-bottom: 15px;
+}
+
+.select2-container-multi .select2-choices, #select2-drop {
+	width: 500px !important;
+}
+
+#primary.newProduct td input[name="novy_produkt_cena"] {
+	width: 100px;
+	text-align: right;
+}
+
+#primary.newProduct td input[name="novy_produkt_nazev"] {
+	width: 100%;
+	font-size: 30px;
+	padding: 15px;
+	font-weight: 100;
+	color: #000;
+}
+
+#primary.newProduct td .separator {
+	border-bottom: 1px dashed #aaa;
+	margin-bottom: 15px;
+	padding-bottom: 15px;
 }

@@ -7,7 +7,7 @@
         <tr>
             <td colspan="2" class="name">
             	<span>Název</span>
-                <input type="text" value="" name="novy_produkt_nazev" />
+                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" />
             </td>
         </tr>
 
@@ -94,6 +94,10 @@
                 </ul>
                 
             </td>
+        </tr>
+        
+        <tr>
+        	<td colspan="2"><div class="separator"></div></td>
         </tr>
         
         <tr>

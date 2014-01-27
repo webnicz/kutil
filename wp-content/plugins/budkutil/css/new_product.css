@@ -4,8 +4,6 @@
     border-radius:3px;
     position: relative;
     min-height: 290px;
-/*    overflow: hidden;*/
-    padding-bottom: 40px;
     width: 100%;
     background: #F4F9F2;
 }
@@ -34,10 +32,9 @@
 }
 
 #dropbox .preview{
-    width:245px;
+    width:246px;
     height: 215px;
     float:left;
-    margin: 10px 0 0 20px;
     position: relative;
     text-align: center;
 }
@@ -47,8 +44,6 @@
     max-height:180px;
     border:3px solid #fff;
     display: block;
-    
-    box-shadow:0 0 2px #000;
 }
 
 #dropbox .imageHolder{
@@ -64,6 +59,7 @@
     width:100%;
     /*background: url('../img/done.png') no-repeat center center rgba(255,255,255,0.5);*/
     display: none;
+    cursor: move;
 }
 
 #dropbox .uploaded:hover{
@@ -118,21 +114,18 @@
 
 #list1 li { 
     float:left; 
-    padding:5px; 
-    width:300px; 
-    height: 207px; 
+    padding:14px; 
+    width: 246px; 
+    height: 181px; 
 }
 
 .placeHolder { 
     width: 300px; 
     height: 300px; 
     opacity: 0.5; 
-    border: dashed 3px gray !important; 
-    -webkit-border-radius: 15px;
-    -moz-border-radius: 15px;
-    border-radius: 15px;
     position: relative;
-    top: 50px;
+    border-radius: 3px;
+    background: #FBCB43;
 }
 
 .uploaded {
@@ -267,3 +260,32 @@ label.valid {
 .filetree span.folder { background: url(images/folder.gif) 0 0 no-repeat; }
 .filetree li.expandable span.folder { background: url(images/folder-closed.gif) 0 0 no-repeat; }
 .filetree span.file { background: url(images/file.gif) 0 0 no-repeat; }
+
+
+#dropbox .toolbar {
+	position: absolute;
+	bottom: 0px;
+	background: rgba(255, 255, 255, .8);
+	color: #000;
+	font-size: 26px;
+	padding: 0px 5px;
+}
+
+#dropbox .toolbar .dad_close:hover {
+	color: red;
+}
+
+#dropbox .main .toolbar .dad_star, #dropbox .toolbar .dad_star:hover {
+	color: #FBCB43;
+}
+#dropbox .main {
+	border: 3px solid #FBCB43;
+	left: -3px;
+	top: -3px;
+}
+#list1 {
+	padding: 20px;
+}
+#list1 .placeholder {
+	float: left;
+}

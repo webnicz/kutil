@@ -15,8 +15,8 @@
 
 get_header(); ?>
 
-	<div id="primary" class="site-content">
-		<div id="content" role="main" class="newProduct">
+	<div id="primary" class="site-content newProduct">
+		<div id="content" role="main">
 
 			<?php while ( have_posts() ) : the_post(); ?>
 				<?php get_template_part( 'content', 'new-product' ); ?>
@@ -26,5 +26,5 @@ get_header(); ?>
 		</div><!-- #content -->
 	</div><!-- #primary -->
 
-<?php get_sidebar( 'shop' ); ?>
+<?php //get_sidebar( 'shop' ); ?>
 <?php get_footer(); ?>
