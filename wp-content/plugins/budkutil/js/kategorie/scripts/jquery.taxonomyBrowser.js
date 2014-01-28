@@ -468,6 +468,11 @@
               }); 
 
 
+              $.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: url} ,
+              function(data){
+                $('#sady_parametru_wrapper').html(data);
+              });
+
             e.preventDefault();
 
 

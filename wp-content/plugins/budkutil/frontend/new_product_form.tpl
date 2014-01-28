@@ -28,7 +28,7 @@
         </tr>
         
         <tr>
-            <td colspan="2" class="parametr">
+            <td colspan="2" class="parametr" id="sady_parametru_wrapper">
                 
                 <!--
                 <div class="attr_row">
@@ -38,60 +38,6 @@
                     </select>
                 </div>
                 -->
-                
-                <span>Barva</span>
-                
-                <ul>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                </ul>
-                
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2" class="parametr">
-                
-                <span>Materiál</span>
-                <ul>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                	<li>
-                		<img src="/wp-content/plugins/budkutil/up_img/1390582278_modra.png" alt="testovaci obrazek" />
-                		<label><input type="checkbox" name="" value="" /> Nazev parametru</label>
-                	</li>
-                </ul>
                 
             </td>
         </tr>
@@ -160,6 +106,20 @@
             </td>
         </tr>
     </table>
+
+    <script type="text/javascript">
+
+
+jQuery( ".parametr_input" ).on('click',function( event ) {
+  var idecko = jQuery(this).attr('id');
+  var pocet = jQuery('#'+idecko+":checked").length;
+alert(idecko);
+  if(pocet == 3)
+    jQuery('#'+idecko).is(':unchecked').prop('disabled', true);//event.preventDefault();
+  else
+    jQuery('#'+idecko).prop('disabled', false);
+});
+    </script>
 
     {apendix}
     

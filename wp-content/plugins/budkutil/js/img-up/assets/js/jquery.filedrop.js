@@ -32,8 +32,8 @@
 			edit_timestamp: '',
 			refresh: 1000,
 			paramname: 'userfile',
-			maxfiles: 25,
-			maxfilesize: 1, // MBs
+			maxfiles: 10,
+			maxfilesize: 5, // MBs
 			data: {},
 			drop: empty,
 			dragEnter: empty,

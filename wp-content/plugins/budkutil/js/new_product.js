@@ -42,6 +42,7 @@ else
 jQuery("#dropbox > .message").html(msg);
 
 jQuery("#btn_vybrat_soubor").click( function() {
+  if(jQuery('.uploaded').length <= 10)
     jQuery("#one-specific-file").click();
 });
 
@@ -134,7 +135,7 @@ function error_msg(msg, obj) {
 }
 
 function scrollup(obj) {
-  jQuery.scrollTo(obj, 1000, {offset: {top:-100} });
+  jQuery.scrollTo(obj, 1000);
 }
 
 jQuery('#novy_produkt_form').submit( function () {
@@ -241,16 +242,12 @@ preload([
     '/wp-content/plugins/budkutil/js/validate/valid.png',
 ]);
 
-jQuery( ".produkt_cat" ).click(function( event ) {
-  var pocet = jQuery(".produkt_cat:checkbox:checked").length;
-
-  if(pocet > 3)
-    event.preventDefault();
-  else
-    jQuery('#pocet_vybranych > span').html(pocet);
-});
-
 jQuery('#list1').bind("DOMSubtreeModified",function(){
+  if(jQuery('.uploaded').length == 10)
+    jQuery('#btn_vybrat_soubor').addClass('disable');
+  else
+    jQuery('#btn_vybrat_soubor').removeClass('disable');
+
   saveOrder();
 });
 
