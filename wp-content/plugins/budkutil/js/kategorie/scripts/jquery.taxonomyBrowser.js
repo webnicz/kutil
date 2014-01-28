@@ -467,7 +467,8 @@
                 parent: parent
               }); 
 
-
+            jQuery('input[name=vybrana_kategorie]').val(url);
+            
               $.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: url} ,
               function(data){
                 $('#sady_parametru_wrapper').html(data);

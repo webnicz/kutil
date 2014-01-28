@@ -244,6 +244,7 @@ function pridat_produkt_uzivatel( $atts ) {
                 ),
                 'textarea_name' => 'novy_produkt_popis',
                 'media_buttons' => false,
+                'quicktags' => false,
             );
               /*  'tinymce' => array(
                 'theme_advanced_buttons1' => 'formatselect,|,bold,italic,underline,|,' .

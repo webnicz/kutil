@@ -147,40 +147,46 @@ jQuery('#novy_produkt_form').submit( function () {
   var dropbox         = jQuery('#dropbox'); 
 
   var nazev       = pole_nazev.val();
-  var popis       = pole_popis.contents().find('#tinymce').html().length;
+  var popis       = pole_popis.contents().find('#tinymce').html();
   var kategorie   = pole_kateogire.val();
   var cena        = pole_cena.val();
   var kusy        = pole_ks.val();
   var obrazek     = dropbox.find('.uploaded').length;
 
   if(nazev.length < 3) {
+    alert('sds');
     scrollup(pole_nazev);
     error_msg('Zadejte prosím název Vašeho zboží', pole_nazev);
     return false;
   }
-  else if(popis.length < 3) {
+  if(popis.length < 50) {
+    alert('bbb');
     scrollup(pole_popis);
     error_msg('Zadejte prosím popis zboží', pole_popis);
     return false;
   }
-  else if(kategorie.length == 0) {
-    scrollup(pole_kateogire);
-    error_msg('Vyberte kategorii zboží', pole_kateogire);
+  if(kategorie.length == 0) {
+    alert('eeee');
+    scrollup(jQuery('.miller-container').prev());
+    error_msg('Vyberte kategorii zboží', jQuery('.miller-container').prev());
     return false;
   }
-  else if(cena.length == 0) {
+  if(cena.length == 0) {
+    alert('ss');
     scrollup(pole_cena);
     error_msg('Zadejte prosím cenu Vašeho zboží', pole_cena);
     return false;
   }
-  else if(kusy.length == 0) {
+  if(kusy.length == 0) {
+    alert('aa');
     scrollup(pole_ks);
     error_msg('Zadejte prosím kolik kusů naízíte', pole_ks);
     return false;
   }
-  else if(obrazek == 0) {
-    scrollup(dropbox);
-    error_msg('Nahrajte prosím alespoň jeden orbázek Vašeho zboží', dropbox);
+  if(obrazek == 0) {
+    alert('ccc');
+    scrollup(dropbox.prev());
+    error_msg('Nahrajte prosím alespoň jeden orbázek Vašeho zboží', dropbox.prev());
     return false;
   }
   

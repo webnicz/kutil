@@ -2,8 +2,8 @@
 	
 	var dropbox 	= jQuery('#dropbox'),
 		timestamp 	= jQuery('#edit_timestamp').val(),
-		message 	= jQuery('.message', dropbox);
-		list1		= jQuery('#list1')
+		message 	= jQuery('.message', dropbox),
+		list1		= jQuery('#list1');
 	
 	dropbox.filedrop({
 		// The name of the jQuery_FILES entry:
@@ -11,7 +11,7 @@
 		
 		maxfiles: 10,
     	maxfilesize: 5,
-		url: '/wp-content/plugins/budkutil/js/nahraj_obrazek.php?time='+timestamp,
+		url: '/wp-content/plugins/budkutil/js/nahraj_obrazek.php?time='+timestamp+'&n='+jQuery('.uploaded').length,
 		edit_timestamp: timestamp, 
 		
 		uploadFinished:function(i,file,response){
@@ -77,51 +77,59 @@
 	
 	function createImage(file){
 
-		var preview = jQuery(template), 
-			image = jQuery('.dad_nahled', preview);
-			
-		var reader = new FileReader();
-		
-		image.width = 100;
-		image.height = 100;
-		
-		reader.onload = function(e){
-			
-			// e.target.result holds the DataURL which
-			// can be used as a source of the image:
-			
-			image.attr('src',e.target.result);
-		};
-		
-		// Reading the file as a DataURL. When finished,
-		// this will trigger the onload function above:
-		reader.readAsDataURL(file);
-		
-		message.hide();
-		preview.appendTo(list1);
-		
-		
-		if(jQuery('.preview').size() > 50)
+		if(jQuery('.uploaded').length < 10)
 		{
-			jQuery('.preview').css('width','50px');
-			jQuery('.preview').css('height','50px');
-			jQuery('.preview').find('img').css('max-width','50px');
-			jQuery('.preview').find('img').css('max-height','30px');
-		}
-		else if(jQuery('.preview').size() > 15)
-		{
-			jQuery('.preview').css('width','100px');
-			jQuery('.preview').css('height','100px');
-			jQuery('.preview').find('img').css('max-width','100px');
-			jQuery('.preview').find('img').css('max-height','70px');
-		}
-		
-		// Associating a preview container
-		// with the file, using jQuery's jQuery.data():
-		
-		jQuery.data(file,preview);
 
-		jQuery('.dad_status:last').fadeIn().delay(500).fadeOut();
+			var preview = jQuery(template), 
+				image = jQuery('.dad_nahled', preview);
+				
+			var reader = new FileReader();
+			
+			image.width = 100;
+			image.height = 100;
+			
+			reader.onload = function(e){
+				
+				// e.target.result holds the DataURL which
+				// can be used as a source of the image:
+				
+				image.attr('src',e.target.result);
+			};
+			
+			// Reading the file as a DataURL. When finished,
+			// this will trigger the onload function above:
+			reader.readAsDataURL(file);
+			
+			message.hide();
+			preview.appendTo(list1);
+			
+			
+			if(jQuery('.preview').size() > 50)
+			{
+				jQuery('.preview').css('width','50px');
+				jQuery('.preview').css('height','50px');
+				jQuery('.preview').find('img').css('max-width','50px');
+				jQuery('.preview').find('img').css('max-height','30px');
+			}
+			else if(jQuery('.preview').size() > 15)
+			{
+				jQuery('.preview').css('width','100px');
+				jQuery('.preview').css('height','100px');
+				jQuery('.preview').find('img').css('max-width','100px');
+				jQuery('.preview').find('img').css('max-height','70px');
+			}
+			
+			// Associating a preview container
+			// with the file, using jQuery's jQuery.data():
+			
+			jQuery.data(file,preview);
+
+			jQuery('.dad_status:last').fadeIn().delay(500).fadeOut();
+		}		
+		else
+		{
+			alert('Maximální počet nahraných obrázků je 10.');
+		}
 		
 	}
 

@@ -91,29 +91,36 @@
 
           var upload_file = function()
           {
-            if($element.val() == '') return settings.onCancel.apply($element, [settings.params]);
-
-            
-            var ext = $element.val().split('.').pop().toLowerCase();
-            if(true === settings.validate_extensions && $.inArray(ext, settings.valid_extensions) == -1)
+            if(jQuery('.uploaded').length < 10)
             {
-              
-              settings.onComplete.apply($element, [{status: false, message: 'Povolené formáty: ' + settings.valid_extensions.join(', ') + '.'}, settings.params]);
-            } else
-            { 
-              uploading_file = true;
-              
-              wrapElement($element);
+              if($element.val() == '') return settings.onCancel.apply($element, [settings.params]);
 
               
-              
-              var ret = settings.onStart.apply($element, [settings.params]);
-
-              
-              if(ret !== false)
+              var ext = $element.val().split('.').pop().toLowerCase();
+              if(true === settings.validate_extensions && $.inArray(ext, settings.valid_extensions) == -1)
               {
-                $element.parent('form').submit(function(e) { e.stopPropagation(); }).submit();
+                
+                settings.onComplete.apply($element, [{status: false, message: 'Povolené formáty: ' + settings.valid_extensions.join(', ') + '.'}, settings.params]);
+              } else
+              { 
+                uploading_file = true;
+                
+                wrapElement($element);
+
+                
+                
+                var ret = settings.onStart.apply($element, [settings.params]);
+
+                
+                if(ret !== false)
+                {
+                  $element.parent('form').submit(function(e) { e.stopPropagation(); }).submit();
+                }
               }
+            }
+            else
+            {
+              alert('Maximální počet nahraných obrázků je 10.');
             }
           };
 
