@@ -12,7 +12,7 @@ jQuery(".dad_star").live("click", function(){
     {
         jQuery(this).parent().parent().addClass("main");
         jQuery("#dropbox").find(".dad_star").addClass("active");
-        jQuery("input[name=main_attach]").val(file);
+        jQuery("input[name=main_attach]").val(jQuery(this).index('.dad_star'));
     }
 });
 
@@ -139,6 +139,8 @@ function scrollup(obj) {
 }
 
 jQuery('#novy_produkt_form').submit( function () {
+  jQUery('.error_msg').hide();
+
   var pole_nazev      = jQuery('input[name=novy_produkt_nazev]'); 
   var pole_popis      = jQuery('#novy_produkt_popis_ifr'); 
   var pole_kateogire  = jQuery('input[name=vybrana_kategorie]'); 
@@ -193,11 +195,11 @@ jQuery('#novy_produkt_form').submit( function () {
   return true;
 });
 
- jQuery("input[name=novy_produkt_cena]").keydown(function(event) {
+ jQuery("input[name=novy_produkt_cena],input[name=novy_produkt_ks]").keydown(function(event) {
 
-  console.log(event.keyCode);
+  
 
-    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1 ||
+    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) >= 0 && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1 ||
 
          // Allow: home, end, left, right
         (event.keyCode >= 35 && event.keyCode <= 39)) {

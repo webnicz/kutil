@@ -76,6 +76,17 @@ function check_db() {
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);
     }
+
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_produkty_sady")))
+    {
+        $sql =   "CREATE TABLE bk_produkty_sady (
+                  sada_id INT,
+                  parametr_id INT,
+                  time INT)";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta($sql);
+    }
 }
 check_db();
 ?>

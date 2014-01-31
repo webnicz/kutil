@@ -7,7 +7,7 @@
         <tr>
             <td colspan="2" class="name">
             	<span>Název</span>
-                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" onclick="if(this.value == 'Jak se bude tvůj produkt jmenovat?') { this.value = ''; }"/>
+                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" onclick="if(this.value == 'Jak se bude tvůj produkt jmenovat?') { this.value = ''; }" value="<? echo $_POST['novy_produkt_nazev'];?>" />
             </td>
         </tr>
 
@@ -107,25 +107,13 @@
         </tr>
     </table>
 
-    <script type="text/javascript">
 
-
-jQuery( ".parametr_input" ).on('click',function( event ) {
-  var idecko = jQuery(this).attr('id');
-  var pocet = jQuery('#'+idecko+":checked").length;
-alert(idecko);
-  if(pocet == 3)
-    jQuery('#'+idecko).is(':unchecked').prop('disabled', true);//event.preventDefault();
-  else
-    jQuery('#'+idecko).prop('disabled', false);
-});
-    </script>
 
     {apendix}
     
-    <input name="vybrana_kategorie" type="hidden" />
-    <input name="poradi_attachs" type="hidden" />
-    <input name="main_attach" type="hidden" />
+    <input name="vybrana_kategorie" type="hidden" value="<? echo $_POST['vybrana_kategorie'];?>" />
+    <input name="poradi_attachs" type="hidden" value="<? echo $_POST['poradi_attachs'];?>" />
+    <input name="main_attach" type="hidden" value="<? echo $_POST['main_attach'];?>" />
     <input name="koeficient" value="{provize}" type="hidden" />                    
     <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="{time}" />
 </form>

@@ -17,10 +17,10 @@ if(is_user_logged_in())
 		$parametry = $wpdb->get_results("SELECT * FROM bk_hodnoty WHERE parametr_id='".$sada->parametr_id."'");
 		foreach ($parametry as $parametr) 
 		{
-			echo '<li>
+			echo '<li class="sada'.$sada->parametr_id.'">
             		<img src="/wp-content/plugins/budkutil/up_img/'.$parametr->hodnota_img.'" alt="testovaci obrazek" />
-            		<label for="sada'.$parametr->hodnota_id.'"><input type="checkbox" class="parametr_input" name="sada'.$sada->parametr_id.'" value="'.$parametr->hodnota_id.'" id="sada'.$parametr->hodnota_id.'" />'.$parametr->hodnota_nazev.'</label>
-            	</li>';
+            		<label><input type="checkbox" class="parametr_input" name="sada[]" value="'.$parametr->hodnota_id.'" />'.$parametr->hodnota_nazev.'</label>
+            	</li>';// for="sada'.$sada->parametr_id.'"
 		}
 
 		echo "</ul>
@@ -28,3 +28,15 @@ if(is_user_logged_in())
 	}
 }
 ?>
+<script type="text/javascript">
+jQuery('.parametr_input').on('click', function() {
+    var sada = jQuery(this).parent().parent().attr('class');
+	
+   if(jQuery('.'+sada).find('input:checked').length >= 3)
+        jQuery('.'+sada).find('input:not(:checked)').attr("disabled", true);
+    else
+    {
+        jQuery('.'+sada).find('input').removeAttr("disabled");
+    }
+});
+</script>
