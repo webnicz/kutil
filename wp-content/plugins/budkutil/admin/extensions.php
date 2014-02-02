@@ -180,6 +180,13 @@ add_action( 'woocommerce_product_write_panels', 'budkutil_sady_panel' );
 
 function budkutil_sady_panel($post) {
     global $wpdb;
+
+    $parametry = $wpdb->get_results("SELECT * FROM bk_produkty_sady WHERE produkt_id='{$_GET['post']}'");
+    foreach ($parametry as $parametr) {
+        $vybrane_parametry[] = $parametr->parametr_id;
+    }
+
+    $parametry = implode(',', $vybrane_parametry);
     ?>
     <div id="budkutil_sady" class="panel wc-metaboxes-wrapper">
 
@@ -189,18 +196,19 @@ function budkutil_sady_panel($post) {
 
             <div class="woocommerce_attributes_sady wc-metaboxes">
                 <?
-                $sady = $wpdb->get_results("SELECT * FROM bk_produkty_sady WHERE produkt_id='".$_GET['post']."'");
+                /*$sady = $wpdb->get_results("SELECT * FROM bk_produkty_sady WHERE produkt_id='".$_GET['post']."'");
                 foreach ($sady as $sada) {
                     $sada_id = $sada->sada_id;
                     $parametr_id = $sada->parametr_id;
 
                     include ABSPATH."wp-content/plugins/budkutil/js/nastaveni_parametru_vypis.php";
-                }
+                }*/
                 ?>
+                <div id="sady_parametru_wrapper">Nejprve je třeba vytvořit výrobek</div>
             </div>
 
             <p class="toolbar">
-                <button type="button" class="button button-primary add_attribute" id="add_sada">Přidat</button>
+                <!--<button type="button" class="button button-primary add_attribute" id="add_sada">Přidat</button>
                 <select name="sada" class="attribute_taxonomy">
                     <option value="">Vyberte sadu parametrů</option>
                     <?
@@ -209,12 +217,32 @@ function budkutil_sady_panel($post) {
                         echo '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
                     }
                     ?>
-                </select>
+                </select>-->
 
                 <button type="button" class="button" id="save_sada">Uložit</button>
             </p>
         </div>
         <script>
+        <? if(isset($_GET['post'])):?>
+        jQuery( function() {
+            var idecko = jQuery('#product_catchecklist').find('input:checked').val();
+            var vybrane_sady = '<? echo $parametry;?>';
+            
+            jQuery.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: idecko, sady: vybrane_sady} , function(data){
+                jQuery('#sady_parametru_wrapper').html(data);
+            });
+        });
+        <? else: ?>
+        jQuery('#product_catchecklist > input').change( function() {
+            var idecko = jQuery('#product_catchecklist').find('input:checked').val();
+            var vybrane_sady = '<? echo $parametry;?>';
+            
+            jQuery.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: idecko, sady: vybrane_sady} , function(data){
+                jQuery('#sady_parametru_wrapper').html(data);
+            });
+        });
+        <? endif; ?>
+
         jQuery('#add_sada').click( function () {
             var vybrano = jQuery('select[name=sada] option:selected').html();
             var sada    = jQuery('select[name=sada]').val();
@@ -234,15 +262,12 @@ function budkutil_sady_panel($post) {
 
         jQuery('#save_sada').click( function () {
             var aktivni = new Array();
-            var pole    = jQuery('.woocommerce_attributes_sady select').serialize();
+
             jQuery('.infobox_attr').html("Ukládám...").show();
 
-            var aktivni = new Array();
-               for(i=0; i <= jQuery('.nazev_sady').length; i++)
-                    if(jQuery('.nazev_sady:eq('+i+')').attr('id') != null)
-                        aktivni.push(jQuery('.nazev_sady:eq('+i+')').attr('id'));                    
+            var aktivni = jQuery('#sady_parametru_wrapper input:checked').serialize();
 
-            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry_save.php', { get_pid: <? echo $_GET['post'];?>, get_pole: pole, get_aktivni: aktivni }, function(data) { 
+            jQuery.get('../wp-content/plugins/budkutil/js/product_parametry_save.php', { get_pid: <? echo $_GET['post'];?>, get_aktivni: aktivni }, function(data) { 
                 jQuery('.infobox_attr').html("Uloženo");
                 jQuery('.infobox_attr').delay(1000).fadeOut();
             });

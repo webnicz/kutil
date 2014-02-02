@@ -80,6 +80,7 @@ function check_db() {
     if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_produkty_sady")))
     {
         $sql =   "CREATE TABLE bk_produkty_sady (
+                  produkt_id INT,
                   sada_id INT,
                   parametr_id INT,
                   time INT)";

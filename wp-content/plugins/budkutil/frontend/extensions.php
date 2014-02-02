@@ -76,22 +76,23 @@ function set_tmbn($post, $file) {
 }
 
 function budkutil_adding_scripts() {
-    wp_register_script('dragsort', "/wp-content/plugins/budkutil/js/dragsort/jquery.dragsort-0.5.1.min.js", array('jquery'),'1.1', true);
-    wp_register_script('img-up-drag', "/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js", array('jquery'),'1.1', true);
-    wp_register_script('img-up', "/wp-content/plugins/budkutil/js/img-up/assets/js/script.js", array('jquery'),'1.1', true);
-    wp_register_script('img-up-button', "/wp-content/plugins/budkutil/js/img-up/jquery.ajaxfileupload.js", array('jquery'),'1.1', true);
-    wp_register_script('numput', "/wp-content/plugins/budkutil/js/numput/js/incrementing.js", array('jquery'),'1.1', true);
-    wp_register_script('tree-cookires', "/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js", array('jquery'),'1.1', true);
-    wp_register_script('tree', "/wp-content/plugins/budkutil/js/tree/jquery.treeview.js", array('jquery'),'1.1', true);
-    wp_register_script('select2', "/wp-content/plugins/budkutil/js/select/select2.js", array('jquery'),'1.1', true);
-    wp_register_script('validate-msgs', "/wp-content/plugins/budkutil/js/validate/messages_cs.js", array('jquery'));
-    wp_register_script('validate', "/wp-content/plugins/budkutil/js/validate/jquery.validate.js", array('jquery'));
-    wp_register_script('main-new-product', "/wp-content/plugins/budkutil/js/new_product.js", array('jquery'),'1.1', true);
+    wp_register_script('dragsort'           , "/wp-content/plugins/budkutil/js/dragsort/jquery.dragsort-0.5.1.min.js", array('jquery'),'1.1', true);
+    wp_register_script('img-up-drag'        , "/wp-content/plugins/budkutil/js/img-up/assets/js/jquery.filedrop.js", array('jquery'),'1.1', true);
+    wp_register_script('img-up'             , "/wp-content/plugins/budkutil/js/img-up/assets/js/script.js", array('jquery'),'1.1', true);
+    wp_register_script('img-up-button'      , "/wp-content/plugins/budkutil/js/img-up/jquery.ajaxfileupload.js", array('jquery'),'1.1', true);
+    wp_register_script('numput'             , "/wp-content/plugins/budkutil/js/numput/js/incrementing.js", array('jquery'),'1.1', true);
+    wp_register_script('tree-cookires'      , "/wp-content/plugins/budkutil/js/tree/lib/jquery.cookie.js", array('jquery'),'1.1', true);
+    wp_register_script('tree'               , "/wp-content/plugins/budkutil/js/tree/jquery.treeview.js", array('jquery'),'1.1', true);
+    wp_register_script('select2'            , "/wp-content/plugins/budkutil/js/select/select2.js", array('jquery'),'1.1', true);
+    wp_register_script('validate-msgs'      , "/wp-content/plugins/budkutil/js/validate/messages_cs.js", array('jquery'));
+    wp_register_script('validate'           , "/wp-content/plugins/budkutil/js/validate/jquery.validate.js", array('jquery'));
+    wp_register_script('main-new-product'   , "/wp-content/plugins/budkutil/js/new_product.js", array('jquery'),'1.1', true);
 
-    wp_register_script('kategorie1', "/wp-content/plugins/budkutil/js/kategorie/scripts/handlebars.js", array('jquery'),'1.1', true);
-    wp_register_script('kategorie2', "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.js", array('jquery'),'1.1', true);
-    wp_register_script('kategorie3', "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.keys.js", array('jquery'),'1.1', true);
-    wp_register_script('scrollto', "/wp-content/plugins/budkutil/js/jquery.scrollTo-1.4.3.1.js", array('jquery'),'1.1', true);
+    wp_register_script('kategorie1'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/handlebars.js", array('jquery'),'1.1', true);
+    wp_register_script('kategorie2'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.js", array('jquery'),'1.1', true);
+    wp_register_script('kategorie3'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.keys.js", array('jquery'),'1.1', true);
+    wp_register_script('scrollto'           , "/wp-content/plugins/budkutil/js/jquery.scrollTo-1.4.3.1.js", array('jquery'),'1.1', true);
+    //wp_register_script('onleave'            , "/wp-content/plugins/budkutil/js/onleave/jquery.pageleave.js", array('jquery'),'1.1', true);
     
     wp_enqueue_script('dragsort');
     wp_enqueue_script('img-up-drag');
@@ -107,6 +108,7 @@ function budkutil_adding_scripts() {
     wp_enqueue_script('kategorie2');
     wp_enqueue_script('kategorie3');
     wp_enqueue_script('scrollto');
+    //wp_enqueue_script('onleave');
 }
 
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_scripts' );
@@ -145,7 +147,7 @@ function pridat_produkt_uzivatel( $atts ) {
         {
 
             $post = array(
-              'post_author'    => wp_get_current_user(), 
+              'post_author'    => get_current_user_id(), 
               'post_content'   => $novy_produkt_popis, 
               'post_date'      => date('Y-m-d H:i:s'),
               'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
@@ -274,6 +276,7 @@ function pridat_produkt_uzivatel( $atts ) {
 
             add_post_meta($last_id, '_product_image_gallery', implode(',', $attachments));
             add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
+            add_post_meta($last_id, '_price', $novy_produkt_cena);
             add_post_meta($last_id, '_stock', $novy_produkt_ks);
             wp_set_object_terms($last_id, $tagy, 'product_tag');
             add_post_meta($last_id, '_manage_stock', 'yes');
@@ -287,29 +290,33 @@ function pridat_produkt_uzivatel( $atts ) {
         }
         else
         {
+            $report = array();
             if(empty($produkt_cat))
-                $report .= "Vyberte prosím kategorii zboží."; 
+                array_push($report, "Vyberte prosím kategorii zboží."); 
             if(empty($_POST['poradi_attachs']))
-                $report .= "Nahrajte prosím alespoň jeden obrázek Vašeho zboží"; 
+                array_push($report, "Nahrajte prosím alespoň jeden obrázek Vašeho zboží"); 
             if(empty($novy_produkt_nazev))
-                $report .= "Zadejte prosím název zboží."; 
+                array_push($report, "Zadejte prosím název zboží."); 
             if(empty($novy_produkt_popis)) 
-                $report .= "Zadejte prosím popis zboží."; 
+                array_push($report, "Zadejte prosím popis zboží."); 
             if(empty($novy_produkt_cena))
-                $report .=  "Zadejte prosím cenu zboží.";
+                array_push($report,  "Zadejte prosím cenu zboží.");
             if(empty($novy_produkt_ks)) 
-                $report .=  "Zadejte prosím počet kusů."; 
+                array_push($report,  "Zadejte prosím počet kusů."); 
             if($_POST['edit_timestamp'] > (time()-15))
-                $report .=  "Váš požadavek byl vyhodnocen jako SPAM."; 
+                array_push($report,  "Váš požadavek byl vyhodnocen jako SPAM."); 
 
-            $report = "<div class=\"warning_report\">{$report}</div>";
+            foreach ($report as $value) {
+                $error_msgs .= "<li>$value</li>";
+            }
+            $report = "<div class=\"warning_report\"><ul>{$error_msgs}</ul></div>";
         }
     }
 
     
     if($pridan == true)
     {
-        echo "Produkt přidán";
+        include ABSPATH."wp-content/plugins/budkutil/frontend/new_product_added.tpl";
     }
     else
     {
@@ -378,14 +385,93 @@ function pridat_produkt_uzivatel( $atts ) {
             
             </div>  
             
+        </script>
+
+        <script>
+        jQuery(window).unload(function(){
+            if(jQuery(\'input[name=submited]\').val() != "submited")
+            {
+                jQuery.ajax({
+                    type: \'POST\',
+                    url: \'/wp-content/plugins/budkutil/js/do_kose.php\',
+                    async:false,
+                    data: {time: '.(($_POST['edit_timestamp']) ? $_POST['edit_timestamp'] : time()).'}
+                });
+            }
+        });
         </script>';
+
+        if($_POST['tagy'])
+        {
+            $data = array();
+            $tagy = explode(',', $_POST['tagy']);
+            foreach ($tagy as $tag) {
+                $data[] = '{id: "'.$tag.'", text: "'.$tag.'"}';
+            }
+
+            $apendix .= '<script>jQuery( function() {jQuery("#tagy").select2("data", ['.implode(',', $data).']);});</script>';
+        }
 
         $template = str_replace('{strom}', $tree, $template);
         $template = str_replace('{sady_parametru}', $sady_options, $template);      
-        $template = str_replace('{time}', time(), $template);      
+        $template = str_replace('{time}', ($_POST['edit_timestamp']) ? $_POST['edit_timestamp'] : time(), $template);      
         $template = str_replace('{editor}', $editor, $template);       
         $template = str_replace('{provize}', $provize, $template);  
-        $template = str_replace('{apendix}', $apendix, $template);  
+        $template = str_replace('{apendix}', $apendix, $template); 
+
+        $template = str_replace('{POST-novy_produkt_nazev}', $_POST['novy_produkt_nazev'], $template); 
+        $template = str_replace('{POST-novy_produkt_cena}', $_POST['novy_produkt_cena'], $template); 
+
+        if($_POST['novy_produkt_viditelnost'] == "true" OR !isset($_POST['novy_produkt_viditelnost'])) 
+            $viditelnost = 'checked="checked"'; 
+        else 
+            $viditelnost = '';
+        $template = str_replace('{POST-novy_produkt_viditelnost}', $viditelnost, $template); 
+
+        $template = str_replace('{POST-vybrana_kategorie}', $_POST['vybrana_kategorie'], $template);         
+        $template = str_replace('{POST-kategorie_frst}', $_POST['kategorie_frst'], $template);  
+        $template = str_replace('{POST-kategorie_sec}', $_POST['kategorie_sec'], $template);     
+        $template = str_replace('{POST-poradi_attachs}', $_POST['poradi_attachs'], $template);  
+        $template = str_replace('{POST-main_attach}', $_POST['main_attach'], $template);
+        $template = str_replace('{POST-vybrane_parametry}', ($_POST['vybrane_parametry']) ? $_POST['vybrane_parametry'] : implode(',', $_POST['sada']), $template);  
+
+
+        $poradi_attachs = explode('|', $_POST['poradi_attachs']);
+        $main_attach    = $_POST['main_attach'];
+        $dir            = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+        $mine           = array("image/jpeg","image/pjpeg","image/png","image/gif");
+        $attachments    = array();
+        $thumbnail      = $poradi_attachs[0];
+        $p              = 0;
+
+        foreach ($poradi_attachs as $key => $value) {
+            $value = str_replace($_POST['edit_timestamp']."_", '', $value);
+            $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+            $file = $_POST['edit_timestamp']."_".$value;
+
+            if(file_exists($dir.$file))
+            {
+                $class = "";
+                if($main_attach == $key || (empty($main_attach) AND $key == 0))
+                    $class = "main"; 
+        
+                $obrazky .= '<li><div class="preview">'.
+                            '<span class="imageHolder">'.
+                                '<img class="dad_nahled" src="/wp-content/plugins/budkutil/js/tmp_img/'.$file.'" />'.
+                                '<a class="upedimg" title="'.$value.'">'.
+                                '<span class="uploaded '.$class.'">'.
+                                    '<div class="toolbar">'.
+                                        '<i class="icon-trash dad_close"></i>'.
+                                        '<i class="icon-star dad_star"></i>'.
+                                      '</div>'.
+                                  '</a>'.
+                                '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'.
+                            '</span>'.
+                        '</div></li>'; 
+            }
+        }
+
+        $template = str_replace('{POST-obrazky}', $obrazky, $template);  
     }
 
     if(is_user_logged_in())

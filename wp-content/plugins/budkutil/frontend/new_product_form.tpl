@@ -7,7 +7,7 @@
         <tr>
             <td colspan="2" class="name">
             	<span>Název</span>
-                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" onclick="if(this.value == 'Jak se bude tvůj produkt jmenovat?') { this.value = ''; }" value="<? echo $_POST['novy_produkt_nazev'];?>" />
+                <input type="text" value="Jak se bude tvůj produkt jmenovat?" name="novy_produkt_nazev" onfocus="if(this.value == 'Jak se bude tvůj produkt jmenovat?') { this.value = ''; }" onblur="if(this.value == '') { this.value = 'Jak se bude tvůj produkt jmenovat?'; }" value="{POST-novy_produkt_nazev}" />
             </td>
         </tr>
 
@@ -57,7 +57,7 @@
         <tr>
             <td>Cena</td>
             <td>
-                <input type="text" value="" name="novy_produkt_cena" size="5" /> Kč
+                <input type="text" value="{POST-novy_produkt_cena}" name="novy_produkt_cena" size="5" /> Kč
             </td>
         </tr>
         <tr>
@@ -83,7 +83,7 @@
         <tr>
             <td>Veřejný</td>
             <td>
-                <input type="checkbox" value="true" name="novy_produkt_viditelnost" checked="checked" /> Zboží okamžitě vystavit
+                <input type="checkbox" value="true" name="novy_produkt_viditelnost" {POST-novy_produkt_viditelnost} /> Zboží okamžitě vystavit
             </td>
         </tr>
         <tr>
@@ -92,7 +92,7 @@
                 <div id="dropbox">
                     <span class="message"><noscript>Pro nahrávání obrázků je vyžadován povolený JavaScript.</noscript></span>
 
-                    <ul id="list1"></ul>   
+                    <ul id="list1">{POST-obrazky}</ul>   
 
                     <div id="btn_vybrat_soubor">Vybrat soubor</div>
                 </div>
@@ -107,13 +107,15 @@
         </tr>
     </table>
 
-
-
     {apendix}
-    
-    <input name="vybrana_kategorie" type="hidden" value="<? echo $_POST['vybrana_kategorie'];?>" />
-    <input name="poradi_attachs" type="hidden" value="<? echo $_POST['poradi_attachs'];?>" />
-    <input name="main_attach" type="hidden" value="<? echo $_POST['main_attach'];?>" />
+
+    <input name="vybrana_kategorie" type="hidden" value="{POST-vybrana_kategorie}" />
+    <input name="kategorie_frst" type="hidden" value="{POST-kategorie_frst}" />
+    <input name="kategorie_sec" type="hidden" value="{POST-kategorie_sec}" />
+    <input name="poradi_attachs" type="hidden" value="{POST-poradi_attachs}" />
+    <input name="main_attach" type="hidden" value="{POST-main_attach}" />
+    <input name="vybrane_parametry" type="hidden" value="{POST-vybrane_parametry}" />
+    <input name="submited" type="hidden" />
     <input name="koeficient" value="{provize}" type="hidden" />                    
     <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="{time}" />
 </form>
