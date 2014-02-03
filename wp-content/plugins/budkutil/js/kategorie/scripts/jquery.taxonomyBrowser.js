@@ -278,11 +278,21 @@
           */
 
           if(base.options.start){
+
+            if($('input[name=kategorie_frst]').val() != "")
+                $('a[id="'+$('input[name=kategorie_frst]').val()+'"]')
+                .trigger('click'); 
+
+
+            if($('input[name=kategorie_sec]').val() != "")
+               base.$el
+                .find('a[id="'+$('input[name=kategorie_sec]').val()+'"]')
+                .trigger('click'); 
+           
             
             base.$el
-                .find(base.options.columnclass)
-                .eq(0)
-                .find('li[data-id="'+base.options.start+'"]')
+                //.find(base.options.columnclass)//.css('border','3px solid red');
+                .find('a[id="'+base.options.start+'"]')
                 .trigger('click');            
 
           }
@@ -454,7 +464,16 @@
                 children = base.getChildren(parent),
                 depth = Number($this.closest(base.options.columnclass).data('depth')) + 1,
                 klass = $this.hasClass('active'),
-                url = $this.find('a').attr("id");
+                url = $this.find('a').attr("id"),
+                index = $(this).closest('.miller--column').index();
+
+                if(index == 0){
+                  jQuery('input[name=kategorie_frst]').val(url);
+                  jQuery('input[name=kategorie_sec]').val('');
+                }
+                  
+                if(index == 1)
+                  jQuery('input[name=kategorie_sec]').val(url);
           
             $this
                 .addClass('active')
@@ -469,7 +488,9 @@
 
             jQuery('input[name=vybrana_kategorie]').val(url);
             
-              $.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: url} ,
+              var vybrane_sady = $('input[name=vybrane_parametry]').val();
+              
+              $.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: url, sady: vybrane_sady} ,
               function(data){
                 $('#sady_parametru_wrapper').html(data);
               });

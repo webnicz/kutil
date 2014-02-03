@@ -12,13 +12,13 @@ jQuery(".dad_star").live("click", function(){
     {
         jQuery(this).parent().parent().addClass("main");
         jQuery("#dropbox").find(".dad_star").addClass("active");
-        jQuery("input[name=main_attach]").val(file);
+        jQuery("input[name=main_attach]").val(jQuery(this).index('.dad_star'));
     }
 });
 
 jQuery(".dad_close").live("click", function(){
   
-      var adr = jQuery(this).parent().find(".upedimg").attr("title");
+      var adr = jQuery(this).closest(".upedimg").attr("title");
       
       jQuery.get("/wp-content/plugins/budkutil/js/do_kose.php", { time: jQuery('#edit_timestamp').val(), img: adr, klic: "f9dks"} ,
       function(data){
@@ -59,7 +59,8 @@ jQuery("#one-specific-file").ajaxfileupload({
 
 jQuery(document).ready(function(){
     jQuery('.miller-container').taxonomyBrowser({
-      columns: 3
+      columns : 3,
+      start   : jQuery('input[name=vybrana_kategorie]').val() 
     });
 
     /*jQuery("#browser").treeview({
@@ -127,8 +128,9 @@ function format(state) {
         }); 
 
 function error_msg(msg, obj) {
-  var id       = (obj.attr('name') == "") ? obj.attr('id') : obj.attr('name');
+  var id       = (!obj.attr('name')) ? obj.attr('id') : obj.attr('name');
   var template = '<div class="error_msg error_'+id+'"><i class="icon-remove-sign"></i> '+msg+'</div>'; //<i class="icon-ok-sign"></i>
+  jQuery('.error_'+id).show();
 
   if(jQuery('.error_'+id).length == 0)
     jQuery(template).insertBefore(obj);
@@ -139,6 +141,8 @@ function scrollup(obj) {
 }
 
 jQuery('#novy_produkt_form').submit( function () {
+  jQuery('.error_msg').hide();
+
   var pole_nazev      = jQuery('input[name=novy_produkt_nazev]'); 
   var pole_popis      = jQuery('#novy_produkt_popis_ifr'); 
   var pole_kateogire  = jQuery('input[name=vybrana_kategorie]'); 
@@ -154,50 +158,46 @@ jQuery('#novy_produkt_form').submit( function () {
   var obrazek     = dropbox.find('.uploaded').length;
 
   if(nazev.length < 3) {
-    alert('sds');
     scrollup(pole_nazev);
     error_msg('Zadejte prosím název Vašeho zboží', pole_nazev);
     return false;
   }
   if(popis.length < 50) {
-    alert('bbb');
-    scrollup(pole_popis);
-    error_msg('Zadejte prosím popis zboží', pole_popis);
+    scrollup(jQuery('#wp-novy_produkt_popis-wrap'));
+    error_msg('Zadejte prosím popis zboží', jQuery('#wp-novy_produkt_popis-wrap'));
     return false;
   }
   if(kategorie.length == 0) {
-    alert('eeee');
     scrollup(jQuery('.miller-container').prev());
     error_msg('Vyberte kategorii zboží', jQuery('.miller-container').prev());
     return false;
   }
   if(cena.length == 0) {
-    alert('ss');
     scrollup(pole_cena);
     error_msg('Zadejte prosím cenu Vašeho zboží', pole_cena);
     return false;
   }
   if(kusy.length == 0) {
-    alert('aa');
     scrollup(pole_ks);
-    error_msg('Zadejte prosím kolik kusů naízíte', pole_ks);
+    error_msg('Zadejte prosím kolik kusů nabízíte', pole_ks);
     return false;
   }
   if(obrazek == 0) {
-    alert('ccc');
     scrollup(dropbox.prev());
     error_msg('Nahrajte prosím alespoň jeden orbázek Vašeho zboží', dropbox.prev());
     return false;
   }
+
+  jQuery('input[name=submited]').val('submited');
   
   return true;
 });
 
- jQuery("input[name=novy_produkt_cena]").keydown(function(event) {
+ jQuery("input[name=novy_produkt_cena],input[name=novy_produkt_ks]").keydown(function(event) {
 
-  console.log(event.keyCode);
+  
 
-    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1 ||
+    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) >= 0 && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1 ||
 
          // Allow: home, end, left, right
         (event.keyCode >= 35 && event.keyCode <= 39)) {
@@ -249,6 +249,9 @@ preload([
 ]);
 
 jQuery('#list1').bind("DOMSubtreeModified",function(){
+  var index = jQuery('.main').parent().parent().parent().index('.preview');
+  jQuery("input[name=main_attach]").val(index);
+
   if(jQuery('.uploaded').length == 10)
     jQuery('#btn_vybrat_soubor').addClass('disable');
   else
@@ -261,6 +264,7 @@ jQuery("#tagy").select2({
     placeholder: "",
     minimumInputLength: 2,
      multiple: true,
+     tags:["red", "green", "blue"],
     ajax: { 
         url: "/wp-content/plugins/budkutil/js/tagy.php",
          dataType: "json",
@@ -298,6 +302,10 @@ function number_format (number, decimals, dec_point, thousands_sep) {
   }
   return s.join(dec);
 }
+
+jQuery(function() {
+  jQuery("input[name=novy_produkt_cena]").trigger('keyup');
+});
 
 jQuery("input[name=novy_produkt_cena]").keyup( function () {
     var cena = jQuery(this).val().replace(",", ".");
