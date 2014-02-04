@@ -34,8 +34,14 @@
         }
 
         var nahled = function(response) {
-          var nazev = $('#one-specific-file').val();
-          var cesta = response.url.replace(".", "/wp-content/plugins/budkutil/js/");
+          var nazev       = $('#one-specific-file').val();
+          var timestamp   = jQuery('#edit_timestamp').val()
+          
+          if(typeof response.url === 'undefined')
+            var cesta = "/wp-content/plugins/budkutil/js/"+timestamp+"_"+nazev;
+          else
+            var cesta = response.url.replace(".", "/wp-content/plugins/budkutil/js/");
+
           var lista = '<div class="toolbar">'+
             '<i class="icon-trash dad_close"></i>'+
             '<i class="icon-star dad_star"></i>'+
