@@ -349,7 +349,7 @@ function pridat_produkt_uzivatel( $atts ) {
             if(!empty($product_terms))
               if(!is_wp_error( $product_terms ))
                 foreach($product_terms as $term)
-                  $kategorie[] = $term->id; 
+                  $kategorie[] = $term->term_id; 
 
             $cena = get_post_meta( $PRODUCT_ID, '_price' )[0];
             if(empty($cena))
