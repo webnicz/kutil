@@ -21,9 +21,10 @@ $allowed_ext = array('jpg','jpeg','png','gif');
 		return strtolower($ext);
 	}
 
+
 if($_GET['n'] < 10)
 {
-	if(array_key_exists('pic',$_FILES) && $_FILES['pic']['error'] == 0 )
+	if($_FILES['pic']['size'] > 0 && $_FILES['pic']['error'] == 0 )//array_key_exists('pic',$_FILES) //isset($_FILES['pic']['error'])
 	{
 		
 		$pic = $_FILES['pic'];
