@@ -786,3 +786,11 @@ span.underline {
 	margin-bottom: 15px;
 	padding-bottom: 15px;
 }
+
+.error_msg {
+	background: #FDF7F7;
+	border-left: 3px solid #D9534F;
+	color: #D9534F;
+	margin: 20px 0;
+	padding: 20px;
+}
