@@ -351,14 +351,22 @@ function pridat_produkt_uzivatel( $atts ) {
                 foreach($product_terms as $term)
                   $kategorie[] = $term->term_id; 
 
+            $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_tag', array('orderby' => 'term_order', 'order' => 'ASC'));
+            if(!empty($product_terms))
+              if(!is_wp_error( $product_terms ))
+                foreach($product_terms as $term)
+                  $tagy[] = $term->name; 
+
             $cena = get_post_meta( $PRODUCT_ID, '_price' )[0];
             if(empty($cena))
                 $cena = get_post_meta( $PRODUCT_ID, '_regular_price' )[0];
 
             $status = get_post_status( $PRODUCT_ID );
 
+            $ks = get_post_meta( $PRODUCT_ID, '_stock' )[0];
+
             $thumb_id = get_post_thumbnail_id( $PRODUCT_ID );
-            $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' );
+            $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' )[0];
 
             $komentaru = get_comments_number( $PRODUCT_ID );
 
@@ -369,36 +377,43 @@ function pridat_produkt_uzivatel( $atts ) {
 
             $parametry = implode(',', $vybrane_parametry);
 
-            
-            $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
-            $post_output = str_replace('{nazev}', $nazev, $post_output); 
-            $post_output = str_replace('{kategorie}', implode(' <span class="separator">></span> ', $kategorie), $post_output); 
-            $post_output = str_replace('{cena}', $cena." Kč", $post_output); 
-            $post_output = str_replace('{tlacitko-viditelnost-url}', $tlacitko_viditelnost[url], $post_output); 
-            $post_output = str_replace('{tlacitko-viditelnost-text}', $tlacitko_viditelnost[text], $post_output); 
-            $post_output = str_replace('{komentaru}', $komentaru, $post_output);
+            $images =& get_children( array (
+                'post_parent' => $PRODUCT_ID,
+                'post_type' => 'attachment',
+                'post_mime_type' => 'image'
+            ));
 
-            $post_output = str_replace('{url-edit}', '/upravit-zbozi/'.$PRODUCT_ID.'/', $post_output); 
+            foreach ( $images as $attachment_id => $attachment ) 
+                $nahrane_obrazky[] = basename(wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]);        
+    
+            $kategorie_end                  = get_term(end($kategorie), 'product_cat' );
+            $kategorie_end_parent           = $kategorie_end->parent;
+            $kategorie_kategorie1           = get_term($kategorie_end_parent, 'product_cat' );
+            $kategorie_kategorie1_parent    = $kategorie_kategorie1->parent;
 
             $in_novy_produkt_nazev         = get_the_title($PRODUCT_ID);
             $in_novy_produkt_popis         = $produkt->post_content;
             $in_novy_produkt_cena          = $cena;
-            $in_novy_produkt_viditelnost   = ($status == "publish") ? "true" : "";
+            $in_novy_produkt_ks            = (is_int($ks)) ? $ks : "0";
+            $in_novy_produkt_viditelnost   = ($status == "publish") ? "true" : "false";
             $in_vybrana_kategorie          = end($kategorie);
-            $in_kategorie_frst             = (sizeof($kategorie) > 1) ? $kategorie[0] : "";
-            $in_kategorie_sec              = (sizeof($kategorie) > 2) ? $kategorie[1] : "";
-            $in_poradi_attachs             = $_POST['poradi_attachs'];
-            $in_main_attach                = basename($nahled);
+            $in_kategorie_frst             = ($kategorie_end_parent != 0) ? $kategorie_end_parent : "";
+            $in_kategorie_sec              = ($kategorie_kategorie1_parent != 0) ? $kategorie_kategorie1_parent : "";
+            $in_poradi_attachs             = implode('|', $nahrane_obrazky);
+            $in_main_attach                = array_search(basename($nahled),$nahrane_obrazky);
             $in_vybrane_parametry          = $parametry;
             $in_sada                       = $parametry;
             $in_edit_timestamp             = time();
-            $in_tagy                       = $_POST['tagy'];
+            $in_tagy                       = implode(',', $tagy);
+
+            $cesta_obr = "uploads/";
         }
         else
         {
             $in_novy_produkt_nazev         = $_POST['novy_produkt_nazev'];
             $in_novy_produkt_popis         = $_POST['novy_produkt_popis'];
             $in_novy_produkt_cena          = $_POST['novy_produkt_cena'];
+            $in_novy_produkt_ks            = ($_POST['novy_produkt_ks']) ? $_POST['novy_produkt_ks'] : "1";
             $in_novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
             $in_vybrana_kategorie          = $_POST['vybrana_kategorie'];
             $in_kategorie_frst             = $_POST['kategorie_frst'];
@@ -409,6 +424,8 @@ function pridat_produkt_uzivatel( $atts ) {
             $in_sada                       = $_POST['sada'];
             $in_edit_timestamp             = $_POST['edit_timestamp'];
             $in_tagy                       = $_POST['tagy'];
+
+            $cesta_obr = "plugins/budkutil/js/tmp_img/";
         }
 
         ob_start();
@@ -511,7 +528,8 @@ function pridat_produkt_uzivatel( $atts ) {
 
 
         $template = str_replace('{POST-novy_produkt_nazev}', (empty($in_novy_produkt_nazev)) ? 'Jak se bude tvůj produkt jmenovat?' : $in_novy_produkt_nazev, $template); 
-        $template = str_replace('{POST-novy_produkt_cena}', $in_novy_produkt_cena, $template); 
+        $template = str_replace('{POST-novy_produkt_cena}', $in_novy_produkt_cena, $template);
+        $template = str_replace('{POST-novy_produkt_ks}', $in_novy_produkt_ks, $template); 
 
         if($in_novy_produkt_viditelnost == "true" OR !isset($in_novy_produkt_viditelnost)) 
             $viditelnost = 'checked="checked"'; 
@@ -529,7 +547,7 @@ function pridat_produkt_uzivatel( $atts ) {
 
         $poradi_attachs = explode('|', $in_poradi_attachs);
         $main_attach    = $in_main_attach;
-        $dir            = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+        $dir            = ABSPATH.'wp-content/'.$cesta_obr;
         $mine           = array("image/jpeg","image/pjpeg","image/png","image/gif");
         $attachments    = array();
         $thumbnail      = $in_poradi_attachs[0];
@@ -537,8 +555,12 @@ function pridat_produkt_uzivatel( $atts ) {
 
         foreach ($poradi_attachs as $key => $value) {
             $value  = str_replace($in_edit_timestamp."_", '', $value);
-            $dir    = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
-            $file   = $in_edit_timestamp."_".$value;
+            $dir    = ABSPATH.'wp-content/'.$cesta_obr;
+            
+            if($PRODUCT_ID > 0)
+                $file   = $value;
+            else
+                $file   = $in_edit_timestamp."_".$value;
 
             if(file_exists($dir.$file))
             {
@@ -548,7 +570,7 @@ function pridat_produkt_uzivatel( $atts ) {
         
                 $obrazky .= '<li><div class="preview">'.
                             '<span class="imageHolder">'.
-                                '<img class="dad_nahled" src="/wp-content/plugins/budkutil/js/tmp_img/'.$file.'" />'.
+                                '<img class="dad_nahled" src="/wp-content/'.$cesta_obr.$file.'" />'.
                                 '<a class="upedimg" title="'.$value.'">'.
                                 '<span class="uploaded '.$class.'">'.
                                     '<div class="toolbar">'.

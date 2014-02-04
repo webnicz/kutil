@@ -76,7 +76,7 @@
            <td>Kusů</td>
            <td>
                <div class="numbers-row">
-                   <input type="text" name="novy_produkt_ks" value="1" size="2" /> Ks
+                   <input type="text" name="novy_produkt_ks" value="{POST-novy_produkt_ks}" size="2" /> Ks
                </div>
            </td>
        </tr>
