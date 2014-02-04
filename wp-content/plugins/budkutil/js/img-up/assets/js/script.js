@@ -60,9 +60,9 @@
 	});
 
 	var lista = '<div class="toolbar">'+
-            '<i class="icon-trash dad_close"></i>'+
-            '<i class="icon-star dad_star"></i>'+
-          '</div>';
+		            '<i class="icon-trash dad_close"></i>'+
+		            '<i class="icon-star dad_star"></i>'+
+	          '</div>';
 	
 	var template = '<li><div class="preview">'+
 						'<span class="imageHolder">'+
