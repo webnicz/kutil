@@ -23,7 +23,8 @@ $allowed_ext = array('jpg','jpeg','png','gif');
 
 if($_GET['n'] < 10)
 {
-	if(array_key_exists('pic',$_FILES) && $_FILES['pic']['error'] == 0 ){
+	if(array_key_exists('pic',$_FILES) && $_FILES['pic']['error'] == 0 )
+	{
 		
 		$pic = $_FILES['pic'];
 
@@ -31,26 +32,21 @@ if($_GET['n'] < 10)
 			exit_status('Pouze '.implode(',',$allowed_ext).' soubory jsou povoleny!');
 		}	
 
-		if($demo_mode){
-			
-			// File uploads are ignored. We only log them.
-			
+		if($demo_mode)
+		{	
 			$line = implode('		', array( date('r'), $_SERVER['REMOTE_ADDR'], $pic['size'], $pic['name']));
 			file_put_contents('log.txt', $line.PHP_EOL, FILE_APPEND);
 			
 			exit_status('Uploads are ignored in demo mode.');
 		}
 		
-		
-		// Move the uploaded file from the temporary 
-		// directory to the uploads folder:
-		
 		$cesta = $pic['name'];
 		$datum = time();
 		$konecna_cesta = $upload_dir.$_GET['time'].'_'.$cesta;
 		//preg_replace('/(.+\/)([a-z]+\.[a-zA-Z]{2,4})$/i', '${1}'.time().'_${2}', subject)
 
-		if(move_uploaded_file($pic['tmp_name'], $konecna_cesta)){
+		if(move_uploaded_file($pic['tmp_name'], $konecna_cesta))
+		{
 
 			if($_GET['way'] == "input")
 				exit_status($konecna_cesta, 'url');
@@ -64,10 +60,7 @@ if($_GET['n'] < 10)
 		
 	}
 
-	exit_status('Something went wrong with your upload!');
-
-	// Helper functions
-
-	
+	exit_status('Upload error #'.$_FILES['pic']['error']);
+	//exit_status('Something went wrong with your upload!');	
 }
 ?>
