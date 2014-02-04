@@ -21,47 +21,48 @@ $allowed_ext = array('jpg','jpeg','png','gif');
 		return strtolower($ext);
 	}
 
-
 if($_GET['n'] < 10)
 {
-	if($_FILES['pic']['size'] > 0 && $_FILES['pic']['error'] == 0 )//array_key_exists('pic',$_FILES) //isset($_FILES['pic']['error'])
+	if(isset($_FILES['pic']))//array_key_exists('pic',$_FILES) //isset($_FILES['pic']['error'])
 	{
-		
-		$pic = $_FILES['pic'];
-
-		if(!in_array(get_extension($pic['name']),$allowed_ext)){
-			exit_status('Pouze '.implode(',',$allowed_ext).' soubory jsou povoleny!');
-		}	
-
-		if($demo_mode)
-		{	
-			$line = implode('		', array( date('r'), $_SERVER['REMOTE_ADDR'], $pic['size'], $pic['name']));
-			file_put_contents('log.txt', $line.PHP_EOL, FILE_APPEND);
-			
-			exit_status('Uploads are ignored in demo mode.');
-		}
-		
-		$cesta = $pic['name'];
-		$datum = time();
-		$konecna_cesta = $upload_dir.$_GET['time'].'_'.$cesta;
-		//preg_replace('/(.+\/)([a-z]+\.[a-zA-Z]{2,4})$/i', '${1}'.time().'_${2}', subject)
-
-		if(move_uploaded_file($pic['tmp_name'], $konecna_cesta))
+		if($_FILES['pic']['error'] == 0)
 		{
+			$pic = $_FILES['pic'];
 
-			if($_GET['way'] == "input")
-				exit_status($konecna_cesta, 'url');
-			else
-				exit_status('File was uploaded successfuly!');
+			if(!in_array(get_extension($pic['name']),$allowed_ext)){
+				exit_status('Pouze '.implode(',',$allowed_ext).' soubory jsou povoleny!');
+			}	
+
+			if($demo_mode)
+			{	
+				$line = implode('		', array( date('r'), $_SERVER['REMOTE_ADDR'], $pic['size'], $pic['name']));
+				file_put_contents('log.txt', $line.PHP_EOL, FILE_APPEND);
+				
+				exit_status('Uploads are ignored in demo mode.');
+			}
 			
-			//$q = "INSERT INTO galerie (id,session,id_video,cesta,datum,popis)
-			//	 VALUES ('','".$_SESSION['session']."','','".str_replace("../","",$cesta)."','$datum','')";
-			//$conn->exec($q);
+			$cesta = $pic['name'];
+			$datum = time();
+			$konecna_cesta = $upload_dir.$_GET['time'].'_'.$cesta;
+			//preg_replace('/(.+\/)([a-z]+\.[a-zA-Z]{2,4})$/i', '${1}'.time().'_${2}', subject)
+
+			if(move_uploaded_file($pic['tmp_name'], $konecna_cesta))
+			{
+
+				if($_GET['way'] == "input")
+					exit_status($konecna_cesta, 'url');
+				else
+					exit_status('File was uploaded successfuly!');
+				
+				//$q = "INSERT INTO galerie (id,session,id_video,cesta,datum,popis)
+				//	 VALUES ('','".$_SESSION['session']."','','".str_replace("../","",$cesta)."','$datum','')";
+				//$conn->exec($q);
+			}
 		}
-		
+		exit_status('Upload data error #'.$_FILES['pic']['error']);
 	}
 
-	exit_status('Upload error #'.$_FILES['pic']['error']);
+	exit_status('No data');
 	//exit_status('Something went wrong with your upload!');	
 }
 ?>
