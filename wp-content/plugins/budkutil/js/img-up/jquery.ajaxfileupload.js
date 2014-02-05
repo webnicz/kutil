@@ -36,8 +36,6 @@
         var nahled = function(response) {
           var nazev       = $('#one-specific-file').val();
           var timestamp   = jQuery('#edit_timestamp').val()
-          
-          alert(response.toSource());
 
           if(typeof response.url === 'undefined')
             var cesta = "/wp-content/plugins/budkutil/js/"+timestamp+"_"+nazev;
