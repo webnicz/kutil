@@ -189,26 +189,47 @@ jQuery('#novy_produkt_form').submit( function () {
   }
 
   jQuery('input[name=submited]').val('submited');
+
+  jQuery('#novy_produkt_popis_ifr').contents().find('a').each(function() { 
+      var odkaz = jQuery(this),
+      link_href = odkaz.attr('href'),
+      domena = jQuery(this).prop('origin');
+      
+      odkaz.attr('href',link_href.replace(domena,''));
+  });
   
   return true;
 });
 
  jQuery("input[name=novy_produkt_cena],input[name=novy_produkt_ks]").keydown(function(event) {
 
-  
+    var regex = new RegExp("^[0-9]+$");
+    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+    
+console.log(event.keyCode);
 
-    if ( event.metaKey || event.ctrlKey || (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) >= 0 && event.shiftKey) || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1 ||
+    if (event.metaKey || event.ctrlKey || regex.test(key) 
+    || jQuery.inArray(event.keyCode,[46,8,9,27,13]) !== -1
+    || jQuery.inArray(event.keyCode,[96,97,98,99,100,101,102,103,104,105]) >= 0) 
+    {
+      if(jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) >= 0 && !event.shiftKey)
+      {
+        event.preventDefault();
+        return false;
+      }
 
-         // Allow: home, end, left, right
-        (event.keyCode >= 35 && event.keyCode <= 39)) {
-             // let it happen, don't do anything
-             return true;
+      return true;
     }
-    else {
-        // Ensure that it is a number and stop the keypress
-        if (jQuery.inArray(event.keyCode,[48,49,50,51,52,53,54,55,56,57]) || event.shiftKey || (event.keyCode <= 48 || event.keyCode > 57) && (event.keyCode < 96 || event.keyCode > 105 )) {
-            event.preventDefault(); 
-        }   
+    else
+    {
+       event.preventDefault();
+            var template = '<div class="error_msg_tiny error_keycode" style="display: none"><i class="icon-remove-sign"></i> Lze použít pouze číslice</div>'; //<i class="icon-ok-sign"></i>
+
+            if(jQuery('.error_keycode').length == 0)
+              jQuery(template).appendTo(jQuery('input[name=novy_produkt_cena]').parent());
+            jQuery('.error_keycode').slideDown().finish().delay('1500').slideUp();
+
+       return false;
     }
 });
 

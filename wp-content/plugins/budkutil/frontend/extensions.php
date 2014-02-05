@@ -21,7 +21,7 @@ function category_tree(array $zaznamy, $parentId = 0) {
 
     foreach ($zaznamy as $zaznam) {
         if ($zaznam->parent == $parentId) {
-            $children = category_tree($zaznamy, $zaznam->term_id);
+            $children = category_tree($zaznamy, $zaznam->term_taxonomy_id);
             if ($children) {
                 $zaznam->children = $children;
             }
@@ -54,10 +54,10 @@ function seznam($data_array, $i = 0, $list_tag = 'ul') {
     foreach ($data_array as $element) {
         $kat_nazev = $wpdb->get_var("SELECT name FROM $wpdb->terms WHERE term_id='".$element[term_id]."'");
 
-        $nadrazeno = $wpdb->get_var("SELECT SUM(1) FROM wp_term_taxonomy WHERE parent='".$element[term_id]."'");
+        $nadrazeno = $wpdb->get_var("SELECT SUM(1) FROM wp_term_taxonomy WHERE parent='".$element[term_taxonomy_id]."'");
 
         if($nadrazeno == 0)
-            echo '<li><a href="#"><input type="checkbox" class="produkt_cat" name="produkt_cat[]" value="'.$element[term_id].'" /> '.$kat_nazev.'</a></li>';
+            echo '<li><a href="#"><input type="checkbox" class="produkt_cat" name="produkt_cat[]" value="'.$element[term_taxonomy_id].'" /> '.$kat_nazev.'</a></li>';
 
         if (is_array($element[children])) {
             seznam($element[children], ++$i);
@@ -100,6 +100,7 @@ function budkutil_adding_scripts() {
     wp_register_script('kategorie2'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.js", array('jquery'),'1.1', true);
     wp_register_script('kategorie3'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.keys.js", array('jquery'),'1.1', true);
     wp_register_script('scrollto'           , "/wp-content/plugins/budkutil/js/jquery.scrollTo-1.4.3.1.js", array('jquery'),'1.1', true);
+    //wp_register_script('select2cs'          , "/wp-content/plugins/budkutil/js/select/select2_locale_cs.js", array('jquery'),'1.1', true);
     //wp_register_script('onleave'            , "/wp-content/plugins/budkutil/js/onleave/jquery.pageleave.js", array('jquery'),'1.1', true);
     
     wp_enqueue_script('dragsort');
@@ -116,6 +117,7 @@ function budkutil_adding_scripts() {
     wp_enqueue_script('kategorie2');
     wp_enqueue_script('kategorie3');
     wp_enqueue_script('scrollto');
+    //wp_enqueue_script('select2cs');
     //wp_enqueue_script('onleave');
 }
 
@@ -133,6 +135,13 @@ function budkutil_adding_styles() {
 
 add_action( 'wp_enqueue_scripts', 'budkutil_adding_styles' );
 
+function clear_urls($url) {
+    $chunks = parse_url($url[0]);
+    $domena = $chunks[scheme]."://".$chunks[host];
+
+    return str_replace($domena, '', $url[0]);
+}
+
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
     global $wp_query;
@@ -142,7 +151,7 @@ function pridat_produkt_uzivatel( $atts ) {
     if(isset($_POST['pridat_novy_produkt']))
     {
         $novy_produkt_nazev         = sanitize_text_field($_POST['novy_produkt_nazev']);
-        $novy_produkt_popis         = $_POST['novy_produkt_popis'];
+        $novy_produkt_popis         = strip_tags($_POST['novy_produkt_popis'], '<a><abbr><acronym><b><br><div><h1><h2><h3><h4><h5><h6><hr><i><li><small><span><em><big><strong><ul><ol><p><dl><dt><dd>');
         $novy_produkt_cena          = filter_var($_POST['novy_produkt_cena'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
         $novy_produkt_ks            = filter_var($_POST['novy_produkt_ks'], FILTER_SANITIZE_NUMBER_INT);
         $novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
@@ -150,9 +159,15 @@ function pridat_produkt_uzivatel( $atts ) {
         $poradi_attachs             = explode('|', $_POST['poradi_attachs']);
         $main_attach                = $_POST['main_attach'];
         $produkt_cat                = $_POST['vybrana_kategorie'];
+        $kategorie_frst             = $_POST['kategorie_frst'];
+        $kategorie_sec              = $_POST['kategorie_sec'];
         $sada                       = $_POST['sada'];
         $tagy                       = $_POST['tagy'];
         $sada                       = $_POST['sada'];
+
+        $regex = "/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+        $novy_produkt_popis = stripslashes(preg_replace_callback($regex, "clear_urls", $novy_produkt_popis));
+        
         //$_POST['edit_timestamp'] > (time()-15) AND 
         if(!empty($produkt_cat) AND !empty($_POST['poradi_attachs']) AND !empty($novy_produkt_nazev) AND !empty($novy_produkt_popis) AND !empty($novy_produkt_cena) AND !empty($novy_produkt_ks) AND !empty($novy_produkt_kategorie))
         {
@@ -264,6 +279,22 @@ function pridat_produkt_uzivatel( $atts ) {
                         array(  
                             'object_id' => $last_id, 
                             'term_taxonomy_id' => $produkt_cat 
+                        )
+                    );
+
+                if(!empty($kategorie_frst) AND $produkt_cat != $kategorie_frst)
+                $wpdb->insert('wp_term_relationships', 
+                        array(  
+                            'object_id' => $last_id, 
+                            'term_taxonomy_id' => $kategorie_frst 
+                        )
+                    );
+
+                if(!empty($kategorie_sec) AND $produkt_cat != $kategorie_sec)
+                $wpdb->insert('wp_term_relationships', 
+                        array(  
+                            'object_id' => $last_id, 
+                            'term_taxonomy_id' => $kategorie_sec
                         )
                     );
 
@@ -655,7 +686,7 @@ function seznam_produktu_majitel( $atts ) {
             $post_output = str_replace('{tlacitko-viditelnost-text}', $tlacitko_viditelnost[text], $post_output); 
             $post_output = str_replace('{komentaru}', $komentaru, $post_output);
 
-            $post_output = str_replace('{url-edit}', '/upravit-zbozi/'.$post_id.'/', $post_output); 
+            $post_output = str_replace('{url-edit}', '/upravit-vyrobek/'.$post_id.'/', $post_output); 
 
 
             echo $post_output;
