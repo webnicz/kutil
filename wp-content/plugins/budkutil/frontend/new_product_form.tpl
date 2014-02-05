@@ -6,7 +6,6 @@
    <table>
        <tr>
            <td colspan="2" class="name">
-            <span>Název</span>
                <input type="text" name="novy_produkt_nazev" onfocus="if(this.value == 'Jak se bude tvůj produkt jmenovat?') { this.value = ''; }" onblur="if(this.value == '') { this.value = 'Jak se bude tvůj produkt jmenovat?'; }" value="{POST-novy_produkt_nazev}" />
            </td>
        </tr>
