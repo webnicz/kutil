@@ -279,21 +279,28 @@
 
           if(base.options.start){
 
-            if($('input[name=kategorie_frst]').val() != "")
-                $('a[id="'+$('input[name=kategorie_frst]').val()+'"]')
+            
+            var frst = $('input[name=kategorie_frst]').val();
+            var sec = $('input[name=kategorie_sec]').val();
+            var last = $('input[name=vybrana_kategorie]').val();
+
+
+
+            if(frst != "")
+                $('a[id="'+frst+'"]')
                 .trigger('click'); 
 
 
-            if($('input[name=kategorie_sec]').val() != "")
-               base.$el
-                .find('a[id="'+$('input[name=kategorie_sec]').val()+'"]')
+            if(sec != "")
+                 $('a[id="'+sec+'"]')
                 .trigger('click'); 
            
-            
-            base.$el
+            $('a[id="'+last+'"]')
+                .trigger('click');
+            //base.$el
                 //.find(base.options.columnclass)//.css('border','3px solid red');
-                .find('a[id="'+base.options.start+'"]')
-                .trigger('click');            
+               // .find('a[id="'+last+'"]')
+                //.trigger('click');            
 
           }
                   

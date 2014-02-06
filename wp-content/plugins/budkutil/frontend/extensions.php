@@ -417,19 +417,19 @@ function pridat_produkt_uzivatel( $atts ) {
             foreach ( $images as $attachment_id => $attachment ) 
                 $nahrane_obrazky[] = basename(wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]);        
     
-            $kategorie_end                  = get_term(end($kategorie), 'product_cat' );
-            $kategorie_end_parent           = $kategorie_end->parent;
-            $kategorie_kategorie1           = get_term($kategorie_end_parent, 'product_cat' );
-            $kategorie_kategorie1_parent    = $kategorie_kategorie1->parent;
+            //$kategorie_end                  = get_term(end($kategorie), 'product_cat' );
+            //$kategorie_end_parent           = $kategorie_end->parent;
+            //$kategorie_kategorie1           = get_term($kategorie_end_parent, 'product_cat' );
+            //$kategorie_kategorie1_parent    = $kategorie_kategorie1->parent;
 
             $in_novy_produkt_nazev         = get_the_title($PRODUCT_ID);
             $in_novy_produkt_popis         = $produkt->post_content;
             $in_novy_produkt_cena          = $cena;
-            $in_novy_produkt_ks            = (is_int($ks)) ? $ks : "0";
+            $in_novy_produkt_ks            = (!empty($ks)) ? $ks : "0";
             $in_novy_produkt_viditelnost   = ($status == "publish") ? "true" : "false";
             $in_vybrana_kategorie          = end($kategorie);
-            $in_kategorie_frst             = ($kategorie_end_parent != 0) ? $kategorie_end_parent : "";
-            $in_kategorie_sec              = ($kategorie_kategorie1_parent != 0) ? $kategorie_kategorie1_parent : "";
+            $in_kategorie_frst             = (!empty($kategorie[0])) ? $kategorie[0] : "";
+            $in_kategorie_sec              = (!empty($kategorie[1])) ? $kategorie[1] : "";
             $in_poradi_attachs             = implode('|', $nahrane_obrazky);
             $in_main_attach                = array_search(basename($nahled),$nahrane_obrazky);
             $in_vybrane_parametry          = $parametry;
@@ -551,7 +551,6 @@ function pridat_produkt_uzivatel( $atts ) {
 
         $template = str_replace('{strom}', $tree, $template);
         $template = str_replace('{sady_parametru}', $sady_options, $template);      
-        $template = str_replace('{time}', ($in_edit_timestamp) ? $in_edit_timestamp : time(), $template);      
         $template = str_replace('{editor}', $editor, $template);       
         $template = str_replace('{provize}', $provize, $template);  
         $template = str_replace('{apendix}', $apendix, $template); 
@@ -589,7 +588,12 @@ function pridat_produkt_uzivatel( $atts ) {
             $dir    = ABSPATH.'wp-content/'.$cesta_obr;
             
             if($PRODUCT_ID > 0)
+            {
                 $file   = $value;
+                preg_match('/.+\/([0-9]{10})_.+/', $dir.$file, $chunks);
+                
+                $in_edit_timestamp = $chunks[1];
+            }
             else
                 $file   = $in_edit_timestamp."_".$value;
 
@@ -615,6 +619,8 @@ function pridat_produkt_uzivatel( $atts ) {
             }
         }
 
+        $template = str_replace('{time}', ($in_edit_timestamp) ? $in_edit_timestamp : time(), $template);      
+
         $template = str_replace('{POST-obrazky}', $obrazky, $template);  
     }
 
@@ -639,8 +645,9 @@ function seznam_produktu_majitel( $atts ) {
 
         $args = array(
             'post_type'         => 'product',
-            'order'             => 'ASC',
+            'order'             => 'DESC',
             'posts_per_page'    => '9',
+            'author'            => get_current_user_id(),
             'paged'             => $paged
             
         );
@@ -705,6 +712,78 @@ function seznam_produktu_majitel( $atts ) {
 }
 add_shortcode( 'seznam_produktu_majitel', 'seznam_produktu_majitel' );
 
+
+function seznam_produktu_ostatni( $atts ) {
+    global $wpdb;
+    global $current_user;
+    global $paged;
+    global $wp_query;
+
+    $USER_ID = $wp_query->query_vars['page'];
+
+    $curpage = $paged ? $paged : 1;
+
+    if ( is_user_logged_in() ) {
+
+        $args = array(
+            'post_type'         => 'product',
+            'order'             => 'DESC',
+            'posts_per_page'    => '9',
+            'author'            => $USER_ID,
+            'paged'             => $paged
+            
+        );
+        query_posts( $args );
+        $template = get_template_bk('frontend', 'product_list_others');
+
+        if ( have_posts() ) : while ( have_posts() ) : the_post();
+
+            $post_id = get_the_ID();
+            $kategorie = array();
+            $post_output = $template;
+
+            $product_terms = wp_get_object_terms($post_id, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
+            if(!empty($product_terms))
+              if(!is_wp_error( $product_terms ))
+                foreach($product_terms as $term)
+                  $kategorie[] = '<a href="'.get_term_link($term->slug, 'product_cat').'">'.$term->name.'</a>'; 
+
+            $cena = get_post_meta( $post_id, '_price' )[0];
+            if(empty($cena))
+                $cena = get_post_meta( $post_id, '_regular_price' )[0];
+            if(empty($cena))
+                $cena = "---";
+
+            $thumb_id = get_post_thumbnail_id( $post_id );
+            $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' );
+        
+            $nazev = the_title('','',false);
+            $komentaru = get_comments_number( $post_id );
+
+            
+            $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
+            $post_output = str_replace('{nazev}', $nazev, $post_output); 
+            $post_output = str_replace('{kategorie}', implode(' <span class="separator">></span> ', $kategorie), $post_output); 
+            $post_output = str_replace('{cena}', $cena." Kč", $post_output); 
+            $post_output = str_replace('{komentaru}', $komentaru, $post_output);
+            $post_output = str_replace('{url-view}', get_permalink( $post_id ), $post_output); 
+
+
+            echo $post_output;
+            endwhile; 
+        else:
+            echo "<div class=\"prazdno\">Dosud žádné zboží</div>";
+        endif;
+
+        posts_nav_link();
+
+        wp_reset_query();
+
+    } else {
+        echo must_log_in();
+    }
+}
+add_shortcode( 'seznam_produktu_ostatni', 'seznam_produktu_ostatni' );
 
 
 function nastaveni_uzivatel() {
