@@ -101,7 +101,7 @@
        <tr>
            <td></td>
            <td>
-               <input type="submit" value="Vytvořit produkt" name="pridat_novy_produkt" class="btn btn-success" />
+               <input type="submit" value="{btn-label}" name="pridat_novy_produkt" class="btn btn-success" />
            </td>
        </tr>
    </table>

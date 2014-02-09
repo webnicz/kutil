@@ -142,6 +142,47 @@ function clear_urls($url) {
     return str_replace($domena, '', $url[0]);
 }
 
+function pn_get_attachment_id_from_url( $attachment_url = '' ) {
+ 
+    global $wpdb;
+    $attachment_id = false;
+ 
+    if ( '' == $attachment_url )
+        return;
+ 
+    $upload_dir_paths = wp_upload_dir();
+
+    if ( false !== strpos( $attachment_url, $upload_dir_paths['path'] ) ) {
+
+        $attachment_url = preg_replace( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif)$)/i', '', $attachment_url );
+        $attachment_url = str_replace( $upload_dir_paths['path'] . '/', '', $attachment_url );
+ 
+        $attachment_id = $wpdb->get_var( $wpdb->prepare( "SELECT wposts.ID FROM $wpdb->posts wposts, $wpdb->postmeta wpostmeta WHERE wposts.ID = wpostmeta.post_id AND wpostmeta.meta_key = '_wp_attached_file' AND wpostmeta.meta_value = '%s' AND wposts.post_type = 'attachment'", $attachment_url ) );
+    }
+    return $attachment_id;
+}
+
+function attachment_is_asociated($file, $pid) {
+    global $wpdb;
+    $attachment_id = false;
+    $attachment_url = ABSPATH.'wp-content/uploads/'.$file;
+
+    if ( '' == $attachment_url )
+        return;
+ 
+    $upload_dir_paths = wp_upload_dir();
+
+    if ( false !== strpos( $attachment_url, $upload_dir_paths['path'] ) ) {
+
+        $attachment_url = preg_replace( '/-\d+x\d+(?=\.(jpg|jpeg|png|gif)$)/i', '', $attachment_url );
+        $attachment_url = str_replace( $upload_dir_paths['path'] . '/', '', $attachment_url );
+ 
+        $attachment = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $wpdb->posts wposts, $wpdb->postmeta wpostmeta WHERE wposts.ID = wpostmeta.post_id AND wpostmeta.meta_key = '_wp_attached_file' AND wpostmeta.meta_value = '%s' AND wposts.post_type = 'attachment' AND wposts.post_parent = '".$pid."'", $attachment_url ) );
+    }
+
+    return ($attachment[0]->post_parent == $pid) ? true : false;//$attachment_id;//(empty($attachment_id)) ? "false" : "true";
+}
+
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
     global $wp_query;
@@ -174,7 +215,144 @@ function pridat_produkt_uzivatel( $atts ) {
 
             if($PRODUCT_ID > 0)
             {
-                echo "sds";
+                $post = array(
+                  'ID'             => $PRODUCT_ID,
+                  //'post_author'    => get_current_user_id(), 
+                  'post_content'   => $novy_produkt_popis, 
+                  'post_modified'  => date('Y-m-d H:i:s'),
+                  'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
+                  'post_title'     => $novy_produkt_nazev, 
+                  //'post_type'      => 'product'
+                ); 
+
+                wp_update_post( $post );
+
+
+                $wp_upload_dir = wp_upload_dir();
+
+                require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+                $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+                $mine = array("image/jpeg","image/pjpeg","image/png","image/gif");
+                $attachments = array();
+                $thumbnail = $poradi_attachs[0];
+                $p = 0;
+
+                foreach ($poradi_attachs as $key => $value) {
+                    $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+                    $file = $_POST['edit_timestamp']."_".$value;
+
+                    if(!attachment_is_asociated($value, $PRODUCT_ID) AND !attachment_is_asociated($file, $PRODUCT_ID))
+                    {
+                        $wp_filetype = wp_check_filetype(basename($file), null );
+
+                        rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
+
+                        $attachment = array(
+                         'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
+                         'post_mime_type' => $wp_filetype['type'],
+                         'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
+                         'post_content' => array_search($file, $poradi_attachs),
+                         'post_status' => 'inherit',
+                         'menu_order' => $p
+                        );
+
+                        $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $PRODUCT_ID );
+
+                        if($nahled == "")
+                            $nahled = $attach_id;
+
+                        $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
+                        wp_update_attachment_metadata( $attach_id, $attach_data );
+                    }
+                    else
+                    {
+                        $attach_id = pn_get_attachment_id_from_url(ABSPATH.'wp-content/uploads/'.$value);
+                        if(empty($attach_id)) $attach_id = pn_get_attachment_id_from_url(ABSPATH.'wp-content/uploads/'.$file);
+
+                        if(!$attach_id) {
+                            $post = array(
+                              'ID'             => $attach_id,
+                              'menu_order'     => $p
+                            );
+                            wp_update_post( $post );
+                        } 
+                    }
+
+                    if($p == $main_attach)
+                            $nahled = $attach_id;
+                       $p++;
+
+                    array_push($attachments, $attach_id);
+                }
+                update_post_meta($PRODUCT_ID, '_thumbnail_id', $nahled);
+
+
+                $wpdb->delete( 'wp_term_relationships', array( 'object_id' => $PRODUCT_ID ) );
+
+                $wpdb->insert('wp_term_relationships', 
+                        array(  
+                            'object_id' => $PRODUCT_ID, 
+                            'term_taxonomy_id' => $produkt_cat 
+                        )
+                    );
+
+                if(!empty($kategorie_frst) AND $produkt_cat != $kategorie_frst)
+                $wpdb->insert('wp_term_relationships', 
+                        array(  
+                            'object_id' => $PRODUCT_ID, 
+                            'term_taxonomy_id' => $kategorie_frst 
+                        )
+                    );
+
+                if(!empty($kategorie_sec) AND $produkt_cat != $kategorie_sec)
+                $wpdb->insert('wp_term_relationships', 
+                        array(  
+                            'object_id' => $PRODUCT_ID, 
+                            'term_taxonomy_id' => $kategorie_sec
+                        )
+                    );
+
+
+
+                $wpdb->delete( 'bk_produkty_sady', array( 'produkt_id' => $PRODUCT_ID ) );
+
+                foreach ($sada as $parametr) {
+                    
+                    $sada = $wpdb->get_var("SELECT parametr_id FROM bk_hodnoty WHERE hodnota_id='".$parametr."'");
+                    
+                    $wpdb->insert('bk_produkty_sady', 
+                        array( 
+                            'produkt_id' => $PRODUCT_ID, 
+                            'sada_id' => $sada, 
+                            'parametr_id' => $parametr, 
+                            'time' => time()
+                        )
+                    );
+                }
+
+                foreach ($sada as $idecko) {
+                    $wpdb->insert('bk_produkty_sady', 
+                        array( 
+                            'produkt_id' => $PRODUCT_ID, 
+                            'parametr_id' => $idecko, 
+                            'time' => time()
+                        )
+                    );
+                }
+
+                update_post_meta($PRODUCT_ID, '_product_image_gallery', implode(',', $attachments));
+                update_post_meta($PRODUCT_ID, '_regular_price', $novy_produkt_cena);
+                update_post_meta($PRODUCT_ID, '_price', $novy_produkt_cena);
+                update_post_meta($PRODUCT_ID, '_stock', $novy_produkt_ks);
+                wp_set_object_terms($PRODUCT_ID, $tagy, 'product_tag', false);
+                update_post_meta($PRODUCT_ID, '_manage_stock', 'yes');
+                if($novy_produkt_ks > 0)
+                    update_post_meta($PRODUCT_ID, '_stock_status', 'instock');
+
+                //wp_set_post_terms( $PRODUCT_ID, $_POST['produkt_cat']);
+
+                $pridan = false;
             }
             else
             {
@@ -375,18 +553,19 @@ function pridat_produkt_uzivatel( $atts ) {
         if($PRODUCT_ID > 0)
         {
             $produkt = get_post( $PRODUCT_ID);
+            $tagy    = array();
 
             $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
             if(!empty($product_terms))
               if(!is_wp_error( $product_terms ))
                 foreach($product_terms as $term)
-                  $kategorie[] = $term->term_id; 
+                  $kategorie[] = $term->term_taxonomy_id; 
 
             $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_tag', array('orderby' => 'term_order', 'order' => 'ASC'));
             if(!empty($product_terms))
               if(!is_wp_error( $product_terms ))
                 foreach($product_terms as $term)
-                  $tagy[] = $term->name; 
+                  array_push($tagy, $term->name); 
 
             $cena = get_post_meta( $PRODUCT_ID, '_price' )[0];
             if(empty($cena))
@@ -522,21 +701,24 @@ function pridat_produkt_uzivatel( $atts ) {
             
             </div>  
             
-        </script>
-
-        <script>
-        jQuery(window).unload(function(){
-            if(jQuery(\'input[name=submited]\').val() != "submited")
-            {
-                jQuery.ajax({
-                    type: \'POST\',
-                    url: \'/wp-content/plugins/budkutil/js/do_kose.php\',
-                    async:false,
-                    data: {time: '.(($in_edit_timestamp) ? $in_edit_timestamp : time()).'}
-                });
-            }
-        });
         </script>';
+
+        if(empty($PRODUCT_ID))
+        {
+            $apendix .= '<script>
+            jQuery(window).unload(function(){
+                if(jQuery(\'input[name=submited]\').val() != "submited")
+                {
+                    jQuery.ajax({
+                        type: \'POST\',
+                        url: \'/wp-content/plugins/budkutil/js/do_kose.php\',
+                        async:false,
+                        data: {time: '.(($in_edit_timestamp) ? $in_edit_timestamp : time()).'}
+                    });
+                }
+            });
+            </script>';
+        }
 
         if($in_tagy)
         {
@@ -554,6 +736,7 @@ function pridat_produkt_uzivatel( $atts ) {
         $template = str_replace('{editor}', $editor, $template);       
         $template = str_replace('{provize}', $provize, $template);  
         $template = str_replace('{apendix}', $apendix, $template); 
+        $template = str_replace('{btn-label}', (($PRODUCT_ID > 0) ? "Upravit produkt" : "Vytvořit produkt"), $template); 
 
 
 
@@ -584,9 +767,8 @@ function pridat_produkt_uzivatel( $atts ) {
         $p              = 0;
 
         foreach ($poradi_attachs as $key => $value) {
-            $value  = str_replace($in_edit_timestamp."_", '', $value);
             $dir    = ABSPATH.'wp-content/'.$cesta_obr;
-            
+
             if($PRODUCT_ID > 0)
             {
                 $file   = $value;
@@ -597,6 +779,8 @@ function pridat_produkt_uzivatel( $atts ) {
             else
                 $file   = $in_edit_timestamp."_".$value;
 
+            $value  = str_replace($in_edit_timestamp."_", '', $value);
+            
             if(file_exists($dir.$file))
             {
                 $class = "";
@@ -729,7 +913,7 @@ function seznam_produktu_ostatni( $atts ) {
             'post_type'         => 'product',
             'order'             => 'DESC',
             'posts_per_page'    => '9',
-            'author'            => $USER_ID,
+            'author'            => (empty($USER_ID)) ? get_current_user_id() : $USER_ID,
             'paged'             => $paged
             
         );

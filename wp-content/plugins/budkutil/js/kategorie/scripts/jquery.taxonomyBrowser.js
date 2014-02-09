@@ -279,23 +279,16 @@
 
           if(base.options.start){
 
-            
-            var frst = $('input[name=kategorie_frst]').val();
-            var sec = $('input[name=kategorie_sec]').val();
-            var last = $('input[name=vybrana_kategorie]').val();
-
-
-
-            if(frst != "")
-                $('a[id="'+frst+'"]')
+            if(base.options.frst != "")
+                $('a[id="'+base.options.frst+'"]')
                 .trigger('click'); 
 
 
-            if(sec != "")
-                 $('a[id="'+sec+'"]')
+            if(base.options.sec != "")
+                 $('a[id="'+base.options.sec+'"]')
                 .trigger('click'); 
            
-            $('a[id="'+last+'"]')
+            $('a[id="'+base.options.last+'"]')
                 .trigger('click');
             //base.$el
                 //.find(base.options.columnclass)//.css('border','3px solid red');
@@ -521,7 +514,7 @@
             
             /*
               Remove Current Column
-             */alert('bb');
+             */
             
             $currentColumn.remove();
 
@@ -539,7 +532,7 @@
            */
           
           base.$el.on('click', '.crumb', function(e){
-alert('xx');
+
             base.$el
               .find(base.options.columnclass)
               .find('li')
@@ -590,6 +583,9 @@ alert('xx');
         json: 'json/taxonomy.json', 
         rootvalue: null, 
         columnclass: '.miller--column', 
+        frst: $('input[name=kategorie_frst]').val(),
+        sec: $('input[name=kategorie_sec]').val(),
+        last: $('input[name=vybrana_kategorie]').val(),
         columns: 3, 
         columnheight: 400,
         start: '' /* ID or index of the Taxonomy Where you want to start */,
