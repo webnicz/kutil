@@ -270,7 +270,7 @@ function pridat_produkt_uzivatel( $atts ) {
                         $attach_id = pn_get_attachment_id_from_url(ABSPATH.'wp-content/uploads/'.$value);
                         if(empty($attach_id)) $attach_id = pn_get_attachment_id_from_url(ABSPATH.'wp-content/uploads/'.$file);
 
-                        if(!$attach_id) {
+                        if(!empty($attach_id)) {
                             $post = array(
                               'ID'             => $attach_id,
                               'menu_order'     => $p
@@ -590,7 +590,9 @@ function pridat_produkt_uzivatel( $atts ) {
             $images =& get_children( array (
                 'post_parent' => $PRODUCT_ID,
                 'post_type' => 'attachment',
-                'post_mime_type' => 'image'
+                'post_mime_type' => 'image',
+                'orderby' => 'menu_order',
+                'order'=>'ASC',
             ));
 
             foreach ( $images as $attachment_id => $attachment ) 
