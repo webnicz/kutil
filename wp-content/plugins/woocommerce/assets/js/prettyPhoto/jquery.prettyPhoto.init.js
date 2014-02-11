@@ -2,7 +2,7 @@
 $(document).ready(function() {
 
 	// Hide review form - it will be in a lightbox
-	$('#review_form_wrapper').hide();
+	//$('#review_form_wrapper').hide();
 
 	// Lightbox
 	$("a.zoom").prettyPhoto({

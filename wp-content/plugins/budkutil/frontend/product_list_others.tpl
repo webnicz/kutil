@@ -9,6 +9,6 @@
         <div class="kategorie">{kategorie}</div>
         <div class="cena">{cena}</div>
         <a href="{url-view}" class="tlacitko tlacitko_detail">Detail</a>
-        <a href=""><div class="komentare">{komentaru}</div></a>
+        <a href="{url-view}#komentare"><div class="komentare">{komentaru}</div></a>
     </div>
 </div>

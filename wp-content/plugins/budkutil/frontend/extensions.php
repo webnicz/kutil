@@ -96,6 +96,8 @@ function budkutil_adding_scripts() {
     wp_register_script('validate'           , "/wp-content/plugins/budkutil/js/validate/jquery.validate.js", array('jquery'));
     wp_register_script('main-new-product'   , "/wp-content/plugins/budkutil/js/new_product.js", array('jquery'),'1.1', true);
 
+    wp_register_script('main'               , "/wp-content/plugins/budkutil/js/main.js", array('jquery'),'1.1', true);
+
     wp_register_script('kategorie1'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/handlebars.js", array('jquery'),'1.1', true);
     wp_register_script('kategorie2'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.js", array('jquery'),'1.1', true);
     wp_register_script('kategorie3'         , "/wp-content/plugins/budkutil/js/kategorie/scripts/jquery.taxonomyBrowser.keys.js", array('jquery'),'1.1', true);
@@ -117,6 +119,7 @@ function budkutil_adding_scripts() {
     wp_enqueue_script('kategorie2');
     wp_enqueue_script('kategorie3');
     wp_enqueue_script('scrollto');
+    wp_enqueue_script('main');
     //wp_enqueue_script('select2cs');
     //wp_enqueue_script('onleave');
 }
@@ -345,7 +348,7 @@ function pridat_produkt_uzivatel( $atts ) {
                 update_post_meta($PRODUCT_ID, '_regular_price', $novy_produkt_cena);
                 update_post_meta($PRODUCT_ID, '_price', $novy_produkt_cena);
                 update_post_meta($PRODUCT_ID, '_stock', $novy_produkt_ks);
-                wp_set_object_terms($PRODUCT_ID, $tagy, 'product_tag', false);
+                wp_set_object_terms($PRODUCT_ID, explode(',', $tagy), 'product_tag', false);
                 update_post_meta($PRODUCT_ID, '_manage_stock', 'yes');
                 if($novy_produkt_ks > 0)
                     update_post_meta($PRODUCT_ID, '_stock_status', 'instock');
@@ -504,7 +507,7 @@ function pridat_produkt_uzivatel( $atts ) {
                 add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
                 add_post_meta($last_id, '_price', $novy_produkt_cena);
                 add_post_meta($last_id, '_stock', $novy_produkt_ks);
-                wp_set_object_terms($last_id, $tagy, 'product_tag');
+                wp_set_object_terms($last_id, explode(',', $tagy), 'product_tag');
                 add_post_meta($last_id, '_manage_stock', 'yes');
                 if($novy_produkt_ks > 0)
                     add_post_meta($last_id, '_stock_status', 'instock');
@@ -1016,4 +1019,51 @@ function nastaveni_uzivatel() {
     return $form;
 }
 add_shortcode( 'nastaveni_uzivatel', 'nastaveni_uzivatel' );
+
+function get_like_btn() {
+    global $wpdb;
+
+    if(get_post_type( get_the_ID() ) == "product")
+    {
+        $pid = get_the_ID();
+        $uid = get_current_user_id();
+        $num = (int)$wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$pid."'");
+
+        if(is_null($wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$uid."' AND produkt_id='".$pid."'")))
+            $voted_class = "liked";
+
+        $template = '
+            <div class="like_wrapper '.$liked_class.'">
+                <div class="like_icon">####</div>
+                <span class="like_num">'.$num.'</span>
+            </div>';
+
+        return $template;
+    }
+}
+
+function budkutil_komentare_produkt() {
+    comments_template( '', true ); 
+
+    $like   = get_like_btn();
+    $anchor = '<a href="#komentare" id="komentare_anchod"></a>
+    <script>
+        if(window.location.hash) 
+            jQuery.scrollTo(\'#komentare_anchod\');
+    </script>';
+    $append_html = $like.$anchor;
+
+    echo $append_html;
+}
+
+add_action( 'woocommerce_after_main_content', 'budkutil_komentare_produkt' );//woocommerce_after_single_product
+
+/*add_filter( 'GetWtiLikePost', 'like_pouze_u_produktu', 10 );
+
+function like_pouze_u_produktu() {
+
+    if(get_post_type( get_the_ID() ) != "product")
+        return false;
+}*/
+
 ?>

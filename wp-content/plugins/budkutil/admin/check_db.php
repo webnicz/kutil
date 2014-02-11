@@ -88,6 +88,18 @@ function check_db() {
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
         dbDelta($sql);
     }
+
+    if(is_null($wpdb->get_var("SELECT COUNT(1) FROM bk_like")))
+    {
+        $sql =   "CREATE TABLE bk_like (
+                  produkt_id INT,
+                  user_id INT,
+                  time INT,
+                  ip VARCHAR(20))";
+
+        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        dbDelta($sql);
+    }
 }
 check_db();
 ?>
