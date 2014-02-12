@@ -828,6 +828,26 @@ function seznam_produktu_majitel( $atts ) {
 
     $curpage = $paged ? $paged : 1;
 
+    if(isset($_GET['hide']))
+    {
+        $post = array(
+          'ID'             => $_GET['hide'],
+          'post_status'    => 'draft'
+        ); 
+
+        wp_update_post( $post );   
+    }
+
+    if(isset($_GET['public']))
+    {
+        $post = array(
+          'ID'             => $_GET['public'],
+          'post_status'    => 'publish'
+        ); 
+
+        wp_update_post( $post );   
+    }
+
     if ( is_user_logged_in() ) {
         
         get_currentuserinfo();
@@ -863,9 +883,9 @@ function seznam_produktu_majitel( $atts ) {
 
             $status = get_post_status( $post_id );
             if($status == "publish")
-                $tlacitko_viditelnost = array( 'text' => 'Stáhnout zboží');
+                $tlacitko_viditelnost = array( 'url' => '?hide='.$post_id, 'text' => 'Stáhnout zboží');
             else
-                $tlacitko_viditelnost = array( 'text' => 'Publikovat');
+                $tlacitko_viditelnost = array( 'url' => '?public='.$post_id, 'text' => 'Publikovat');
 
             $thumb_id = get_post_thumbnail_id( $post_id );
             $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' );
@@ -1030,10 +1050,13 @@ function get_like_btn() {
         $num = (int)$wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$pid."'");
 
         if(is_null($wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$uid."' AND produkt_id='".$pid."'")))
-            $voted_class = "liked";
+            $voted_class = " liked";
+
+        if(the_author_ID() == $uid OR !is_user_logged_in())
+            $voted_class = " disabled";
 
         $template = '
-            <div class="like_wrapper '.$liked_class.'">
+            <div class="like_wrapper'.$liked_class.'">
                 <div class="like_icon">####</div>
                 <span class="like_num">'.$num.'</span>
             </div>';
@@ -1057,6 +1080,16 @@ function budkutil_komentare_produkt() {
 }
 
 add_action( 'woocommerce_after_main_content', 'budkutil_komentare_produkt' );//woocommerce_after_single_product
+
+function budkutil_produkt_vypisy() {
+
+    $append_html   = get_like_btn();
+    $append_html  .= '<input type="hidden" name="add-to-cart" value="'.get_the_ID().'" />';
+
+    echo $append_html;
+}
+
+add_action( 'woocommerce_after_shop_loop_item', 'budkutil_produkt_vypisy' );
 
 /*add_filter( 'GetWtiLikePost', 'like_pouze_u_produktu', 10 );
 

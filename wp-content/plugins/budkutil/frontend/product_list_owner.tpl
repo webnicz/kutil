@@ -6,6 +6,6 @@
         <div class="cena">{cena}</div>
         <a href="{url-edit}" class="tlacitko tlacitko_detail">Detail</a>
         <a href="{tlacitko-viditelnost-url}" class="tlacitko tlacitko_viditelnost">{tlacitko-viditelnost-text}</a>
-        <div class="komentare">{komentaru}</div>
+        <a href="{url-view}#komentare"><div class="komentare">{komentaru}</div></a>
     </div>
 </div>
