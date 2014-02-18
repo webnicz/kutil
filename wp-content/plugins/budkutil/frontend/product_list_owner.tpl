@@ -7,5 +7,9 @@
         <a href="{url-edit}" class="tlacitko tlacitko_detail">Detail</a>
         <a href="{tlacitko-viditelnost-url}" class="tlacitko tlacitko_viditelnost">{tlacitko-viditelnost-text}</a>
         <a href="{url-view}#komentare"><div class="komentare">{komentaru}</div></a>
+        <div class="pocet_like">
+        	<i class="icon-thumbs-o-up"></i>
+        	{like}
+        </div>
     </div>
 </div>

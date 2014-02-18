@@ -63,6 +63,7 @@
         return this.each(function() {
           var $element = $(this);
        
+
           if($element.data('ajaxUploader-setup') === true) return;
 
           $element.change(function()
@@ -99,6 +100,13 @@
           {
             if(jQuery('.uploaded').length < 10)
             {
+
+              var soubory = jQuery('input[name=pic]').get(0).files;
+              var pocet = soubory.length;
+
+              for(var i = 0; i < pocet; i++)
+                console.log(soubory[i]);
+
               if($element.val() == '') return settings.onCancel.apply($element, [settings.params]);
 
               

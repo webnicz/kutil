@@ -507,6 +507,15 @@ function pridat_produkt_uzivatel( $atts ) {
                 add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
                 add_post_meta($last_id, '_price', $novy_produkt_cena);
                 add_post_meta($last_id, '_stock', $novy_produkt_ks);
+
+                add_post_meta($last_id, '_manage_stock', 'yes');
+                add_post_meta($last_id, '_stock_status', 'instock');
+                add_post_meta($last_id, '_visibility', 'visible');
+                add_post_meta($last_id, 'total_sales', '0');
+                add_post_meta($last_id, '_downloadable', 'no');
+                add_post_meta($last_id, '_virtual', 'no');
+                add_post_meta($last_id, '_backorders', 'no');
+
                 wp_set_object_terms($last_id, explode(',', $tagy), 'product_tag');
                 add_post_meta($last_id, '_manage_stock', 'yes');
                 if($novy_produkt_ks > 0)
@@ -547,7 +556,9 @@ function pridat_produkt_uzivatel( $atts ) {
     
     if($pridan == true)
     {
-        include ABSPATH."wp-content/plugins/budkutil/frontend/new_product_added.tpl";
+        header("Location: /moje-vyrobky/");
+        //do_shortcode('[seznam_produktu_majitel]'); 
+        //include ABSPATH."wp-content/plugins/budkutil/frontend/new_product_added.tpl";
     }
     else
     {
@@ -848,6 +859,14 @@ function seznam_produktu_majitel( $atts ) {
         wp_update_post( $post );   
     }
 
+
+    if(isset($_POST['pridat_novy_produkt']))
+    {
+        $posledni = $wpdb->get_var("SELECT post_name FROM $wpdb->posts WHERE post_author='".get_current_user_id()."' ORDER BY ID DESC");
+        $post_title = $wpdb->get_var("SELECT post_title FROM $wpdb->posts WHERE post_author='".get_current_user_id()."' ORDER BY ID DESC");
+        echo '<div class="success_msg success_wp-novy_produkt_popis-wrap"><i class="icon-info-circle"></i> Výrobek '.$post_title.' úspěšně přidán. <a href="/'.$posledni.'/">Zobrazit</a>.</div>';
+    }
+
     if ( is_user_logged_in() ) {
         
         get_currentuserinfo();
@@ -857,8 +876,8 @@ function seznam_produktu_majitel( $atts ) {
             'order'             => 'DESC',
             'posts_per_page'    => '9',
             'author'            => get_current_user_id(),
-            'paged'             => $paged
-            
+            'paged'             => $paged,
+            'post_status'       => array('publish', 'pending', 'draft', 'auto-draft', 'future', 'private', 'inherit')
         );
         query_posts( $args );
         $template = get_template_bk('frontend', 'product_list_owner');
@@ -893,6 +912,8 @@ function seznam_produktu_majitel( $atts ) {
             $nazev = the_title('','',false);
             $komentaru = get_comments_number( $post_id );
 
+            $like_num = $wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$post_id."'");
+
             
             $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
             $post_output = str_replace('{nazev}', $nazev, $post_output); 
@@ -901,6 +922,7 @@ function seznam_produktu_majitel( $atts ) {
             $post_output = str_replace('{tlacitko-viditelnost-url}', $tlacitko_viditelnost[url], $post_output); 
             $post_output = str_replace('{tlacitko-viditelnost-text}', $tlacitko_viditelnost[text], $post_output); 
             $post_output = str_replace('{komentaru}', $komentaru, $post_output);
+            $post_output = str_replace('{like}', $like_num, $post_output);
 
             $post_output = str_replace('{url-edit}', '/upravit-vyrobek/'.$post_id.'/', $post_output); 
 

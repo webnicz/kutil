@@ -14,6 +14,8 @@ Author URI: http://webartmedia.cz
 */
 include ABSPATH.'wp-content/plugins/budkutil/admin/check_db.php';
 
+include ABSPATH.'wp-content/plugins/budkutil/admin/check_pages.php';
+
 include ABSPATH.'wp-content/plugins/budkutil/admin/extensions.php';
 
 include ABSPATH.'wp-content/plugins/budkutil/frontend/extensions.php';
@@ -563,6 +565,10 @@ if (!class_exists("budkutil_admin_menu")) {
                 add_submenu_page('bk_page', 'Nastavení', 'Nastavení', 
                               'administrator', 'nastaveni', 
                               array(&$this, 'nastaveni_page'));
+
+                add_submenu_page('bk_page', 'Shortcodes', 'Shortcodes', 
+                              'administrator', 'shortcodes', 
+                              array(&$this, 'shortcodes_page'));
         
                 remove_submenu_page('bk_page', 'bk_page');
 
@@ -871,6 +877,53 @@ if (!class_exists("budkutil_admin_menu")) {
                         <th valign="top" scope="row"></th>
                         <td>
                             <input type="submit" class="button button-primary" name="ulozit_nastaveni" value="Uložit nastavení" />
+                        </td>
+                    </tr>
+                </table>
+            </form>';
+
+            echo '</div>';
+        }
+
+
+        function shortcodes_page() {
+
+            echo '<div class="wrap">';
+            echo '<h2>Seznam substitucí</h2>';
+
+            echo '
+            <form method="post">
+                <table class="form-table">
+                    <tr>
+                        <th valign="top" scope="row">
+                            [pridat_produkt]
+                        </th>
+                        <td>
+                            Zobrazení formuláře pro přidávání produktů
+                        </td>
+                    </tr>
+                    <tr>
+                        <th valign="top" scope="row">
+                            [upravit_produkt]
+                        </th>
+                        <td>
+                            Zobrazení editace produktu. Vázáno na stejnou funkci jako [pridat_produkt], tedy možno zaměnit. Rozdíl mezi editací a přidáváním spočívá v adrese. Pokud obsahuje mimo názvu stránky nebo příspěvku také ID, zobrazí s formulář pro editaci.
+                        </td>
+                    </tr>
+                    <tr>
+                        <th valign="top" scope="row">
+                            [seznam_produktu_majitel]
+                        </th>
+                        <td>
+                            Zobrazení seznamu produktů právě přihlášeného uživatele.
+                        </td>
+                    </tr>
+                    <tr>
+                        <th valign="top" scope="row">
+                            [seznam_produktu_ostatni]
+                        </th>
+                        <td>
+                            Zobrazení produktů daného uživatele z pohledu ostatních.
                         </td>
                     </tr>
                 </table>

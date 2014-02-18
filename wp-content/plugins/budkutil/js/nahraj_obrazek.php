@@ -6,6 +6,10 @@ $demo_mode = false;
 $upload_dir = './tmp_img/';
 $allowed_ext = array('jpg','jpeg','png','gif');
 
+	if (!file_exists($upload_dir)) {
+	    mkdir($upload_dir, 0755, true);
+	}
+
 	if(strtolower($_SERVER['REQUEST_METHOD']) != 'post'){
 		exit_status('Error! Špatná metoda HTTP!');
 	}
@@ -20,6 +24,8 @@ $allowed_ext = array('jpg','jpeg','png','gif');
 		$ext = array_pop($ext);
 		return strtolower($ext);
 	}
+
+	//print_r($_FILES['pic']);
 
 if($_GET['n'] < 10)
 {

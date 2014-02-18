@@ -1,5 +1,5 @@
 <form enctype="multipart/form-data">
-   <input type="file" name="pic" id="one-specific-file" style="display: none"/>
+   <input type="file" name="pic" id="one-specific-file" style="display: none" multiple />
 </form>
 
 <form method="post" id="novy_produkt_form">
