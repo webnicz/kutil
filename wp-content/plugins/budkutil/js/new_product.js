@@ -162,7 +162,7 @@ jQuery('#novy_produkt_form').submit( function () {
     error_msg('Zadejte prosím název Vašeho zboží', pole_nazev);
     return false;
   }
-  if(popis.length < 50) {
+  if(popis.length <= 30) {
     scrollup(jQuery('#wp-novy_produkt_popis-wrap'));
     error_msg('Zadejte prosím popis zboží', jQuery('#wp-novy_produkt_popis-wrap'));
     return false;
@@ -283,7 +283,8 @@ jQuery('#list1').bind("DOMSubtreeModified",function(){
 
 jQuery("#tagy").select2({
     placeholder: "",
-    minimumInputLength: 2,
+    minimumInputLength: 0,
+    maximumInputLength: 20,
      multiple: true,
      tags:["red", "green", "blue"],
     ajax: { 

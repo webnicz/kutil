@@ -568,4 +568,3 @@ function budkutil_provize_order($postID) {
 }
 
 add_action( 'woocommerce_admin_order_totals_after_shipping', 'budkutil_provize_order', $post->ID );
-?>

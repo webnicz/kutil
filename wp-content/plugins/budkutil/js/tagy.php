@@ -6,7 +6,17 @@ if(is_user_logged_in())
 {
 	$q = sanitize_text_field($_GET['q']);
 
-	$sql = "SELECT wp_terms.name AS nazev, SUM(1) AS pocet FROM wp_terms, wp_term_taxonomy WHERE wp_term_taxonomy.taxonomy='product_tag' AND wp_terms.name REGEXP '".$q."' GROUP BY wp_terms.name ORDER BY pocet";
+
+	if(strlen($q) == 0)
+		$limit = 5;
+	else
+		$limit = 5*strlen($q);
+
+	if(empty($_GET['q']))
+		$sql = "SELECT wp_terms.name AS nazev, SUM(1) AS pocet FROM wp_terms, wp_term_taxonomy GROUP BY wp_terms.name ORDER BY pocet DESC LIMIT {$limit}";
+	else
+		$sql = "SELECT wp_terms.name AS nazev, SUM(1) AS pocet FROM wp_terms, wp_term_taxonomy WHERE wp_term_taxonomy.taxonomy='product_tag' AND wp_terms.name REGEXP '".$q."' GROUP BY wp_terms.name ORDER BY pocet DESC LIMIT {$limit}";
+	
 	$tagy = $wpdb->get_results($sql);
 
 	$answer = array();

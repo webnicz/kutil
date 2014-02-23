@@ -186,6 +186,15 @@ function attachment_is_asociated($file, $pid) {
     return ($attachment[0]->post_parent == $pid) ? true : false;//$attachment_id;//(empty($attachment_id)) ? "false" : "true";
 }
 
+function redirect_moje_vyrobky() {
+    if(isset($_SERVER['HTTP_HOST']))
+        $host = $_SERVER['HTTP_HOST'];
+    else
+        $host = $_SERVER['SERVER_NAME'];
+
+    wp_redirect( "http://".$host."/moje-vyrobky/", 301 );
+}
+
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
     global $wp_query;
@@ -556,7 +565,9 @@ function pridat_produkt_uzivatel( $atts ) {
     
     if($pridan == true)
     {
-        header("Location: /moje-vyrobky/");
+
+        //add_action('init', 'redirect_moje_vyrobky');
+        //header("Location: http://".$host."/moje-vyrobky/");
         //do_shortcode('[seznam_produktu_majitel]'); 
         //include ABSPATH."wp-content/plugins/budkutil/frontend/new_product_added.tpl";
     }
