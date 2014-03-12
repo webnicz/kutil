@@ -225,7 +225,7 @@ function budkutil_sady_panel($post) {
         <script>
         <? if(isset($_GET['post'])):?>
         jQuery( function() {
-            var idecko = jQuery('#product_catchecklist').find('input:checked').val();
+            var idecko = jQuery('#product_catchecklist').find('input:checked').filter(':last').val();
             var vybrane_sady = '<? echo $parametry;?>';
             
             jQuery.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: idecko, sady: vybrane_sady} , function(data){
@@ -234,7 +234,7 @@ function budkutil_sady_panel($post) {
         });
         <? else: ?>
         jQuery('#product_catchecklist > input').change( function() {
-            var idecko = jQuery('#product_catchecklist').find('input:checked').val();
+            var idecko = jQuery('#product_catchecklist').find('input:checked').filter(':last').val();
             var vybrane_sady = '<? echo $parametry;?>';
             
             jQuery.get("/wp-content/plugins/budkutil/js/parametry_new_product.php", { cid: idecko, sady: vybrane_sady} , function(data){
@@ -242,6 +242,27 @@ function budkutil_sady_panel($post) {
             });
         });
         <? endif; ?>
+
+        jQuery('#product_catchecklist').find('input').click( function() {
+            var parent_first  = jQuery(this).parent().parent().parent().parent().find('input').filter(':first');
+            var idecko_first  = parent_first.val();
+            
+            var parent_sec    = parent_first.parent().parent().parent().parent().find('input').filter(':first');
+            var idecko_sec    = parent_sec.val();
+            
+            jQuery('#product_catchecklist').find('input').attr('checked', false);
+            jQuery(this).attr('checked', true);
+            
+            if(idecko_first != 0)
+            {
+                parent_first.attr('checked', true);
+                
+                    if(idecko_sec != 0)
+                    {
+                        parent_sec.attr('checked', true);
+                    }
+            }
+        });
 
         jQuery('#add_sada').click( function () {
             var vybrano = jQuery('select[name=sada] option:selected').html();
@@ -523,6 +544,7 @@ add_filter('pre_get_posts', 'bk_patametry');
 function budkutil_edit_product_columns( $existing_columns ) {
     global $woocommerce;
     $columns["product_owner"] = "Přidal";
+    $columns["like"] = "Like";
 
     return $columns;
 }
@@ -530,16 +552,51 @@ function budkutil_edit_product_columns( $existing_columns ) {
 add_filter( 'manage_edit-product_columns', 'budkutil_edit_product_columns' );
 
 function budkutil_custom_product_columns( $column ) {
-    global $post, $woocommerce, $the_product;
+    global $post, $woocommerce, $the_product, $wpdb;
 
     switch ($column) {
+
         case "product_owner" :
             echo '<a href="/wp-admin/user-edit.php?user_id='.$post->post_author.'">'.get_userdata($post->post_author)->display_name.'</a>';
+        break;
+
+        case "like" :
+            echo (int)$wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$the_product->id."'");
         break;
     }
 }
 
 add_action('manage_product_posts_custom_column', 'budkutil_custom_product_columns', 2 );
+
+
+
+
+function my_column_register_sortable( $columns )
+{
+    $columns['like'] = 'like';
+    return $columns;
+}
+
+add_filter("manage_edit-product_sortable_columns", "my_column_register_sortable" );
+
+
+function neco( $vars ) {
+    if (isset( $vars['orderby'] )) :
+        if ( 'like' == $vars['orderby'] ) :
+            $vars = array_merge( $vars, array(
+                'meta_key'  => '_like',
+                'orderby'   => 'meta_value_num'
+            ) );
+        endif;
+    endif;
+
+    return $vars;
+}
+
+add_filter( 'request', 'neco' );
+
+
+
 
 function budkutil_provize_order($postID) {
     global $wpdb;

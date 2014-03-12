@@ -18,12 +18,14 @@ jQuery('.like_icon').click( function() {
 			{
 				case "liked":
 			  	like_wrapper.addClass('liked');
-		    	num_wrapper.html(num*1+1*1);
+			  	like_wrapper.find('i').attr('class','icon-thumbs-down');
+		    	//num_wrapper.html(num*1+1*1);
 			  	break;
 
 				case "annulled":
 			  	like_wrapper.removeClass('liked');
-		    	num_wrapper.html(num-1);
+			  	like_wrapper.find('i').attr('class','icon-thumbs-up');
+		    	//num_wrapper.html(num-1);
 		    	break;
 			}
 	    });

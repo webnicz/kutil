@@ -46,3 +46,5 @@
 <?php endif; ?>
 
 <?php do_action( 'bp_after_profile_loop_content' ); ?>
+
+<? do_shortcode('[seznam_produktu_ostatni]');?>

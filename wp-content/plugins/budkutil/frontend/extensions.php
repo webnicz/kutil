@@ -524,6 +524,7 @@ function pridat_produkt_uzivatel( $atts ) {
                 add_post_meta($last_id, '_downloadable', 'no');
                 add_post_meta($last_id, '_virtual', 'no');
                 add_post_meta($last_id, '_backorders', 'no');
+                add_post_meta($last_id, '_like', '0');
 
                 wp_set_object_terms($last_id, explode(',', $tagy), 'product_tag');
                 add_post_meta($last_id, '_manage_stock', 'yes');
@@ -1080,7 +1081,7 @@ function get_like_btn() {
     {
         $pid = get_the_ID();
         $uid = get_current_user_id();
-        $num = (int)$wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$pid."'");
+        //$num = (int)$wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$pid."'");
 
         if(is_null($wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$uid."' AND produkt_id='".$pid."'")))
             $voted_class = " liked";
@@ -1088,11 +1089,15 @@ function get_like_btn() {
         if(the_author_ID() == $uid OR !is_user_logged_in())
             $voted_class = " disabled";
 
+        if($voted_class == " liked")
+            $direct = "down";
+        else
+            $direct = "up";        
+
         $template = '
             <div class="like_wrapper'.$liked_class.'">
-                <div class="like_icon">####</div>
-                <span class="like_num">'.$num.'</span>
-            </div>';
+                <i class="icon-thumbs-'.$direct.' like_icon"></i>
+            </div>';//<span class="like_num">'.$num.'</span>
 
         return $template;
     }
