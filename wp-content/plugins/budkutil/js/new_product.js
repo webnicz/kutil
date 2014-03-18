@@ -34,10 +34,15 @@ var isFileAPIEnabled = function() {
   return !!window.FileReader;
 };
 
-if(isFileAPIEnabled())
+var idecko_produktu = jQuery('input[name=idp]').val(); 
+
+if(idecko_produktu.length == 0)
+{
+  if(isFileAPIEnabled())
     var msg = "Obrázky vyberte kliknutím na tlačítko níže nebo přetáhnutím obrázku z disku na tuto plochu. <br /><i>(podporované formáty: PNG, JPG, GIF)</i>";
-else
+  else
     var msg = "Obrázky vyberte kliknutím na tlačítko níže. <br /><i>(podporované formáty: PNG, JPG, GIF)</i>";
+}
 
 jQuery("#dropbox > .message").html(msg);
 

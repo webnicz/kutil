@@ -186,14 +186,270 @@ function attachment_is_asociated($file, $pid) {
     return ($attachment[0]->post_parent == $pid) ? true : false;//$attachment_id;//(empty($attachment_id)) ? "false" : "true";
 }
 
-function redirect_moje_vyrobky() {
-    if(isset($_SERVER['HTTP_HOST']))
-        $host = $_SERVER['HTTP_HOST'];
-    else
-        $host = $_SERVER['SERVER_NAME'];
 
-    wp_redirect( "http://".$host."/moje-vyrobky/", 301 );
+
+
+/*
+
+PŘIDAT VÝROBEK
+
+*/
+
+function pridat_produkt_posted_data() {
+    global $wpdb;
+    global $wp_query;
+
+    //echo $_SERVER['PHP_HOST']. $_SERVER['PHP_SELF'] . $_SERVER['QUERY_STRING'];
+
+    $pridan = false;
+    $PRODUCT_ID = $wp_query->query_vars['page'];
+    
+    if(empty($PRODUCT_ID))
+    {
+        $novy_produkt_nazev         = sanitize_text_field($_POST['novy_produkt_nazev']);
+        $novy_produkt_popis         = strip_tags($_POST['novy_produkt_popis'], '<a><abbr><acronym><b><br><div><h1><h2><h3><h4><h5><h6><hr><i><li><small><span><em><big><strong><ul><ol><p><dl><dt><dd>');
+        $novy_produkt_cena          = filter_var($_POST['novy_produkt_cena'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+        $novy_produkt_ks            = filter_var($_POST['novy_produkt_ks'], FILTER_SANITIZE_NUMBER_INT);
+        $novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
+        $novy_produkt_kategorie     = $_POST['novy_produkt_nazev'];
+        $poradi_attachs             = explode('|', $_POST['poradi_attachs']);
+        $main_attach                = $_POST['main_attach'];
+        $produkt_cat                = $_POST['vybrana_kategorie'];
+        $kategorie_frst             = $_POST['kategorie_frst'];
+        $kategorie_sec              = $_POST['kategorie_sec'];
+        $sada                       = $_POST['sada'];
+        $tagy                       = $_POST['tagy'];
+        $sada                       = $_POST['sada'];
+
+        $regex = "/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/";
+        $novy_produkt_popis = stripslashes(preg_replace_callback($regex, "clear_urls", $novy_produkt_popis));
+
+        $duplicita = $wpdb->get_var("SELECT post_date FROM $wpdb->posts WHERE post_title='".$novy_produkt_nazev."' AND post_content='".$novy_produkt_popis."'");
+        
+        //$_POST['edit_timestamp'] > (time()-15) AND 
+        if(strtotime($duplicita) < time()-60*60*24 AND !empty($produkt_cat) AND !empty($_POST['poradi_attachs']) AND !empty($novy_produkt_nazev) AND !empty($novy_produkt_popis) AND !empty($novy_produkt_cena) AND !empty($novy_produkt_ks) AND !empty($novy_produkt_kategorie))
+        {
+
+        
+            $post = array(
+              'post_author'    => get_current_user_id(), 
+              'post_content'   => $novy_produkt_popis, 
+              'post_date'      => date('Y-m-d H:i:s'),
+              'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
+              'post_title'     => $novy_produkt_nazev, 
+              'post_type'      => 'product'
+            );  
+
+            wp_insert_post($post);
+            //$last = wp_get_recent_posts( '1');
+            $last_id = $wpdb->insert_id;//$last['0']['ID'];
+            $wp_upload_dir = wp_upload_dir();
+
+            require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+            $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+            $mine = array("image/jpeg","image/pjpeg","image/png","image/gif");
+            $attachments = array();
+            $thumbnail = $poradi_attachs[0];
+            $p = 0;
+            foreach ($poradi_attachs as $key => $value) {
+                $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+                $file = $_POST['edit_timestamp']."_".$value;
+
+                $wp_filetype = wp_check_filetype(basename($file), null );
+
+                rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
+
+                $attachment = array(
+                 'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
+                 'post_mime_type' => $wp_filetype['type'],
+                 'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
+                 'post_content' => array_search($file, $poradi_attachs),
+                 'post_status' => 'inherit'
+                );
+
+                $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $last_id );
+
+                if($nahled == "")
+                    $nahled = $attach_id;
+
+                if($p == $main_attach)
+                    $nahled = $attach_id;
+
+                $p++;
+
+                $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
+                wp_update_attachment_metadata( $attach_id, $attach_data );
+
+                array_push($attachments, $attach_id);
+            }
+
+
+            add_post_meta($last_id, '_thumbnail_id', $nahled);
+
+            /*$dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
+            $mine = array("image/jpeg","image/pjpeg","image/png","image/gif");
+            $attachments = array();
+            $thumbnail = $poradi_attachs[0];
+            if (is_dir($dir)) {
+                if ($dh = opendir($dir)) {
+                    while (($file = readdir($dh)) !== false) {
+                        if(preg_match('/^'.$_POST['edit_timestamp'].'/i', $file))
+                        {
+                            if(in_array(mime_content_type($dir . $file),$mine))
+                            {    
+                                $wp_filetype = wp_check_filetype(basename($file), null );
+
+                                rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
+
+                                $attachment = array(
+                                 'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
+                                 'post_mime_type' => $wp_filetype['type'],
+                                 'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
+                                 'post_content' => array_search($file, $poradi_attachs),
+                                 'post_status' => 'inherit'
+                                );
+
+                                $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $last_id );
+
+                                if($nahled == "" OR $file == $main_attach)
+                                    $nahled = $file;
+
+                                $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
+                                wp_update_attachment_metadata( $attach_id, $attach_data );
+
+                                array_push($attachments, $attach_id);
+                            }
+                        }
+                    }
+                    closedir($dh);
+                }
+            }   */
+
+            //set_tmbn($last_id, $nahled);
+            //wp_set_object_terms( $last_id, array((int)$product_cat), 'product_cat' );
+            $wpdb->insert('wp_term_relationships', 
+                    array(  
+                        'object_id' => $last_id, 
+                        'term_taxonomy_id' => $produkt_cat 
+                    )
+                );
+
+            if(!empty($kategorie_frst) AND $produkt_cat != $kategorie_frst)
+            $wpdb->insert('wp_term_relationships', 
+                    array(  
+                        'object_id' => $last_id, 
+                        'term_taxonomy_id' => $kategorie_frst 
+                    )
+                );
+
+            if(!empty($kategorie_sec) AND $produkt_cat != $kategorie_sec)
+            $wpdb->insert('wp_term_relationships', 
+                    array(  
+                        'object_id' => $last_id, 
+                        'term_taxonomy_id' => $kategorie_sec
+                    )
+                );
+
+            foreach ($sada as $parametr) {
+                
+                $sada = $wpdb->get_var("SELECT parametr_id FROM bk_hodnoty WHERE hodnota_id='".$parametr."'");
+                
+                $wpdb->insert('bk_produkty_sady', 
+                    array( 
+                        'produkt_id' => $last_id, 
+                        'sada_id' => $sada, 
+                        'parametr_id' => $parametr, 
+                        'time' => time()
+                    )
+                );
+            }
+
+            foreach ($sada as $idecko) {
+                $wpdb->insert('bk_produkty_sady', 
+                    array( 
+                        'produkt_id' => $last_id, 
+                        'parametr_id' => $idecko, 
+                        'time' => time()
+                    )
+                );
+            }
+
+            add_post_meta($last_id, '_product_image_gallery', implode(',', $attachments));
+            add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
+            add_post_meta($last_id, '_price', $novy_produkt_cena);
+            add_post_meta($last_id, '_stock', $novy_produkt_ks);
+
+            add_post_meta($last_id, '_manage_stock', 'yes');
+            add_post_meta($last_id, '_stock_status', 'instock');
+            add_post_meta($last_id, '_visibility', 'visible');
+            add_post_meta($last_id, 'total_sales', '0');
+            add_post_meta($last_id, '_downloadable', 'no');
+            add_post_meta($last_id, '_virtual', 'no');
+            add_post_meta($last_id, '_backorders', 'no');
+            add_post_meta($last_id, '_like', '0');
+
+            wp_set_object_terms($last_id, explode(',', $tagy), 'product_tag');
+            add_post_meta($last_id, '_manage_stock', 'yes');
+            if($novy_produkt_ks > 0)
+                add_post_meta($last_id, '_stock_status', 'instock');
+
+            wp_set_post_terms( $last_id, $_POST['produkt_cat']);
+            
+            $pridan = true;
+            //add error report ##
+        }
+        else
+        {
+            $report = array("Zamítnuto:");
+            if(empty($produkt_cat))
+                array_push($report, "Vyberte prosím kategorii zboží."); 
+            if(empty($_POST['poradi_attachs']))
+                array_push($report, "Nahrajte prosím alespoň jeden obrázek Vašeho zboží"); 
+            if(empty($novy_produkt_nazev))
+                array_push($report, "Zadejte prosím název zboží."); 
+            if(empty($novy_produkt_popis)) 
+                array_push($report, "Zadejte prosím popis zboží."); 
+            if(empty($novy_produkt_cena))
+                array_push($report,  "Zadejte prosím cenu zboží.");
+            if(empty($novy_produkt_ks)) 
+                array_push($report,  "Zadejte prosím počet kusů."); 
+            if($_POST['edit_timestamp'] > (time()-15))
+                array_push($report,  "Váš požadavek byl vyhodnocen jako SPAM."); 
+
+            foreach ($report as $value) {
+                $error_msgs .= "<li>$value</li>";
+            }
+            $_POST['REPORT'] = "<div class=\"warning_report\"><ul>{$error_msgs}</ul></div>";
+        }
+    }
+
+    
+    if($pridan == true)
+    {
+        if(isset($_SERVER['HTTP_HOST']))
+            $host = $_SERVER['HTTP_HOST'];
+        else
+            $host = $_SERVER['SERVER_NAME'];
+
+        wp_redirect( "http://".$host."/moje-vyrobky/", 301 );
+        exit;
+        //add_action('init', 'redirect_moje_vyrobky');
+        //header("Location: http://".$host."/moje-vyrobky/");
+        //do_shortcode('[seznam_produktu_majitel]'); 
+        //include ABSPATH."wp-content/plugins/budkutil/frontend/new_product_added.tpl";
+    }
 }
+
+function pridat_produkt_catch() {
+    //ob_start();
+
+    if(isset($_POST['pridat_novy_produkt'])) {
+        pridat_produkt_posted_data();    
+    }
+}
+
+add_action('parse_query', 'pridat_produkt_catch');
 
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
@@ -232,7 +488,7 @@ function pridat_produkt_uzivatel( $atts ) {
                   //'post_author'    => get_current_user_id(), 
                   'post_content'   => $novy_produkt_popis, 
                   'post_modified'  => date('Y-m-d H:i:s'),
-                  'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
+                  //'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
                   'post_title'     => $novy_produkt_nazev, 
                   //'post_type'      => 'product'
                 ); 
@@ -366,478 +622,287 @@ function pridat_produkt_uzivatel( $atts ) {
 
                 $pridan = false;
             }
-            else
-            {
-                $post = array(
-                  'post_author'    => get_current_user_id(), 
-                  'post_content'   => $novy_produkt_popis, 
-                  'post_date'      => date('Y-m-d H:i:s'),
-                  'post_status'    => ($novy_produkt_viditelnost == "true") ? 'publish' : 'draft',
-                  'post_title'     => $novy_produkt_nazev, 
-                  'post_type'      => 'product'
-                );  
-
-                wp_insert_post($post);
-                //$last = wp_get_recent_posts( '1');
-                $last_id = $wpdb->insert_id;//$last['0']['ID'];
-                $wp_upload_dir = wp_upload_dir();
-
-                require_once( ABSPATH . 'wp-admin/includes/image.php' );
-
-                $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
-                $mine = array("image/jpeg","image/pjpeg","image/png","image/gif");
-                $attachments = array();
-                $thumbnail = $poradi_attachs[0];
-                $p = 0;
-                foreach ($poradi_attachs as $key => $value) {
-                    $dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
-                    $file = $_POST['edit_timestamp']."_".$value;
-
-                    $wp_filetype = wp_check_filetype(basename($file), null );
-
-                    rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
-
-                    $attachment = array(
-                     'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
-                     'post_mime_type' => $wp_filetype['type'],
-                     'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
-                     'post_content' => array_search($file, $poradi_attachs),
-                     'post_status' => 'inherit'
-                    );
-
-                    $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $last_id );
-
-                    if($nahled == "")
-                        $nahled = $attach_id;
-
-                    if($p == $main_attach)
-                        $nahled = $attach_id;
-
-                    $p++;
-
-                    $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
-                    wp_update_attachment_metadata( $attach_id, $attach_data );
-
-                    array_push($attachments, $attach_id);
-                }
-
-
-                add_post_meta($last_id, '_thumbnail_id', $nahled);
-
-                /*$dir = ABSPATH.'wp-content/plugins/budkutil/js/tmp_img/';
-                $mine = array("image/jpeg","image/pjpeg","image/png","image/gif");
-                $attachments = array();
-                $thumbnail = $poradi_attachs[0];
-                if (is_dir($dir)) {
-                    if ($dh = opendir($dir)) {
-                        while (($file = readdir($dh)) !== false) {
-                            if(preg_match('/^'.$_POST['edit_timestamp'].'/i', $file))
-                            {
-                                if(in_array(mime_content_type($dir . $file),$mine))
-                                {    
-                                    $wp_filetype = wp_check_filetype(basename($file), null );
-
-                                    rename($dir . $file, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ));
-
-                                    $attachment = array(
-                                     'guid' => $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), 
-                                     'post_mime_type' => $wp_filetype['type'],
-                                     'post_title' => preg_replace( '/\.[^.]+$/', '', basename( $dir . $file ) ),
-                                     'post_content' => array_search($file, $poradi_attachs),
-                                     'post_status' => 'inherit'
-                                    );
-
-                                    $attach_id = wp_insert_attachment( $attachment, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ), $last_id );
-
-                                    if($nahled == "" OR $file == $main_attach)
-                                        $nahled = $file;
-
-                                    $attach_data = wp_generate_attachment_metadata( $attach_id, $wp_upload_dir['basedir'] . '/' . basename( $dir . $file ) );
-                                    wp_update_attachment_metadata( $attach_id, $attach_data );
-
-                                    array_push($attachments, $attach_id);
-                                }
-                            }
-                        }
-                        closedir($dh);
-                    }
-                }   */
-
-                //set_tmbn($last_id, $nahled);
-                //wp_set_object_terms( $last_id, array((int)$product_cat), 'product_cat' );
-                $wpdb->insert('wp_term_relationships', 
-                        array(  
-                            'object_id' => $last_id, 
-                            'term_taxonomy_id' => $produkt_cat 
-                        )
-                    );
-
-                if(!empty($kategorie_frst) AND $produkt_cat != $kategorie_frst)
-                $wpdb->insert('wp_term_relationships', 
-                        array(  
-                            'object_id' => $last_id, 
-                            'term_taxonomy_id' => $kategorie_frst 
-                        )
-                    );
-
-                if(!empty($kategorie_sec) AND $produkt_cat != $kategorie_sec)
-                $wpdb->insert('wp_term_relationships', 
-                        array(  
-                            'object_id' => $last_id, 
-                            'term_taxonomy_id' => $kategorie_sec
-                        )
-                    );
-
-                foreach ($sada as $parametr) {
-                    
-                    $sada = $wpdb->get_var("SELECT parametr_id FROM bk_hodnoty WHERE hodnota_id='".$parametr."'");
-                    
-                    $wpdb->insert('bk_produkty_sady', 
-                        array( 
-                            'produkt_id' => $last_id, 
-                            'sada_id' => $sada, 
-                            'parametr_id' => $parametr, 
-                            'time' => time()
-                        )
-                    );
-                }
-
-                foreach ($sada as $idecko) {
-                    $wpdb->insert('bk_produkty_sady', 
-                        array( 
-                            'produkt_id' => $last_id, 
-                            'parametr_id' => $idecko, 
-                            'time' => time()
-                        )
-                    );
-                }
-
-                add_post_meta($last_id, '_product_image_gallery', implode(',', $attachments));
-                add_post_meta($last_id, '_regular_price', $novy_produkt_cena);
-                add_post_meta($last_id, '_price', $novy_produkt_cena);
-                add_post_meta($last_id, '_stock', $novy_produkt_ks);
-
-                add_post_meta($last_id, '_manage_stock', 'yes');
-                add_post_meta($last_id, '_stock_status', 'instock');
-                add_post_meta($last_id, '_visibility', 'visible');
-                add_post_meta($last_id, 'total_sales', '0');
-                add_post_meta($last_id, '_downloadable', 'no');
-                add_post_meta($last_id, '_virtual', 'no');
-                add_post_meta($last_id, '_backorders', 'no');
-                add_post_meta($last_id, '_like', '0');
-
-                wp_set_object_terms($last_id, explode(',', $tagy), 'product_tag');
-                add_post_meta($last_id, '_manage_stock', 'yes');
-                if($novy_produkt_ks > 0)
-                    add_post_meta($last_id, '_stock_status', 'instock');
-
-                wp_set_post_terms( $last_id, $_POST['produkt_cat']);
-                
-                $pridan = true;
-                //add error report ##
-            }
-            
-        }
-        else
-        {
-            $report = array("Zamítnuto:");
-            if(empty($produkt_cat))
-                array_push($report, "Vyberte prosím kategorii zboží."); 
-            if(empty($_POST['poradi_attachs']))
-                array_push($report, "Nahrajte prosím alespoň jeden obrázek Vašeho zboží"); 
-            if(empty($novy_produkt_nazev))
-                array_push($report, "Zadejte prosím název zboží."); 
-            if(empty($novy_produkt_popis)) 
-                array_push($report, "Zadejte prosím popis zboží."); 
-            if(empty($novy_produkt_cena))
-                array_push($report,  "Zadejte prosím cenu zboží.");
-            if(empty($novy_produkt_ks)) 
-                array_push($report,  "Zadejte prosím počet kusů."); 
-            if($_POST['edit_timestamp'] > (time()-15))
-                array_push($report,  "Váš požadavek byl vyhodnocen jako SPAM."); 
-
-            foreach ($report as $value) {
-                $error_msgs .= "<li>$value</li>";
-            }
-            $report = "<div class=\"warning_report\"><ul>{$error_msgs}</ul></div>";
         }
     }
 
-    
-    if($pridan == true)
-    {
+    $template = get_template_bk('frontend', 'new_product_form');
 
-        //add_action('init', 'redirect_moje_vyrobky');
-        //header("Location: http://".$host."/moje-vyrobky/");
-        //do_shortcode('[seznam_produktu_majitel]'); 
-        //include ABSPATH."wp-content/plugins/budkutil/frontend/new_product_added.tpl";
+    if($PRODUCT_ID > 0)
+    {
+        $produkt = get_post( $PRODUCT_ID);
+        $tagy    = array();
+
+        $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
+        if(!empty($product_terms))
+          if(!is_wp_error( $product_terms ))
+            foreach($product_terms as $term)
+              $kategorie[] = $term->term_taxonomy_id; 
+
+        $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_tag', array('orderby' => 'term_order', 'order' => 'ASC'));
+        if(!empty($product_terms))
+          if(!is_wp_error( $product_terms ))
+            foreach($product_terms as $term)
+              array_push($tagy, $term->name); 
+
+        $cena = get_post_meta( $PRODUCT_ID, '_price' )[0];
+        if(empty($cena))
+            $cena = get_post_meta( $PRODUCT_ID, '_regular_price' )[0];
+
+        $status = get_post_status( $PRODUCT_ID );
+
+        $ks = get_post_meta( $PRODUCT_ID, '_stock' )[0];
+
+        $thumb_id = get_post_thumbnail_id( $PRODUCT_ID );
+        $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' )[0];
+
+        $komentaru = get_comments_number( $PRODUCT_ID );
+
+        $parametry = $wpdb->get_results("SELECT * FROM bk_produkty_sady WHERE produkt_id='{$PRODUCT_ID}'");
+        foreach ($parametry as $parametr) {
+            $vybrane_parametry[] = $parametr->parametr_id;
+        }
+
+        $parametry = implode(',', $vybrane_parametry);
+
+        $images =& get_children( array (
+            'post_parent' => $PRODUCT_ID,
+            'post_type' => 'attachment',
+            'post_mime_type' => 'image',
+            'orderby' => 'menu_order',
+            'order'=>'ASC',
+        ));
+
+        foreach ( $images as $attachment_id => $attachment ) 
+            $nahrane_obrazky[] = basename(wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]);        
+
+        //$kategorie_end                  = get_term(end($kategorie), 'product_cat' );
+        //$kategorie_end_parent           = $kategorie_end->parent;
+        //$kategorie_kategorie1           = get_term($kategorie_end_parent, 'product_cat' );
+        //$kategorie_kategorie1_parent    = $kategorie_kategorie1->parent;
+
+        $in_novy_produkt_nazev         = get_the_title($PRODUCT_ID);
+        $in_novy_produkt_popis         = $produkt->post_content;
+        $in_novy_produkt_cena          = $cena;
+        $in_novy_produkt_ks            = (!empty($ks)) ? $ks : "0";
+        $in_novy_produkt_viditelnost   = ($status == "publish") ? "true" : "false";
+        $in_vybrana_kategorie          = end($kategorie);
+        $in_kategorie_frst             = (!empty($kategorie[0])) ? $kategorie[0] : "";
+        $in_kategorie_sec              = (!empty($kategorie[1])) ? $kategorie[1] : "";
+        $in_poradi_attachs             = implode('|', $nahrane_obrazky);
+        $in_main_attach                = array_search(basename($nahled),$nahrane_obrazky);
+        $in_vybrane_parametry          = $parametry;
+        $in_sada                       = $parametry;
+        $in_edit_timestamp             = time();
+        $in_tagy                       = implode(',', $tagy);
+
+        $cesta_obr = "uploads/";
     }
     else
     {
-        $template = get_template_bk('frontend', 'new_product_form');
+        $in_novy_produkt_nazev         = $_POST['novy_produkt_nazev'];
+        $in_novy_produkt_popis         = $_POST['novy_produkt_popis'];
+        $in_novy_produkt_cena          = $_POST['novy_produkt_cena'];
+        $in_novy_produkt_ks            = ($_POST['novy_produkt_ks']) ? $_POST['novy_produkt_ks'] : "1";
+        $in_novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
+        $in_vybrana_kategorie          = $_POST['vybrana_kategorie'];
+        $in_kategorie_frst             = $_POST['kategorie_frst'];
+        $in_kategorie_sec              = $_POST['kategorie_sec'];
+        $in_poradi_attachs             = $_POST['poradi_attachs'];
+        $in_main_attach                = $_POST['main_attach'];
+        $in_vybrane_parametry          = $_POST['vybrane_parametry'];
+        $in_sada                       = $_POST['sada'];
+        $in_edit_timestamp             = $_POST['edit_timestamp'];
+        $in_tagy                       = $_POST['tagy'];
+
+        $cesta_obr = "plugins/budkutil/js/tmp_img/";
+    }
+
+    ob_start();
+        $nastaveni = array(
+            'tinymce' => array(
+                'theme_advanced_buttons1' => 'bold,italic,underline,bullist,numlist,outdent,indent,fontsizeselect,undo,redo,forecolor,link,unlink',
+                'theme_advanced_buttons2' => '',
+                'theme_advanced_buttons3' => ''
+            ),
+            'textarea_name' => 'novy_produkt_popis',
+            'media_buttons' => false,
+            'quicktags' => false,
+        );
+          /*  'tinymce' => array(
+            'theme_advanced_buttons1' => 'formatselect,|,bold,italic,underline,|,' .
+                'bullist,blockquote,|,justifyleft,justifycenter' .
+                ',justifyright,justifyfull,|,link,unlink,|' .
+                ',spellchecker,wp_fullscreen,wp_adv'
+        )*/
+
+        wp_editor($in_novy_produkt_popis,"novy_produkt_popis", $nastaveni);
+    $editor = ob_get_clean();
+   
+    $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy, wp_terms WHERE wp_term_taxonomy.taxonomy='product_cat'  AND wp_term_taxonomy.term_id=wp_terms.term_id ORDER BY wp_terms.name");
+    $tree = category_tree($zaznamy);
+    $array = json_decode(json_encode($tree), true);
+    ob_start();
+        echo '<ul id="browser" class="filetree treeview-famfamfam">';
+        seznam($array);
+        echo "</ul>";
+    $tree = ob_get_clean();
+
+    $user_id = get_current_user_id();
+    $provize = $wpdb->get_var("SELECT provize_vyse FROM bk_provize WHERE user_id='$user_id'");
+    if($provize == 0)
+        $provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
+
+    $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
+    foreach ($sady as $sada)
+        $sady_options .= '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
+
+    $apendix = '<script type="text/x-handlebars-template" id="taxonomy_terms">
+    
+        <div class="miller--terms--container">
+            
+            {{#if parent}}
+                <div class="miller--terms--selection">                  
+                    {{#each parent}} {{#if @index}} &raquo; {{/if}} <span class="crumb" data-depth="{{depth}}">{{name}}</span>{{/each}}
+                </div>
+            {{/if}}
+
+        <ul class="terms">
+            {{#each taxonomies}}
+                <li class="term {{#if childrenCount}}has-children{{/if}}" data-id="{{id}}">
+                    <a id="{{idecko}}">
+                      <span class="title">{{label}}</span> 
+                      <em class="icon icon-arrow"></em>
+                    {{#if description}}<span class="description">{{description}}</span>{{/if}}
+                    </a>
+                </li>
+            {{/each}}
+        </ul>
+        
+        </div>  
+        
+    </script>';
+
+    if(empty($PRODUCT_ID))
+    {
+        $apendix .= '<script>
+        jQuery(window).unload(function(){
+            if(jQuery(\'input[name=submited]\').val() != "submited")
+            {
+                jQuery.ajax({
+                    type: \'POST\',
+                    url: \'/wp-content/plugins/budkutil/js/do_kose.php\',
+                    async:false,
+                    data: {time: '.(($in_edit_timestamp) ? $in_edit_timestamp : time()).'}
+                });
+            }
+        });
+        </script>';
+    }
+
+    if($in_tagy)
+    {
+        $data = array();
+        $tagy = explode(',', $in_tagy);
+        foreach ($tagy as $tag) {
+            $data[] = '{id: "'.$tag.'", text: "'.$tag.'"}';
+        }
+
+        $apendix .= '<script>jQuery( function() {jQuery("#tagy").select2("data", ['.implode(',', $data).']);});</script>';
+    }
+
+    $template = str_replace('{strom}', $tree, $template);
+    $template = str_replace('{sady_parametru}', $sady_options, $template);      
+    $template = str_replace('{editor}', $editor, $template);       
+    $template = str_replace('{provize}', $provize, $template);  
+    $template = str_replace('{apendix}', $apendix, $template); 
+    $template = str_replace('{btn-label}', (($PRODUCT_ID > 0) ? "Upravit produkt" : "Vytvořit produkt"), $template); 
+
+
+
+    $template = str_replace('{POST-novy_produkt_nazev}', (empty($in_novy_produkt_nazev)) ? 'Jak se bude tvůj produkt jmenovat?' : $in_novy_produkt_nazev, $template); 
+    $template = str_replace('{POST-novy_produkt_cena}', $in_novy_produkt_cena, $template);
+    $template = str_replace('{POST-novy_produkt_ks}', $in_novy_produkt_ks, $template); 
+
+    if($in_novy_produkt_viditelnost == "true" OR !isset($in_novy_produkt_viditelnost)) 
+        $viditelnost = 'checked="checked"'; 
+    else 
+        $viditelnost = '';
+
+    if(empty($PRODUCT_ID)) {
+        $viditelnost_input = '
+        <tr>
+           <td>Veřejný</td>
+           <td>
+               <input type="checkbox" value="true" name="novy_produkt_viditelnost" '.$viditelnost.' /> Zboží okamžitě vystavit
+           </td>
+       </tr>';
+    }
+
+    $template = str_replace('{INPUT-novy_produkt_viditelnost}', $viditelnost_input, $template); 
+
+    $template = str_replace('{idp}', $PRODUCT_ID, $template); 
+
+    if($PRODUCT_ID > 0)
+     $template = str_replace('{CLASS-upravit}', 'class="upravit_produkt"', $template); 
+
+    $template = str_replace('{POST-vybrana_kategorie}', $in_vybrana_kategorie, $template);         
+    $template = str_replace('{POST-kategorie_frst}', $in_kategorie_frst, $template);  
+    $template = str_replace('{POST-kategorie_sec}', $in_kategorie_sec, $template);     
+    $template = str_replace('{POST-poradi_attachs}', $in_poradi_attachs, $template);  
+    $template = str_replace('{POST-main_attach}', $in_main_attach, $template);
+    $template = str_replace('{POST-vybrane_parametry}', ($in_vybrane_parametry) ? $in_vybrane_parametry : implode(',', $in_sada), $template);  
+
+    $poradi_attachs = explode('|', $in_poradi_attachs);
+    $main_attach    = $in_main_attach;
+    $dir            = ABSPATH.'wp-content/'.$cesta_obr;
+    $mine           = array("image/jpeg","image/pjpeg","image/png","image/gif");
+    $attachments    = array();
+    $thumbnail      = $in_poradi_attachs[0];
+    $p              = 0;
+
+    foreach ($poradi_attachs as $key => $value) {
+        $dir    = ABSPATH.'wp-content/'.$cesta_obr;
 
         if($PRODUCT_ID > 0)
         {
-            $produkt = get_post( $PRODUCT_ID);
-            $tagy    = array();
-
-            $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
-            if(!empty($product_terms))
-              if(!is_wp_error( $product_terms ))
-                foreach($product_terms as $term)
-                  $kategorie[] = $term->term_taxonomy_id; 
-
-            $product_terms = wp_get_object_terms($PRODUCT_ID, 'product_tag', array('orderby' => 'term_order', 'order' => 'ASC'));
-            if(!empty($product_terms))
-              if(!is_wp_error( $product_terms ))
-                foreach($product_terms as $term)
-                  array_push($tagy, $term->name); 
-
-            $cena = get_post_meta( $PRODUCT_ID, '_price' )[0];
-            if(empty($cena))
-                $cena = get_post_meta( $PRODUCT_ID, '_regular_price' )[0];
-
-            $status = get_post_status( $PRODUCT_ID );
-
-            $ks = get_post_meta( $PRODUCT_ID, '_stock' )[0];
-
-            $thumb_id = get_post_thumbnail_id( $PRODUCT_ID );
-            $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' )[0];
-
-            $komentaru = get_comments_number( $PRODUCT_ID );
-
-            $parametry = $wpdb->get_results("SELECT * FROM bk_produkty_sady WHERE produkt_id='{$PRODUCT_ID}'");
-            foreach ($parametry as $parametr) {
-                $vybrane_parametry[] = $parametr->parametr_id;
-            }
-
-            $parametry = implode(',', $vybrane_parametry);
-
-            $images =& get_children( array (
-                'post_parent' => $PRODUCT_ID,
-                'post_type' => 'attachment',
-                'post_mime_type' => 'image',
-                'orderby' => 'menu_order',
-                'order'=>'ASC',
-            ));
-
-            foreach ( $images as $attachment_id => $attachment ) 
-                $nahrane_obrazky[] = basename(wp_get_attachment_image_src( $attachment_id, 'thumbnail' )[0]);        
-    
-            //$kategorie_end                  = get_term(end($kategorie), 'product_cat' );
-            //$kategorie_end_parent           = $kategorie_end->parent;
-            //$kategorie_kategorie1           = get_term($kategorie_end_parent, 'product_cat' );
-            //$kategorie_kategorie1_parent    = $kategorie_kategorie1->parent;
-
-            $in_novy_produkt_nazev         = get_the_title($PRODUCT_ID);
-            $in_novy_produkt_popis         = $produkt->post_content;
-            $in_novy_produkt_cena          = $cena;
-            $in_novy_produkt_ks            = (!empty($ks)) ? $ks : "0";
-            $in_novy_produkt_viditelnost   = ($status == "publish") ? "true" : "false";
-            $in_vybrana_kategorie          = end($kategorie);
-            $in_kategorie_frst             = (!empty($kategorie[0])) ? $kategorie[0] : "";
-            $in_kategorie_sec              = (!empty($kategorie[1])) ? $kategorie[1] : "";
-            $in_poradi_attachs             = implode('|', $nahrane_obrazky);
-            $in_main_attach                = array_search(basename($nahled),$nahrane_obrazky);
-            $in_vybrane_parametry          = $parametry;
-            $in_sada                       = $parametry;
-            $in_edit_timestamp             = time();
-            $in_tagy                       = implode(',', $tagy);
-
-            $cesta_obr = "uploads/";
+            $file   = $value;
+            preg_match('/.+\/([0-9]{10})_.+/', $dir.$file, $chunks);
+            
+            $in_edit_timestamp = $chunks[1];
         }
         else
-        {
-            $in_novy_produkt_nazev         = $_POST['novy_produkt_nazev'];
-            $in_novy_produkt_popis         = $_POST['novy_produkt_popis'];
-            $in_novy_produkt_cena          = $_POST['novy_produkt_cena'];
-            $in_novy_produkt_ks            = ($_POST['novy_produkt_ks']) ? $_POST['novy_produkt_ks'] : "1";
-            $in_novy_produkt_viditelnost   = $_POST['novy_produkt_viditelnost'];
-            $in_vybrana_kategorie          = $_POST['vybrana_kategorie'];
-            $in_kategorie_frst             = $_POST['kategorie_frst'];
-            $in_kategorie_sec              = $_POST['kategorie_sec'];
-            $in_poradi_attachs             = $_POST['poradi_attachs'];
-            $in_main_attach                = $_POST['main_attach'];
-            $in_vybrane_parametry          = $_POST['vybrane_parametry'];
-            $in_sada                       = $_POST['sada'];
-            $in_edit_timestamp             = $_POST['edit_timestamp'];
-            $in_tagy                       = $_POST['tagy'];
+            $file   = $in_edit_timestamp."_".$value;
 
-            $cesta_obr = "plugins/budkutil/js/tmp_img/";
-        }
-
-        ob_start();
-            $nastaveni = array(
-                'tinymce' => array(
-                    'theme_advanced_buttons1' => 'bold,italic,underline,bullist,numlist,outdent,indent,fontsizeselect,undo,redo,forecolor,link,unlink',
-                    'theme_advanced_buttons2' => '',
-                    'theme_advanced_buttons3' => ''
-                ),
-                'textarea_name' => 'novy_produkt_popis',
-                'media_buttons' => false,
-                'quicktags' => false,
-            );
-              /*  'tinymce' => array(
-                'theme_advanced_buttons1' => 'formatselect,|,bold,italic,underline,|,' .
-                    'bullist,blockquote,|,justifyleft,justifycenter' .
-                    ',justifyright,justifyfull,|,link,unlink,|' .
-                    ',spellchecker,wp_fullscreen,wp_adv'
-            )*/
-
-            wp_editor($in_novy_produkt_popis,"novy_produkt_popis", $nastaveni);
-        $editor = ob_get_clean();
-       
-        $zaznamy = $wpdb->get_results("SELECT * FROM wp_term_taxonomy, wp_terms WHERE wp_term_taxonomy.taxonomy='product_cat'  AND wp_term_taxonomy.term_id=wp_terms.term_id ORDER BY wp_terms.name");
-        $tree = category_tree($zaznamy);
-        $array = json_decode(json_encode($tree), true);
-        ob_start();
-            echo '<ul id="browser" class="filetree treeview-famfamfam">';
-            seznam($array);
-            echo "</ul>";
-        $tree = ob_get_clean();
-
-        $user_id = get_current_user_id();
-        $provize = $wpdb->get_var("SELECT provize_vyse FROM bk_provize WHERE user_id='$user_id'");
-        if($provize == 0)
-            $provize = $wpdb->get_var("SELECT option_value FROM $wpdb->options WHERE option_name='provize'");
-
-        $sady = $wpdb->get_results("SELECT * FROM bk_parametry ORDER BY parametr_nazev");
-        foreach ($sady as $sada)
-            $sady_options .= '<option value="'.$sada->parametr_id.'">'.$sada->parametr_nazev.'</option>';
-
-        $apendix = '<script type="text/x-handlebars-template" id="taxonomy_terms">
+        $value  = str_replace($in_edit_timestamp."_", '', $value);
         
-            <div class="miller--terms--container">
-                
-                {{#if parent}}
-                    <div class="miller--terms--selection">                  
-                        {{#each parent}} {{#if @index}} &raquo; {{/if}} <span class="crumb" data-depth="{{depth}}">{{name}}</span>{{/each}}
-                    </div>
-                {{/if}}
-
-            <ul class="terms">
-                {{#each taxonomies}}
-                    <li class="term {{#if childrenCount}}has-children{{/if}}" data-id="{{id}}">
-                        <a id="{{idecko}}">
-                          <span class="title">{{label}}</span> 
-                          <em class="icon icon-arrow"></em>
-                        {{#if description}}<span class="description">{{description}}</span>{{/if}}
-                        </a>
-                    </li>
-                {{/each}}
-            </ul>
-            
-            </div>  
-            
-        </script>';
-
-        if(empty($PRODUCT_ID))
+        if(file_exists($dir.$file))
         {
-            $apendix .= '<script>
-            jQuery(window).unload(function(){
-                if(jQuery(\'input[name=submited]\').val() != "submited")
-                {
-                    jQuery.ajax({
-                        type: \'POST\',
-                        url: \'/wp-content/plugins/budkutil/js/do_kose.php\',
-                        async:false,
-                        data: {time: '.(($in_edit_timestamp) ? $in_edit_timestamp : time()).'}
-                    });
-                }
-            });
-            </script>';
+            $class = "";
+            if($main_attach == $key || (empty($main_attach) AND $key == 0))
+                $class = "main"; 
+    
+            $obrazky .= '<li><div class="preview">'.
+                        '<span class="imageHolder">'.
+                            '<img class="dad_nahled" src="/wp-content/'.$cesta_obr.$file.'" />'.
+                            '<a class="upedimg" title="'.$value.'">'.
+                            '<span class="uploaded '.$class.'">'.
+                                '<div class="toolbar">'.
+                                    '<i class="icon-trash dad_close"></i>'.
+                                    '<i class="icon-star dad_star"></i>'.
+                                  '</div>'.
+                              '</a>'.
+                            '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'.
+                        '</span>'.
+                    '</div></li>'; 
         }
-
-        if($in_tagy)
-        {
-            $data = array();
-            $tagy = explode(',', $in_tagy);
-            foreach ($tagy as $tag) {
-                $data[] = '{id: "'.$tag.'", text: "'.$tag.'"}';
-            }
-
-            $apendix .= '<script>jQuery( function() {jQuery("#tagy").select2("data", ['.implode(',', $data).']);});</script>';
-        }
-
-        $template = str_replace('{strom}', $tree, $template);
-        $template = str_replace('{sady_parametru}', $sady_options, $template);      
-        $template = str_replace('{editor}', $editor, $template);       
-        $template = str_replace('{provize}', $provize, $template);  
-        $template = str_replace('{apendix}', $apendix, $template); 
-        $template = str_replace('{btn-label}', (($PRODUCT_ID > 0) ? "Upravit produkt" : "Vytvořit produkt"), $template); 
-
-
-
-        $template = str_replace('{POST-novy_produkt_nazev}', (empty($in_novy_produkt_nazev)) ? 'Jak se bude tvůj produkt jmenovat?' : $in_novy_produkt_nazev, $template); 
-        $template = str_replace('{POST-novy_produkt_cena}', $in_novy_produkt_cena, $template);
-        $template = str_replace('{POST-novy_produkt_ks}', $in_novy_produkt_ks, $template); 
-
-        if($in_novy_produkt_viditelnost == "true" OR !isset($in_novy_produkt_viditelnost)) 
-            $viditelnost = 'checked="checked"'; 
-        else 
-            $viditelnost = '';
-        $template = str_replace('{POST-novy_produkt_viditelnost}', $viditelnost, $template); 
-
-        $template = str_replace('{POST-vybrana_kategorie}', $in_vybrana_kategorie, $template);         
-        $template = str_replace('{POST-kategorie_frst}', $in_kategorie_frst, $template);  
-        $template = str_replace('{POST-kategorie_sec}', $in_kategorie_sec, $template);     
-        $template = str_replace('{POST-poradi_attachs}', $in_poradi_attachs, $template);  
-        $template = str_replace('{POST-main_attach}', $in_main_attach, $template);
-        $template = str_replace('{POST-vybrane_parametry}', ($in_vybrane_parametry) ? $in_vybrane_parametry : implode(',', $in_sada), $template);  
-
-
-        $poradi_attachs = explode('|', $in_poradi_attachs);
-        $main_attach    = $in_main_attach;
-        $dir            = ABSPATH.'wp-content/'.$cesta_obr;
-        $mine           = array("image/jpeg","image/pjpeg","image/png","image/gif");
-        $attachments    = array();
-        $thumbnail      = $in_poradi_attachs[0];
-        $p              = 0;
-
-        foreach ($poradi_attachs as $key => $value) {
-            $dir    = ABSPATH.'wp-content/'.$cesta_obr;
-
-            if($PRODUCT_ID > 0)
-            {
-                $file   = $value;
-                preg_match('/.+\/([0-9]{10})_.+/', $dir.$file, $chunks);
-                
-                $in_edit_timestamp = $chunks[1];
-            }
-            else
-                $file   = $in_edit_timestamp."_".$value;
-
-            $value  = str_replace($in_edit_timestamp."_", '', $value);
-            
-            if(file_exists($dir.$file))
-            {
-                $class = "";
-                if($main_attach == $key || (empty($main_attach) AND $key == 0))
-                    $class = "main"; 
-        
-                $obrazky .= '<li><div class="preview">'.
-                            '<span class="imageHolder">'.
-                                '<img class="dad_nahled" src="/wp-content/'.$cesta_obr.$file.'" />'.
-                                '<a class="upedimg" title="'.$value.'">'.
-                                '<span class="uploaded '.$class.'">'.
-                                    '<div class="toolbar">'.
-                                        '<i class="icon-trash dad_close"></i>'.
-                                        '<i class="icon-star dad_star"></i>'.
-                                      '</div>'.
-                                  '</a>'.
-                                '<img src="/wp-content/plugins/budkutil/js/img-up/assets/img/done.png" class="dad_status" style="display: none" alt="" /></span>'.
-                            '</span>'.
-                        '</div></li>'; 
-            }
-        }
-
-        $template = str_replace('{time}', ($in_edit_timestamp) ? $in_edit_timestamp : time(), $template);      
-
-        $template = str_replace('{POST-obrazky}', $obrazky, $template);  
     }
 
+    $template = str_replace('{time}', ($in_edit_timestamp) ? $in_edit_timestamp : time(), $template);      
+
+    $template = str_replace('{POST-obrazky}', $obrazky, $template);  
+
     if(is_user_logged_in())
-        return $report.$template;
+        return $_POST['REPORT'].$template;
     else
         return must_log_in();
 }
@@ -935,6 +1000,7 @@ function seznam_produktu_majitel( $atts ) {
             $post_output = str_replace('{tlacitko-viditelnost-text}', $tlacitko_viditelnost[text], $post_output); 
             $post_output = str_replace('{komentaru}', $komentaru, $post_output);
             $post_output = str_replace('{like}', $like_num, $post_output);
+            $post_output = str_replace('{url-view}', get_permalink( $post_id ), $post_output); 
 
             $post_output = str_replace('{url-edit}', '/upravit-vyrobek/'.$post_id.'/', $post_output); 
 
@@ -965,8 +1031,6 @@ function seznam_produktu_ostatni( $atts ) {
     $USER_ID = $wp_query->query_vars['page'];
 
     $curpage = $paged ? $paged : 1;
-
-    if ( is_user_logged_in() ) {
 
         $args = array(
             'post_type'         => 'product',
@@ -1021,10 +1085,6 @@ function seznam_produktu_ostatni( $atts ) {
         posts_nav_link();
 
         wp_reset_query();
-
-    } else {
-        echo must_log_in();
-    }
 }
 add_shortcode( 'seznam_produktu_ostatni', 'seznam_produktu_ostatni' );
 
@@ -1081,13 +1141,23 @@ function get_like_btn() {
     {
         $pid = get_the_ID();
         $uid = get_current_user_id();
+        $post = get_post( $pid );
+
         //$num = (int)$wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$pid."'");
 
-        if(is_null($wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$uid."' AND produkt_id='".$pid."'")))
+        if(!is_null($wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$uid."' AND produkt_id='".$pid."'")))
+        {
             $voted_class = " liked";
-
-        if(the_author_ID() == $uid OR !is_user_logged_in())
-            $voted_class = " disabled";
+        }
+        
+        if($post->post_author == $uid OR !is_user_logged_in())
+        {
+            $voted_class    = " disabled";
+            $other          = " product_author";
+        }
+        else {
+            $other = " like_icon";
+        }
 
         if($voted_class == " liked")
             $direct = "down";
@@ -1095,27 +1165,37 @@ function get_like_btn() {
             $direct = "up";        
 
         $template = '
-            <div class="like_wrapper'.$liked_class.'">
-                <i class="icon-thumbs-'.$direct.' like_icon"></i>
+            <div class="like_wrapper'.$voted_class.'">
+                <i class="icon-thumbs-'.$direct.$other.'"></i>
+                <input type="hidden" value="'.$pid.'" class="pid" />
             </div>';//<span class="like_num">'.$num.'</span>
 
         return $template;
     }
 }
 
+//$like   = get_like_btn();
+
 function budkutil_komentare_produkt() {
     comments_template( '', true ); 
 
-    $like   = get_like_btn();
     $anchor = '<a href="#komentare" id="komentare_anchod"></a>
     <script>
         if(window.location.hash) 
             jQuery.scrollTo(\'#komentare_anchod\');
     </script>';
-    $append_html = $like.$anchor;
+
+    echo $anchor;
+}
+
+function  budkutil_produkt_single_product_description() {
+    $append_html   = get_like_btn();
+    $append_html  .= '<input type="hidden" name="add-to-cart" value="'.get_the_ID().'" />';
 
     echo $append_html;
 }
+
+add_action( 'woocommerce_single_product_summary', 'budkutil_produkt_single_product_description' );
 
 add_action( 'woocommerce_after_main_content', 'budkutil_komentare_produkt' );//woocommerce_after_single_product
 

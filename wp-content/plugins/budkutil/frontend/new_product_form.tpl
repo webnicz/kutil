@@ -2,7 +2,7 @@
    <input type="file" name="pic" id="one-specific-file" style="display: none" multiple />
 </form>
 
-<form method="post" id="novy_produkt_form">
+<form method="post" id="novy_produkt_form" {CLASS-upravit}>
    <table>
        <tr>
            <td colspan="2" class="name">
@@ -79,12 +79,7 @@
                </div>
            </td>
        </tr>
-       <tr>
-           <td>Veřejný</td>
-           <td>
-               <input type="checkbox" value="true" name="novy_produkt_viditelnost" {POST-novy_produkt_viditelnost} /> Zboží okamžitě vystavit
-           </td>
-       </tr>
+       {INPUT-novy_produkt_viditelnost}
        <tr>
            <td colspan="2">
             <span>Obrázky</span>
@@ -116,5 +111,6 @@
    <input name="vybrane_parametry" type="hidden" value="{POST-vybrane_parametry}" />
    <input name="submited" type="hidden" />
    <input name="koeficient" value="{provize}" type="hidden" />                    
+   <input name="idp" value="{idp}" type="hidden" />                    
    <input id="edit_timestamp" type="hidden" name="edit_timestamp" value="{time}" />
 </form>

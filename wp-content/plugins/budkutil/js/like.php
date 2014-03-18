@@ -45,7 +45,7 @@ if(is_user_logged_in())
 		$posledni 	= $wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$user_id."' ORDER BY time DESC");
 		$pocet 		= $wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$produkt_id."'");
 
-		if($posledni < time()-2)
+		if($posledni < time()-1)
 		{
 			if(is_null($wpdb->get_var("SELECT time FROM bk_like WHERE user_id='".$user_id."' AND produkt_id='".$produkt_id."'")))
 			{
@@ -56,7 +56,7 @@ if(is_user_logged_in())
 			            'time' 			=> time(),
 			            'ip' 			=> get_ip()
 			        )
-			    );
+			    );				
 
 				update_post_meta($produkt_id, '_like', $pocet+1);
 
