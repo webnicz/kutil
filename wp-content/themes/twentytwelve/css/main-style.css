@@ -1,4 +1,4 @@
-#dropbox #list1:after, .userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+.userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -21,7 +21,6 @@ body {
 	font-family: "Roboto", "Helvetica Neue", Helvetica, Serif, Arial;
 	font-weight: 300;
 	font-size: 12px;
-	color: #999;
 }
 
 #page {
@@ -198,6 +197,13 @@ body {
 	background: #fff;
 	border-radius: 3px;
 }
+#content {
+	padding: 30px;
+}
+.newProduct #content {
+	padding: 0;
+}
+
 #secondary aside.widget_product_categories h3 {
 	display: none;
 }
@@ -437,7 +443,7 @@ groups-order-select
 	border-top: 4px solid #FBCB43;
 }
 .widget_product_categories ul.product-categories {
-	padding: 10px 10px 0px;	
+	padding: 20px 20px 10px;	
 }
 
 .widget_product_categories ul.product-categories li a {
