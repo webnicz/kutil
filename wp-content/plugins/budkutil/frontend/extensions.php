@@ -727,6 +727,7 @@ function pridat_produkt_uzivatel( $atts ) {
             'textarea_name' => 'novy_produkt_popis',
             'media_buttons' => false,
             'quicktags' => false,
+            'textarea_rows'   => 8
         );
           /*  'tinymce' => array(
             'theme_advanced_buttons1' => 'formatselect,|,bold,italic,underline,|,' .
