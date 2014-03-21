@@ -1,4 +1,4 @@
-.userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+.products:after, .userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -609,15 +609,8 @@ groups-order-select
 	position: relative;
 }
 #content .term-description p{
- 	font-style: italic;
  	margin-bottom: 15px;
  	text-align: justify;
-}
-#content .woocommerce-result-count {
-	float: left;
-}
-#content .woocommerce-ordering {
-	float: right;
 }
 #content .woocommerce-ordering select {
 	background: #fff;
@@ -636,25 +629,7 @@ groups-order-select
 	float: left;
 }*/
 
-
-#content .products .product {
-	float: left;
-	margin: 0;
-	width: 25%;
-}
-#content .products .product a {
-	display: block;
-	padding: 10px;
-}
-#content .products .product a img {
-	border-radius: 3px;
-	width: 100%;
-}
-
-
  /* Add of new product / pridani noveho vyrobku */
- 
- 
 
 #primary.newProduct {
 	border-top: 4px solid #8CC474;
@@ -799,4 +774,92 @@ span.underline {
 	color: #D9534F;
 	margin: 20px 0;
 	padding: 20px;
+}
+
+
+/************* category product list **************/
+
+ul.products {
+	margin: 20px 0 0;	
+}
+ul.products .product {
+	float: left;
+	margin: 0;
+	width: 24%;
+	position: relative;
+	margin-right: 1.33333333%;
+}
+ul.products .product a {
+	display: block;
+}
+ul.products .product:nth-child(4n+0) {
+	margin-right: 0;
+}
+ul.products .product a:hover {
+	text-decoration: none;
+}
+ul.products .product a img {
+	border-radius: 3px 3px 0 0;
+	width: 100%;
+}
+ul.products h3 {
+	background: none repeat scroll 0 0 #8CC474;
+	border-radius: 0 0 3px 3px;
+	color: #FFFFFF;
+	font-size: 14px;
+	font-weight: 300;
+	height: 52px;
+	padding: 10px;
+	text-decoration: none;
+}
+ul.products .product .like_wrapper {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3);
+	border-radius: 3px 0 0;
+	color: #FFFFFF;
+	font-size: 19px;
+	height: 30px;
+	line-height: 158%;
+	overflow: hidden;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	top: 186px;
+	width: 32px;
+}
+ul.products .product .like_wrapper:hover {
+	color: #FBCB43;
+}
+ul.products .product .disabled:hover {
+	color: #fff;
+}
+ul.products .product span.price {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3);
+	border-radius: 0 3px 0 0;
+	color: #FFFFFF;
+	font-size: 19px;
+	height: 30px;
+	left: 0;
+	line-height: 158%;
+	padding: 0 10px;
+	position: absolute;
+	top: 186px;
+}
+.woocommerce-result-count {
+	display: inline-block;
+	margin: 5px 0 7px;	
+}
+.woocommerce-result-count strong {
+	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.05);
+	border-radius: 3px;
+	color: #000000;
+	display: inline-block;
+	font-weight: 400;
+	margin: 0 3px;
+	text-align: center;
+	text-shadow: 0 1px 0 #FFFFFF;
+	padding: 0 5px;
+}
+.woocommerce-ordering {
+	display: inline-block;
+	float: right;
 }
