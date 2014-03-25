@@ -13,7 +13,6 @@ jQuery('.like_icon').click( function() {
 		this_like.addClass('icon-thumbs-up');
 	}
 
-
 	if(!this_like.closest('.like_wrapper').hasClass('disable'))
 	{
 		jQuery.get("/wp-content/plugins/budkutil/js/like.php", { time: unix_ts, pid: idecko} ,
@@ -42,6 +41,11 @@ jQuery('.like_icon').click( function() {
 
 		    	case "Login":
 			  	alert('Pro hlasování musíte být přihlášen.');
+		    	//num_wrapper.html(num*1+1*1);
+			  	break;
+
+			  	case "Author":
+			  	alert('Nelze hlasovat ohledně vlastního výrobku.');
 		    	//num_wrapper.html(num*1+1*1);
 			  	break;
 			}

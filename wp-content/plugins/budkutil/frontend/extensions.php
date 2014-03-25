@@ -884,7 +884,7 @@ function pridat_produkt_uzivatel( $atts ) {
     
             $obrazky .= '<li><div class="preview">'.
                         '<span class="imageHolder">'.
-                            '<img class="dad_nahled" src="/wp-content/'.$cesta_obr.$file.'" />'.
+                            '<img class="dad_nahled" src="/wp-content/plugins/budkutil/frontend/nahled.php?a='.$file.'&s=200" />'.///wp-content/ $cesta_obr
                             '<a class="upedimg" title="'.$value.'">'.
                             '<span class="uploaded '.$class.'">'.
                                 '<div class="toolbar">'.
