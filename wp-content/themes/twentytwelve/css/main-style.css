@@ -863,3 +863,12 @@ ul.products .product span.price {
 	display: inline-block;
 	float: right;
 }
+.product .images a {
+	display: block;
+}
+.product .images a.woocommerce-main-image {
+	overflow: hidden;
+}
+.product .images a.woocommerce-main-image img {
+	width: 100%;
+}
