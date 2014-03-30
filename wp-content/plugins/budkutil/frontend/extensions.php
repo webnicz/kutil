@@ -228,9 +228,7 @@ function pridat_produkt_posted_data() {
         
         //$_POST['edit_timestamp'] > (time()-15) AND 
         if(strtotime($duplicita) < time()-60*60*24 AND !empty($produkt_cat) AND !empty($_POST['poradi_attachs']) AND !empty($novy_produkt_nazev) AND !empty($novy_produkt_popis) AND !empty($novy_produkt_cena) AND !empty($novy_produkt_ks) AND !empty($novy_produkt_kategorie))
-        {
-
-        
+        {        
             $post = array(
               'post_author'    => get_current_user_id(), 
               'post_content'   => $novy_produkt_popis, 
@@ -432,7 +430,7 @@ function pridat_produkt_posted_data() {
         else
             $host = $_SERVER['SERVER_NAME'];
 
-        wp_redirect( "http://".$host."/moje-vyrobky/", 301 );
+        wp_redirect( "http://".$host."/moje-vyrobky/?step=finish", 301 );
         exit;
         //add_action('init', 'redirect_moje_vyrobky');
         //header("Location: http://".$host."/moje-vyrobky/");
@@ -454,6 +452,7 @@ add_action('parse_query', 'pridat_produkt_catch');
 function pridat_produkt_uzivatel( $atts ) {
     global $wpdb;
     global $wp_query;
+    $upraven = false;
 
     $PRODUCT_ID = $wp_query->query_vars['page'];
 
@@ -621,9 +620,13 @@ function pridat_produkt_uzivatel( $atts ) {
                 //wp_set_post_terms( $PRODUCT_ID, $_POST['produkt_cat']);
 
                 $pridan = false;
+                $upraven = true;
             }
         }
     }
+
+    if($upraven == true)
+        echo '<div class="info_msg"><i class="icon-info-sign"></i> Výrobek úspěšně upraven.</div>';
 
     $template = get_template_bk('frontend', 'new_product_form');
 
@@ -914,8 +917,13 @@ function seznam_produktu_majitel( $atts ) {
     global $wpdb;
     global $current_user;
     global $paged;
+    $step = $_GET['step'];
 
     $curpage = $paged ? $paged : 1;
+
+    if($step == "finish") {
+        echo '<div class="info_msg"><i class="icon-info-sign"></i> Výrobek úspěšně přidán.</div>';
+    }
 
     if(isset($_GET['hide']))
     {
@@ -960,54 +968,59 @@ function seznam_produktu_majitel( $atts ) {
         query_posts( $args );
         $template = get_template_bk('frontend', 'product_list_owner');
 
-        if ( have_posts() ) : while ( have_posts() ) : the_post();
+        if ( have_posts() ) :     
+            echo '<ul class="products">';
 
-            $post_id = get_the_ID();
-            $kategorie = array();
-            $post_output = $template;
+            while ( have_posts() ) : the_post();
 
-            $product_terms = wp_get_object_terms($post_id, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
-            if(!empty($product_terms))
-              if(!is_wp_error( $product_terms ))
-                foreach($product_terms as $term)
-                  $kategorie[] = '<a href="'.get_term_link($term->slug, 'product_cat').'">'.$term->name.'</a>'; 
+                $post_id = get_the_ID();
+                $kategorie = array();
+                $post_output = $template;
 
-            $cena = get_post_meta( $post_id, '_price' )[0];
-            if(empty($cena))
-                $cena = get_post_meta( $post_id, '_regular_price' )[0];
-            if(empty($cena))
-                $cena = "---";
+                $product_terms = wp_get_object_terms($post_id, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
+                if(!empty($product_terms))
+                  if(!is_wp_error( $product_terms ))
+                    foreach($product_terms as $term)
+                      $kategorie[] = '<a href="'.get_term_link($term->slug, 'product_cat').'">'.$term->name.'</a>'; 
 
-            $status = get_post_status( $post_id );
-            if($status == "publish")
-                $tlacitko_viditelnost = array( 'url' => '?hide='.$post_id, 'text' => 'Stáhnout zboží');
-            else
-                $tlacitko_viditelnost = array( 'url' => '?public='.$post_id, 'text' => 'Publikovat');
+                $cena = get_post_meta( $post_id, '_price' )[0];
+                if(empty($cena))
+                    $cena = get_post_meta( $post_id, '_regular_price' )[0];
+                if(empty($cena))
+                    $cena = "---";
 
-            $thumb_id = get_post_thumbnail_id( $post_id );
-            $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' );
-        
-            $nazev = the_title('','',false);
-            $komentaru = get_comments_number( $post_id );
+                $status = get_post_status( $post_id );
+                if($status == "publish")
+                    $tlacitko_viditelnost = array( 'url' => '?hide='.$post_id, 'text' => 'Stáhnout zboží');
+                else
+                    $tlacitko_viditelnost = array( 'url' => '?public='.$post_id, 'text' => 'Publikovat');
 
-            $like_num = $wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$post_id."'");
-
+                $thumb_id = get_post_thumbnail_id( $post_id );
+                $nahled = wp_get_attachment_image_src( $thumb_id,'medium' );
             
-            $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
-            $post_output = str_replace('{nazev}', $nazev, $post_output); 
-            $post_output = str_replace('{kategorie}', implode(' <span class="separator">></span> ', $kategorie), $post_output); 
-            $post_output = str_replace('{cena}', $cena." Kč", $post_output); 
-            $post_output = str_replace('{tlacitko-viditelnost-url}', $tlacitko_viditelnost[url], $post_output); 
-            $post_output = str_replace('{tlacitko-viditelnost-text}', $tlacitko_viditelnost[text], $post_output); 
-            $post_output = str_replace('{komentaru}', $komentaru, $post_output);
-            $post_output = str_replace('{like}', $like_num, $post_output);
-            $post_output = str_replace('{url-view}', get_permalink( $post_id ), $post_output); 
+                $nazev = the_title('','',false);
+                $komentaru = get_comments_number( $post_id );
 
-            $post_output = str_replace('{url-edit}', '/upravit-vyrobek/'.$post_id.'/', $post_output); 
+                $like_num = $wpdb->get_var("SELECT SUM(1) AS pocet FROM bk_like WHERE produkt_id='".$post_id."'");
+
+                
+                $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
+                $post_output = str_replace('{nazev}', $nazev, $post_output); 
+                $post_output = str_replace('{kategorie}', implode(' <span class="separator">></span> ', $kategorie), $post_output); 
+                $post_output = str_replace('{cena}', $cena." Kč", $post_output); 
+                $post_output = str_replace('{tlacitko-viditelnost-url}', $tlacitko_viditelnost[url], $post_output); 
+                $post_output = str_replace('{tlacitko-viditelnost-text}', $tlacitko_viditelnost[text], $post_output); 
+                $post_output = str_replace('{komentaru}', $komentaru, $post_output);
+                $post_output = str_replace('{like}', $like_num, $post_output);
+                $post_output = str_replace('{url-view}', get_permalink( $post_id ), $post_output); 
+
+                $post_output = str_replace('{url-edit}', '/upravit-vyrobek/'.$post_id.'/', $post_output); 
 
 
-            echo $post_output;
+                echo $post_output;
             endwhile; 
+
+            echo '</ul>';
         else:
             echo "<div class=\"prazdno\">Dosud žádné zboží</div>";
         endif;
@@ -1031,6 +1044,8 @@ function seznam_produktu_ostatni( $atts ) {
 
     $USER_ID = $wp_query->query_vars['page'];
 
+    
+
     $curpage = $paged ? $paged : 1;
 
         $args = array(
@@ -1044,41 +1059,45 @@ function seznam_produktu_ostatni( $atts ) {
         query_posts( $args );
         $template = get_template_bk('frontend', 'product_list_others');
 
-        if ( have_posts() ) : while ( have_posts() ) : the_post();
+        if ( have_posts() ) : 
+            echo '<ul class="products">';
+            while ( have_posts() ) : the_post();
 
-            $post_id = get_the_ID();
-            $kategorie = array();
-            $post_output = $template;
+                $post_id = get_the_ID();
+                $kategorie = array();
+                $post_output = $template;
 
-            $product_terms = wp_get_object_terms($post_id, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
-            if(!empty($product_terms))
-              if(!is_wp_error( $product_terms ))
-                foreach($product_terms as $term)
-                  $kategorie[] = '<a href="'.get_term_link($term->slug, 'product_cat').'">'.$term->name.'</a>'; 
+                $product_terms = wp_get_object_terms($post_id, 'product_cat', array('orderby' => 'term_order', 'order' => 'ASC'));
+                if(!empty($product_terms))
+                  if(!is_wp_error( $product_terms ))
+                    foreach($product_terms as $term)
+                      $kategorie[] = '<a href="'.get_term_link($term->slug, 'product_cat').'">'.$term->name.'</a>'; 
 
-            $cena = get_post_meta( $post_id, '_price' )[0];
-            if(empty($cena))
-                $cena = get_post_meta( $post_id, '_regular_price' )[0];
-            if(empty($cena))
-                $cena = "---";
+                $cena = get_post_meta( $post_id, '_price' )[0];
+                if(empty($cena))
+                    $cena = get_post_meta( $post_id, '_regular_price' )[0];
+                if(empty($cena))
+                    $cena = "---";
 
-            $thumb_id = get_post_thumbnail_id( $post_id );
-            $nahled = wp_get_attachment_image_src( $thumb_id,'thumbnail' );
-        
-            $nazev = the_title('','',false);
-            $komentaru = get_comments_number( $post_id );
-
+                $thumb_id = get_post_thumbnail_id( $post_id );
+                $nahled = wp_get_attachment_image_src( $thumb_id,'medium' );
             
-            $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
-            $post_output = str_replace('{nazev}', $nazev, $post_output); 
-            $post_output = str_replace('{kategorie}', implode(' <span class="separator">></span> ', $kategorie), $post_output); 
-            $post_output = str_replace('{cena}', $cena." Kč", $post_output); 
-            $post_output = str_replace('{komentaru}', $komentaru, $post_output);
-            $post_output = str_replace('{url-view}', get_permalink( $post_id ), $post_output); 
+                $nazev = the_title('','',false);
+                $komentaru = get_comments_number( $post_id );
+
+                
+                $post_output = str_replace('{nahled-url}', $nahled[0], $post_output); 
+                $post_output = str_replace('{nazev}', $nazev, $post_output); 
+                $post_output = str_replace('{kategorie}', implode(' <span class="separator">></span> ', $kategorie), $post_output); 
+                $post_output = str_replace('{cena}', $cena." Kč", $post_output); 
+                $post_output = str_replace('{komentaru}', $komentaru, $post_output);
+                $post_output = str_replace('{url-view}', get_permalink( $post_id ), $post_output); 
 
 
-            echo $post_output;
+                echo $post_output;
             endwhile; 
+
+            echo '</ul>';
         else:
             echo "<div class=\"prazdno\">Dosud žádné zboží</div>";
         endif;

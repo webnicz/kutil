@@ -228,7 +228,7 @@ console.log(event.keyCode);
     else
     {
        event.preventDefault();
-            var template = '<div class="error_msg_tiny error_keycode" style="display: none"><i class="icon-remove-sign"></i> Lze použít pouze číslice</div>'; //<i class="icon-ok-sign"></i>
+            var template = '<div class="error_msg_tiny error_keycode" style="display: none"><i class="icon-info-sign"></i> Lze použít pouze číslice</div>'; //<i class="icon-ok-sign"></i>
 
             if(jQuery('.error_keycode').length == 0)
               jQuery(template).appendTo(jQuery('input[name=novy_produkt_cena]').parent());

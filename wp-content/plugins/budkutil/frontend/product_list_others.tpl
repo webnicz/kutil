@@ -1,14 +1,10 @@
-<div class="produkt_radek">
-    <div class="nahled">
-    	<a href="{url-view}">
-    		<img src="{nahled-url}" alt="{nazev}" />
-    	</a>
-    </div>
-    <div class="informace">
+<li class="product type-product">
+    <a href="{url-view}">
+        <img alt="{nazev}" class="attachment-shop_catalog wp-post-image" src="{nahled-url}">
         <h3>{nazev}</h3>
-        <div class="kategorie">{kategorie}</div>
-        <div class="cena">{cena}</div>
-        <a href="{url-view}" class="tlacitko tlacitko_detail">Detail</a>
-        <a href="{url-view}#komentare"><div class="komentare">{komentaru}</div></a>
-    </div>
-</div>
+        <span class="price"><span class="amount">{cena}</span></span>
+    </a>
+
+    <a href="{url-view}" class="tlacitko tlacitko_detail">Detail</a>
+    <a href="{url-view}#komentare"><div class="komentare">{komentaru}</div></a>
+</li>
