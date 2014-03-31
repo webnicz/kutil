@@ -1,4 +1,4 @@
-.products:after, .userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
+.widget_product_filter .innerFilter ul:after, .products:after, .userAcc a.newProduct:after, #content ul.products:before, #masthead a .signIn .loginForm p:after, .userAcc ul:after, .userAcc .userAccIn:after, #activity-stream li:after, #whats-new-form:after, .entry-content:after, .wp-breadcrumbs:after, #masthead:after, .site-content:after {
 	clear: both;
 	content: "";
 	display: block;
@@ -871,4 +871,52 @@ ul.products .product span.price {
 }
 .product .images a.woocommerce-main-image img {
 	width: 100%;
+}
+
+.widget_product_filter h3 {
+	display: none;
+}
+.widget_product_filter .innerFilter{
+	padding: 0px 20px 20px;
+}
+.widget_product_filter .innerFilter:nth-child(2) {
+	padding-top: 20px;
+}
+.widget_product_filter .innerFilter label {
+	font-size: 14px;
+	font-weight: 400;
+}
+.widget_product_filter .innerFilter > label:first-child {
+	padding: 0 7px;
+	clear: both;
+	display: block;
+}
+.widget_product_filter .innerFilter ul {
+	margin: 0;
+}
+.widget_product_filter .innerFilter li {
+	padding: 1px 8px;
+}
+.widget_product_filter .innerFilter li img {
+	width: 20px;
+	height: 20px;
+	border-radius: 3px;
+	float: left;
+}
+.widget_product_filter .innerFilter li label {
+	line-height: 140%;
+	font-weight: 300;
+	outline: none;
+}
+.widget_product_filter .innerFilter li label input[type="checkbox"] {
+	float: left;
+	margin: 3px 8px;
+	outline: none;
+}
+.widget_product_filter .innerFilter input[type="text"] {
+	display: inline-block;
+	margin: 0px 8px;
+	padding: 0 5px;
+	width: 53px;
+	height: 30px;
 }
