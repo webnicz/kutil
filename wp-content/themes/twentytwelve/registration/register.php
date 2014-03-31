@@ -23,6 +23,7 @@
 				<h2 class="entry-title"><?php _e( 'Create an Account', 'buddypress' ); ?></h2>
 				
 				<div class="entry-content">
+				
 				<?php do_action( 'template_notices' ); ?>
 
 				<p><?php _e( 'Registering for this site is easy, just fill in the fields below and we\'ll get a new account set up for you in no time.', 'buddypress' ); ?></p>
@@ -54,6 +55,12 @@
 				</div><!-- #basic-details-section -->
 
 				<?php do_action( 'bp_after_account_details_fields' ); ?>
+
+
+
+
+
+
 
 				<?php /***** Extra Profile Details ******/ ?>
 
@@ -280,7 +287,7 @@
 		</div><!-- .padder -->
 	</div><!-- #content -->
 
-	<?php get_sidebar( 'buddypress' ); ?>
+	<?php //get_sidebar( 'buddypress' ); ?>
 
 	<script type="text/javascript">
 		jQuery(document).ready( function() {

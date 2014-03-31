@@ -9,8 +9,6 @@
 
 ?>
 
-<h2 class="entry-title"><i class="icon-user"></i> Profil</h2>
-
 <?php if ( bp_is_my_profile() ) : ?>
 	<div class="item-list-tabs no-ajax" id="subnav" role="navigation">
 		<ul class="nav nav-pills">

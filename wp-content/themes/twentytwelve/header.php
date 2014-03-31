@@ -101,7 +101,6 @@
 				<a href="/zalozit-novy-vyrobek/" title="Založit nový výrobek" class="newProduct"><strong>+</strong> <em>Založit nový výrobek</em></a>
 				
 				<ul>	
-					<li><a href="/moje-vyrobky/" title="Moje výrobky">Moje výrobky</a></li>
 					<?php bp_get_loggedin_user_nav(); ?>
 				</ul>
 				

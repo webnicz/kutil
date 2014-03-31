@@ -21,7 +21,7 @@
 				
 				<div class="innerFilter">
 					<label for="">Cena</label>	
-					<input type="text" name="min" value="" class="form-control" /> - <input type="text" name="max" value="" class="form-control" />
+					<span><input type="text" name="min" value="" class="form-control" /> - <input type="text" name="max" value="" class="form-control" /></span>
 				</div>
 				
 				<div class="innerFilter">

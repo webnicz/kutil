@@ -20,7 +20,10 @@
 <div id="item-header-avatar">
 	<a href="<?php bp_displayed_user_link(); ?>">
 
-		<?php bp_displayed_user_avatar( 'type=full&width=300&height=300' ); ?>
+		<?php 
+		
+			bp_displayed_user_avatar('type=full&width=300&height=300'); 
+		?>
 
 	</a>
 </div><!-- #item-header-avatar -->
@@ -36,10 +39,13 @@
 	<div id="item-meta">
 
 		<?php if ( bp_is_active( 'activity' ) ) : ?>
-
+	
 			<div id="latest-update">
 
-				<?php bp_activity_latest_update( bp_displayed_user_id() ); ?>
+				<?php 
+					bp_activity_latest_update( bp_displayed_user_id() ); 	
+				?>
+
 
 			</div>
 
