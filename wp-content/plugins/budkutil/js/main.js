@@ -52,3 +52,48 @@ jQuery('.like_icon').click( function() {
 	    });
 	}
 });
+
+jQuery('.widget_product_filter input').change( function() {
+	jQuery('.woocommerce-pagination').remove();
+	jQuery( ".products" ).fadeTo( "slow" , 0.3);
+
+	jQuery.get( "/wp-content/plugins/budkutil/js/products.php", jQuery('#innerFilterForm').serialize() )
+	.done(function( data ) {
+		jQuery('.products').replaceWith(data);
+	})
+	.fail(function() {
+		alert( "error" );
+	})
+	.always(function() {
+		jQuery('.products-list').attr('class', 'products');
+	});
+});
+
+(function($){
+    $.fn.extend({
+        donetyping: function(callback,timeout){
+            timeout = timeout || 5e2; // 1 second default timeout
+            var timeoutReference,
+                doneTyping = function(el){
+                    if (!timeoutReference) return;
+                    timeoutReference = null;
+                    callback.call(el);
+                };
+            return this.each(function(i,el){
+                var $el = $(el);
+                $el.is(':input') && $el.keypress(function(){
+                    if (timeoutReference) clearTimeout(timeoutReference);
+                    timeoutReference = setTimeout(function(){
+                        doneTyping(el);
+                    }, timeout);
+                }).blur(function(){
+                    doneTyping(el);
+                });
+            });
+        }
+    });
+})(jQuery);
+
+jQuery('.widget_product_filter input[type=text]').donetyping( function() {
+	jQuery('.widget_product_filter input').trigger('change');
+});
