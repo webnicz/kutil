@@ -595,9 +595,6 @@ function neco( $vars ) {
 
 add_filter( 'request', 'neco' );
 
-
-
-
 function budkutil_provize_order($postID) {
     global $wpdb;
 

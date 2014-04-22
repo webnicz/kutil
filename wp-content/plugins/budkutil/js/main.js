@@ -60,6 +60,7 @@ jQuery('.widget_product_filter input').change( function() {
 	jQuery.get( "/wp-content/plugins/budkutil/js/products.php", jQuery('#innerFilterForm').serialize() )
 	.done(function( data ) {
 		jQuery('.products').replaceWith(data);
+		jQuery('.widget_product_filter input[name=str]').val('');
 	})
 	.fail(function() {
 		alert( "error" );

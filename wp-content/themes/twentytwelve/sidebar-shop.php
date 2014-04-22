@@ -74,6 +74,7 @@
 					}
 
 					echo '<input type="hidden" name="kat" value="'.$kategorie->term_id.'" />';
+					echo '<input type="hidden" name="str" value="" />';
 					?>
 
 				</form>
