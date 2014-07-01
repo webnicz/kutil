@@ -17,7 +17,9 @@ h1, h2, h3, h4 {
 	color: #000;
 }
 body {
-	background: #F0F0ED;
+	background: #F0F0ED url('/drevobg.jpg');
+	background-size: cover;
+	background-attachment: fixed;
 	font-family: "Roboto", "Helvetica Neue", Helvetica, Serif, Arial;
 	font-weight: 300;
 	font-size: 12px;
@@ -495,7 +497,7 @@ aside #latest-update:after {
 /* user acc panel */
 
 .userAcc {
-	background: #fff;
+	background: rgba(255, 255, 255, 1);
 	margin-bottom: 20px;
 	border-radius: 0px 0px 3px 3px;
 }
@@ -794,6 +796,9 @@ ul.products .product {
 }
 ul.products .product a {
 	display: block;
+	box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+	border-radius: 3px;
+	overflow: hidden;
 }
 ul.products .product:nth-child(4n+0) {
 	margin-right: 0;
@@ -801,19 +806,25 @@ ul.products .product:nth-child(4n+0) {
 ul.products .product a:hover {
 	text-decoration: none;
 }
+
 ul.products .product a img {
-	border-radius: 3px 3px 0 0;
 	width: 100%;
 }
+ul.products .product:hover a img {
+	opacity: .9;
+}
 ul.products h3 {
-	background: none repeat scroll 0 0 #8CC474;
-	border-radius: 0 0 3px 3px;
-	color: #FFFFFF;
-	font-size: 14px;
+	background: #f5f5f1;
+	color: #5a554e;
+	font-family: "Roboto Condensed";
+	font-size: 20px;
 	font-weight: 300;
-	height: 52px;
 	padding: 10px;
+	font-weight: bold;
 	text-decoration: none;
+}
+ul.products .product:hover h3 {
+	color: #000;
 }
 ul.products .product .like_wrapper {
 	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3);
@@ -828,6 +839,7 @@ ul.products .product .like_wrapper {
 	text-align: center;
 	top: 186px;
 	width: 32px;
+	cursor: pointer;
 }
 ul.products .product .like_wrapper:hover {
 	color: #FBCB43;
@@ -957,3 +969,7 @@ ul.products .product span.price {
 #secondary aside.myHeader {
 	padding-bottom: 20px;
 }
+
+.woocommerce ul.products li.product a img, .woocommerce-page ul.products li.product a img {
+	margin: 0px;
+} 
