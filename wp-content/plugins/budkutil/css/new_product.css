@@ -148,6 +148,7 @@
 	color: #fff;
 	font-size: 14px;
 	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+	transition: all .2s ease-in-out 0s;
 }
 .single_add_to_cart_button:hover {
 	background: #DD6D27;

@@ -71,7 +71,7 @@ abbr[title] {
 
 b,
 strong {
-  font-weight: bold;
+  font-weight: 500;
 }
 
 dfn {
@@ -1872,7 +1872,7 @@ legend {
 label {
   display: inline-block;
   margin-bottom: 5px;
-  font-weight: bold;
+  font-weight: 500;
 }
 
 input[type="search"] {

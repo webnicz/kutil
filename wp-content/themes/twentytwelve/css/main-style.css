@@ -903,6 +903,7 @@ ul.products .product span.price {
 	max-width: 363px;
 	border-radius: 3px 3px 0 0;
 	margin-bottom: 1px;
+	transition: all .2s ease-in-out 0s;
 }
 .product .images .woocommerce-main-image:hover img {
 	opacity: .9;
@@ -913,6 +914,9 @@ ul.products .product span.price {
 .product .images .thumbnails a {
 	display: inline-block;
 	margin: 0 1px 1px 0;
+}
+.product .images .thumbnails a img{
+	transition: all .2s ease-in-out 0s;	
 }
 .product .images .thumbnails a:hover img {
 	opacity: .9;
@@ -934,9 +938,15 @@ ul.products .product span.price {
 	margin-bottom: 30px;
 }
 #primary #content .product .summary h3 a.name {
-	font-family: 'Shadows Into Light Two', cursive;	
-	font-size: 30px;
 	color: #5a554e;
+    display: block;
+    float: right;
+    font-family: 'Shadows Into Light Two',cursive;
+    font-size: 30px;
+    text-align: right;
+    transform: rotate(-6deg);
+    width: 180px;
+	transition: all .2s ease-in-out 0s;
 }
 #primary #content .product .summary h3 a.name:hover {
 	text-decoration: none;
@@ -944,12 +954,17 @@ ul.products .product span.price {
 }
 
 .product .summary .product_meta {
+	border-top: 1px dotted #000;
 	clear: both;
 	margin-top: 20px;
+	padding-top: 10px;
 }
 .product .summary .product_meta span {
 	display: block;
 	margin: 10px 0 0;
+}
+.product .summary .product_meta span.tagged_as {
+	display: none;
 }
 .product .summary .product_meta span a {
 	background: none repeat scroll 0 0 #8cc474;
@@ -958,6 +973,7 @@ ul.products .product span.price {
 	display: inline-block;
 	padding: 0 7px;
 	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+	transition: all .2s ease-in-out 0s;
 }
 .product .summary .product_meta span a:hover {
 	background: #7EB567;
@@ -968,12 +984,43 @@ ul.products .product span.price {
 	clear: both;
 }
 .product .summary p.price {
-	
+	border-bottom: 1px dotted #000;
+	font-family: "Roboto Condensed";
+	font-size: 34px;
+	font-weight: bold;
+	margin-bottom: 20px;
+	padding-bottom: 10px;
 }
 .product .summary p.stock {
-	
+	float: left;
+	font-size: 14px;
+	font-weight: 400;
+	padding: 8px 0 7px;
 }
-
+.product .summary .single_add_to_cart_button {
+	float: left;
+	margin-left: 10px;
+}
+.product .summary .quantity {
+	float: left;
+}
+.product .summary .quantity input.plus, .product .summary .quantity input.minus {
+	display: none;
+}
+.product .summary .quantity input[type="number"] {
+	background: none repeat scroll 0 0 #fff;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	color: #000;
+	float: right;
+	font-size: 14px;
+	max-width: 50px;
+	padding: 7px;
+	margin-left: 20px;
+}
+.product .summary .cart {
+    min-height: 36px;
+}
 
 .widget_product_filter h3 {
 	display: none;

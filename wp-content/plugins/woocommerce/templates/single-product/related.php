@@ -29,7 +29,11 @@ $products = new WP_Query( $args );
 
 $woocommerce_loop['columns'] = $columns;
 
-if ( $products->have_posts() ) : ?>
+if ( 0 ) : 
+
+// namisto nuly $products->have_posts()
+
+?> 
 
 	<div class="related products">
 
