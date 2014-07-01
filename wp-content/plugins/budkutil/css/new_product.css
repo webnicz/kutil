@@ -139,17 +139,20 @@
 
 /* pocet kusu */
 
-.button {
-  margin: 0 0 0 5px;
-  text-indent: -9999px;
-  cursor: pointer;
-  width: 29px;
-  height: 29px;
-  float: left;
-  text-align: center;
-  background: url(/wp-content/plugins/budkutil/js/numput/images/buttons.png) no-repeat;
-  background-color: transparent !important;
+.single_add_to_cart_button {
+	background: #d5641c;
+	border-radius: 3px;
+	display: block;
+	border: 0;
+	padding: 8px 20px;
+	color: #fff;
+	font-size: 14px;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
+.single_add_to_cart_button:hover {
+	background: #DD6D27;
+}
+	
 .dec {
   background-position: 0 -29px;
 }

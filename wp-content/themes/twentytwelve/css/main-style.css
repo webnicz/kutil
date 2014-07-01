@@ -244,7 +244,7 @@ body {
 	font-size: 45px;	
 	color: #000;
 	line-height: 100%;
-	padding: 10px 10px 10px 0;
+	margin: 10px 10px 10px 0;
 }
 #primary.site-content {
 	position: relative;
@@ -799,6 +799,7 @@ ul.products .product a {
 	box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 	border-radius: 3px;
 	overflow: hidden;
+	outline: none;
 }
 ul.products .product:nth-child(4n+0) {
 	margin-right: 0;
@@ -822,9 +823,13 @@ ul.products h3 {
 	padding: 10px;
 	font-weight: bold;
 	text-decoration: none;
+	min-height: 64px;
+	text-decoration: none;
+	letter-spacing: .4px;
 }
 ul.products .product:hover h3 {
 	color: #000;
+	text-decoration: none;
 }
 ul.products .product .like_wrapper {
 	background: none repeat scroll 0 0 rgba(0, 0, 0, 0.3);
@@ -837,7 +842,8 @@ ul.products .product .like_wrapper {
 	position: absolute;
 	right: 0;
 	text-align: center;
-	top: 186px;
+	bottom: 64px;
+	top: auto;
 	width: 32px;
 	cursor: pointer;
 }
@@ -857,7 +863,8 @@ ul.products .product span.price {
 	line-height: 158%;
 	padding: 0 10px;
 	position: absolute;
-	top: 186px;
+	bottom: 64px;
+	top: auto;
 }
 .woocommerce-result-count {
 	display: inline-block;
@@ -889,20 +896,84 @@ ul.products .product span.price {
 }
 .product .images {
 	float: left;
+	width: 41%;
+	margin-top: 20px;
 }
-.product .images .woocommerce-main-image {
-	width: 500px;
-	height: 500px;
-	float: left;
-	margin: 0 20px 20px 0;
+.product .images .woocommerce-main-image img {
+	max-width: 363px;
+	border-radius: 3px 3px 0 0;
+	margin-bottom: 1px;
+}
+.product .images .woocommerce-main-image:hover img {
+	opacity: .9;
 }
 .product .images .thumbnails {
 	float: left;
 }
 .product .images .thumbnails a {
 	display: inline-block;
-	margin: 0 20px 20px 0;
+	margin: 0 1px 1px 0;
 }
+.product .images .thumbnails a:hover img {
+	opacity: .9;
+}
+.product .summary {
+	float: right;
+	width: 56%;
+}
+#primary #content .product .summary h1 {
+	font-family: "Roboto Condensed";
+	margin-bottom: 0px;
+	margin-right: 0px;
+	font-weight: bold;
+}
+#primary #content .product .summary h3.author {
+	font-size: 12px;
+	clear: both;
+	text-align: right;
+	margin-bottom: 30px;
+}
+#primary #content .product .summary h3 a.name {
+	font-family: 'Shadows Into Light Two', cursive;	
+	font-size: 30px;
+	color: #5a554e;
+}
+#primary #content .product .summary h3 a.name:hover {
+	text-decoration: none;
+	color: #000;
+}
+
+.product .summary .product_meta {
+	clear: both;
+	margin-top: 20px;
+}
+.product .summary .product_meta span {
+	display: block;
+	margin: 10px 0 0;
+}
+.product .summary .product_meta span a {
+	background: none repeat scroll 0 0 #8cc474;
+	border-radius: 10px;
+	color: #fff;
+	display: inline-block;
+	padding: 0 7px;
+	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+.product .summary .product_meta span a:hover {
+	background: #7EB567;
+	text-decoration: none;
+}
+
+.product .woocommerce-tabs {
+	clear: both;
+}
+.product .summary p.price {
+	
+}
+.product .summary p.stock {
+	
+}
+
 
 .widget_product_filter h3 {
 	display: none;
@@ -973,3 +1044,16 @@ ul.products .product span.price {
 .woocommerce ul.products li.product a img, .woocommerce-page ul.products li.product a img {
 	margin: 0px;
 } 
+
+.woocommerce-breadcrumb {
+	margin-bottom: 10px;
+}
+
+.woocommerce-error li, .woocommerce-message {
+	font-size: 14px;
+	padding: 15px;
+	color: green;
+}
+.woocommerce-error li {
+	color: red;
+}
